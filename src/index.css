@@ -1,0 +1,174 @@
+@import url('https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300;1,9..40,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --font-display: 'Clash Display', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  --font-accent: 'Cormorant Garamond', serif;
+
+  --color-brand-dark: #29282C;
+  --color-brand-red: #F00000;
+  --color-brand-gold: #F7BB0E;
+  --color-brand-light: #F6F1E8;
+  --color-brand-grey: #4D4D4D;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background-color: #29282C;
+  color: #ffffff;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #29282C;
+}
+::-webkit-scrollbar-thumb {
+  background: #4D4D4D;
+  border-radius: 2px;
+}
+
+::selection {
+  background: #F00000;
+  color: #fff;
+}
+
+/* ─── Responsive ───────────────────────────────────────────── */
+
+/* Nav */
+@media (max-width: 768px) {
+  .nav-desktop { display: none !important; }
+  .nav-mobile-toggle { display: flex !important; flex-direction: column; }
+  nav { padding-left: 24px !important; padding-right: 24px !important; }
+}
+
+/* Section padding */
+@media (max-width: 768px) {
+  .section { padding: 60px 24px !important; }
+}
+
+/* Hero */
+@media (max-width: 768px) {
+  .hero-content { padding: 0 24px !important; }
+}
+
+/* Who We Are grid */
+@media (max-width: 768px) {
+  .who-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+  .units-grid { grid-template-columns: 1fr 1fr !important; }
+}
+@media (max-width: 480px) {
+  .units-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Featured production */
+@media (max-width: 768px) {
+  .featured { min-height: 400px !important; }
+  .featured img { height: 400px !important; }
+  .featured-content { padding: 0 24px !important; }
+}
+
+/* Films scroll */
+@media (max-width: 768px) {
+  .films-scroll { padding-left: 24px !important; padding-right: 24px !important; }
+}
+
+/* Services grid (home) */
+@media (max-width: 768px) {
+  .services-grid { grid-template-columns: 1fr !important; }
+}
+
+/* Talent grid (home) */
+@media (max-width: 768px) {
+  .talent-grid-home { grid-template-columns: repeat(2, 1fr) !important; }
+}
+@media (max-width: 480px) {
+  .talent-grid-home { grid-template-columns: 1fr !important; }
+}
+
+/* Gallery */
+@media (max-width: 768px) {
+  .gallery-header { padding: 0 24px !important; }
+  .gallery-grid { grid-template-columns: 1fr !important; padding: 0 24px !important; max-height: none !important; }
+  .gallery-grid > div { min-height: 200px !important; }
+  .gallery-grid > div:first-child { grid-column: auto !important; grid-row: auto !important; }
+}
+
+/* News grid */
+@media (max-width: 768px) {
+  .news-grid { grid-template-columns: 1fr !important; }
+}
+
+/* CTA grid */
+@media (max-width: 768px) {
+  .cta-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+}
+
+/* Footer */
+@media (max-width: 768px) {
+  .footer { padding: 60px 24px 32px !important; }
+  .footer-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+}
+
+/* Film detail backdrop */
+@media (max-width: 768px) {
+  .film-backdrop { height: 400px !important; }
+  .film-backdrop img { height: 400px !important; }
+  .film-backdrop-content { bottom: 24px !important; left: 24px !important; right: 24px !important; }
+}
+
+/* Service rows (services page) */
+@media (max-width: 768px) {
+  .service-row { grid-template-columns: 1fr !important; direction: ltr !important; }
+  .service-row > div { height: 240px !important; }
+}
+
+/* Talent detail */
+@media (max-width: 768px) {
+  .talent-detail-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
+}
+
+/* Productions */
+@media (max-width: 768px) {
+  .production-row { grid-template-columns: 1fr !important; }
+  .production-row > div:first-child { height: 200px !important; }
+}
+
+/* About */
+@media (max-width: 768px) {
+  .about-hero { height: 300px !important; }
+  .about-hero img { height: 300px !important; }
+  .about-hero-content { padding: 0 24px 40px !important; }
+  .about-mission-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+}
+
+/* Contact */
+@media (max-width: 768px) {
+  .contact-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+}
+
+/* Admin */
+@media (max-width: 768px) {
+  .admin-row { grid-template-columns: 1fr !important; gap: 12px !important; }
+  .admin-item-row { flex-wrap: wrap; gap: 8px; }
+}
+
+/* ─── Mic Mtaani ───────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .mm-main-grid { grid-template-columns: 1fr !important; }
+  .mm-nav-desktop { display: none !important; }
+  .mm-nav-mobile-toggle { display: block !important; }
+}
