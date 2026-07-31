@@ -1,11 +1,15 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
+import { useTheme } from '../../contexts/ThemeContext'
+import { IconSearch, IconSun, IconMoon, IconX, IconMenu } from '../ui/Icons'
+import { Logo } from '../ui/Logo'
 
 export function MMNavbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [searchQ, setSearchQ] = useState('')
   const [searchOpen, setSearchOpen] = useState(false)
+  const { theme, toggleTheme } = useTheme()
   const navigate = useNavigate()
 
   const handleSearch = (e: React.FormEvent) => {
@@ -27,104 +31,89 @@ export function MMNavbar() {
   return (
     <nav style={{
       position: 'sticky', top: 0, zIndex: 100,
-      background: '#fff', borderBottom: '2px solid #F00000',
-      padding: '0 24px',
+      background: 'var(--bg)', borderBottom: '2px solid var(--red)',
+      padding: '0 16px',
     }}>
       <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 56 }}>
-        {/* Brand */}
-        <Link to="/micmtaani" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{
-            fontFamily: 'DM Sans, sans-serif', fontSize: 18, fontWeight: 800, color: '#111',
-            letterSpacing: -0.5,
-          }}>MIC MTAANI</span>
-          <span style={{
-            fontSize: 10, fontWeight: 600, color: '#F00000', textTransform: 'uppercase',
-            letterSpacing: 2, borderLeft: '2px solid #ddd', paddingLeft: 8,
-          }}>Nakuru</span>
+        <Link to="/micmtaani" style={{ textDecoration: 'none', display: 'flex', alignItems: 'center' }}>
+          <Logo type="micmtaani" height={28} />
         </Link>
 
-        {/* Desktop links */}
         <div className="mm-nav-desktop" style={{ display: 'flex', alignItems: 'center', gap: 24 }}>
           {mmLinks.map(link => (
             <Link key={link.path} to={link.path} style={{
               fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 500,
-              color: '#555', textDecoration: 'none', letterSpacing: 0.5,
+              color: 'var(--text-secondary)', textDecoration: 'none', letterSpacing: 0.5,
               transition: 'color 0.2s',
             }}
-            onMouseEnter={e => (e.currentTarget.style.color = '#F00000')}
-            onMouseLeave={e => (e.currentTarget.style.color = '#555')}
+            onMouseEnter={e => (e.currentTarget.style.color = 'var(--red)')}
+            onMouseLeave={e => (e.currentTarget.style.color = 'var(--text-secondary)')}
             >{link.label}</Link>
           ))}
 
-          {/* Search toggle */}
           <button onClick={() => setSearchOpen(!searchOpen)} style={{
-            background: 'none', border: 'none', cursor: 'pointer', padding: 4, color: '#555', fontSize: 18,
+            background: 'none', border: 'none', cursor: 'pointer', padding: 4,
+            color: 'var(--text-secondary)', minHeight: 48, minWidth: 48,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <IconSearch size={18} color="var(--text-secondary)" />
           </button>
 
-          {/* Artainment link */}
+          <button onClick={toggleTheme} style={{
+            background: 'none', border: '1.5px solid var(--border)', borderRadius: 20,
+            width: 32, height: 32, cursor: 'pointer', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', color: 'var(--text)', transition: 'all 0.2s',
+          }}>
+            {theme === 'dark' ? <IconSun size={14} /> : <IconMoon size={14} />}
+          </button>
+
           <Link to="/" style={{
-            fontSize: 11, fontWeight: 500, color: '#999', textDecoration: 'none',
-            borderLeft: '1px solid #eee', paddingLeft: 16,
+            fontSize: 11, fontWeight: 500, color: 'var(--text-muted)', textDecoration: 'none',
+            borderLeft: '1px solid var(--border)', paddingLeft: 16,
           }}>The Artainment</Link>
         </div>
 
-        {/* Mobile toggle */}
         <button className="mm-nav-mobile-toggle" onClick={() => setMenuOpen(!menuOpen)} style={{
-          display: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: 4,
+          display: 'none', background: 'none', border: 'none', cursor: 'pointer', padding: 8,
+          minHeight: 48, minWidth: 48, alignItems: 'center', justifyContent: 'center',
         }}>
-          <div style={{ width: 20, height: 2, background: '#111', marginBottom: 4, transition: 'all 0.3s', transform: menuOpen ? 'rotate(45deg) translate(3px, 3px)' : 'none' }} />
-          <div style={{ width: 20, height: 2, background: '#111', marginBottom: 4, opacity: menuOpen ? 0 : 1, transition: 'all 0.3s' }} />
-          <div style={{ width: 20, height: 2, background: '#111', transition: 'all 0.3s', transform: menuOpen ? 'rotate(-45deg) translate(3px, -3px)' : 'none' }} />
+          {menuOpen ? <IconX size={22} color="var(--text)" /> : <IconMenu size={22} color="var(--text)" />}
         </button>
       </div>
 
-      {/* Search bar */}
       <AnimatePresence>
         {searchOpen && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            style={{ overflow: 'hidden' }}
-          >
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} style={{ overflow: 'hidden' }}>
             <form onSubmit={handleSearch} style={{ padding: '0 0 12px', display: 'flex', gap: 8, maxWidth: 1200, margin: '0 auto' }}>
-              <input
-                type="text" value={searchQ} onChange={e => setSearchQ(e.target.value)}
-                placeholder="Search news, events, businesses..."
-                autoFocus
-                style={{
-                  flex: 1, padding: '8px 12px', borderRadius: 6, border: '1px solid #ddd',
-                  fontSize: 14, outline: 'none', fontFamily: 'DM Sans, sans-serif',
-                }}
-              />
-              <button type="submit" style={{
-                padding: '8px 16px', background: '#F00000', color: '#fff', border: 'none',
-                borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer',
-              }}>Search</button>
+              <input type="text" value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="Search..." autoFocus
+                style={{ flex: 1, padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 16, outline: 'none', minHeight: 44 }} />
+              <button type="submit" style={{ padding: '8px 16px', background: 'var(--red)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', minHeight: 44 }}>Search</button>
             </form>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Mobile menu */}
       <AnimatePresence>
         {menuOpen && (
-          <motion.div
-            className="mm-nav-mobile-menu"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            style={{ overflow: 'hidden', borderTop: '1px solid #eee' }}
-          >
-            <div style={{ padding: '12px 0', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <motion.div className="mm-nav-mobile-menu" initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} style={{ overflow: 'hidden', borderTop: '1px solid var(--border)' }}>
+            <div style={{ padding: '8px 0', display: 'flex', flexDirection: 'column', gap: 4 }}>
               {mmLinks.map(link => (
                 <Link key={link.path} to={link.path} onClick={() => setMenuOpen(false)} style={{
-                  fontSize: 16, fontWeight: 600, color: '#111', textDecoration: 'none',
+                  fontSize: 16, fontWeight: 600, color: 'var(--text)', textDecoration: 'none',
+                  padding: '14px 0', minHeight: 48, display: 'flex', alignItems: 'center',
                 }}>{link.label}</Link>
               ))}
-              <Link to="/" onClick={() => setMenuOpen(false)} style={{ fontSize: 13, color: '#999', textDecoration: 'none' }}>The Artainment</Link>
+              <button onClick={() => { toggleTheme(); setMenuOpen(false) }} style={{
+                background: 'none', border: 'none', fontSize: 14, color: 'var(--text-secondary)',
+                cursor: 'pointer', textAlign: 'left', padding: '14px 0', minHeight: 48,
+                display: 'flex', alignItems: 'center',
+              }}>
+                {theme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+              </button>
+              <Link to="/" onClick={() => setMenuOpen(false)} style={{
+                fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none',
+                padding: '14px 0', minHeight: 48, display: 'flex', alignItems: 'center',
+              }}>The Artainment</Link>
             </div>
           </motion.div>
         )}

@@ -6,6 +6,7 @@ import { imgOr } from '../../lib/utils'
 import { useInView } from '../../lib/animations'
 import { Section } from '../ui/Section'
 import { SectionLabel } from '../ui/SectionLabel'
+import { IconChevronLeft, IconChevronRight, IconStar } from '../ui/Icons'
 
 export function FilmsCarousel() {
   const [films, setFilms] = useState<Film[]>([])
@@ -14,40 +15,50 @@ export function FilmsCarousel() {
 
   useEffect(() => { filmsAPI.list().then(setFilms).catch(() => {}) }, [])
 
+  const scroll = (dir: 'left' | 'right') => {
+    if (!scrollRef.current) return
+    const cardWidth = window.innerWidth < 768 ? 170 : 220
+    scrollRef.current.scrollBy({ left: dir === 'left' ? -cardWidth : cardWidth, behavior: 'smooth' })
+  }
+
   return (
-    <Section>
-      <div ref={ref} style={{ maxWidth: 1280, margin: '0 auto' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 48 }}>
+    <Section style={{ background: 'var(--bg)' }}>
+      <div ref={ref} style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 28 }}>
           <div>
             <SectionLabel text="Now Streaming" />
-            <h2 style={{ fontFamily: 'Clash Display, sans-serif', fontSize: 'clamp(36px, 4.5vw, 60px)', fontWeight: 600, color: '#fff', lineHeight: 1.05, margin: 0 }}>Featured Films</h2>
+            <h2 className="section-heading" style={{ color: 'var(--text)', margin: 0 }}>Featured Films</h2>
+          </div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={() => scroll('left')} style={{ width: 36, height: 36, borderRadius: '50%', border: '1.5px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 36 }}><IconChevronLeft size={16} /></button>
+            <button onClick={() => scroll('right')} style={{ width: 36, height: 36, borderRadius: '50%', border: '1.5px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 36 }}><IconChevronRight size={16} /></button>
           </div>
         </div>
       </div>
       <div ref={scrollRef} className="films-scroll"
-        style={{ display: 'flex', gap: 16, overflowX: 'auto', paddingLeft: 'max(80px, calc((100vw - 1280px)/2))', paddingRight: 80, paddingBottom: 8, scrollbarWidth: 'none' }}>
+        style={{ display: 'flex', gap: 14, overflowX: 'auto', scrollSnapType: 'x mandatory', paddingLeft: 'max(16px, calc((100vw - 1200px)/2))', paddingRight: 16, paddingBottom: 8, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
         {films.map((film, i) => (
-          <motion.div key={film.id} initial={{ opacity: 0, y: 30 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.08, duration: 0.6 }}
-            style={{ flexShrink: 0, width: 220 }}>
+          <motion.div key={film.id} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: i * 0.06, duration: 0.5 }}
+            style={{ flexShrink: 0, width: window.innerWidth < 768 ? 160 : 200, scrollSnapAlign: 'start' }}>
             <Link to={`/films/${film.slug}`} style={{ textDecoration: 'none' }}>
-              <div style={{ position: 'relative', height: 320, borderRadius: 8, overflow: 'hidden', marginBottom: 14 }}>
+              <div style={{ position: 'relative', height: window.innerWidth < 768 ? 240 : 300, borderRadius: 8, overflow: 'hidden', marginBottom: 10, background: 'var(--bg-muted)' }}>
                 <img src={imgOr('film', film.poster_url, i)} alt={film.title}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} loading="lazy" />
-                {film.tag && <span style={{ position: 'absolute', top: 12, left: 12, fontFamily: 'DM Sans, sans-serif', fontSize: 10, letterSpacing: 1.5, background: '#F00000', color: '#fff', padding: '3px 10px', borderRadius: 4, textTransform: 'uppercase', fontWeight: 700 }}>{film.tag}</span>}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" />
+                {film.tag && <span style={{ position: 'absolute', top: 8, left: 8, fontFamily: 'DM Sans', fontSize: 9, fontWeight: 700, background: film.tag === 'Coming Soon' ? '#F59E0B' : 'var(--red)', color: '#fff', padding: '2px 8px', borderRadius: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>{film.tag}</span>}
               </div>
-              <h3 style={{ fontFamily: 'Clash Display, sans-serif', fontSize: 15, fontWeight: 600, color: '#fff', margin: '0 0 6px' }}>{film.title}</h3>
-              <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{film.year}</span>
-                <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'inline-block' }} />
-                <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{film.genre}</span>
-                <span style={{ marginLeft: 'auto', color: '#F7BB0E', fontSize: 12, fontWeight: 600, fontFamily: 'DM Sans, sans-serif' }}>★ {film.rating}</span>
+              <h3 style={{ fontFamily: 'Chonburi', fontSize: 14, color: 'var(--text)', margin: '0 0 4px' }}>{film.title}</h3>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <span style={{ fontFamily: 'DM Sans', fontSize: 11, color: 'var(--text-muted)' }}>{film.year}</span>
+                <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--border)', display: 'inline-block' }} />
+                <span style={{ fontFamily: 'DM Sans', fontSize: 11, color: 'var(--text-muted)' }}>{film.genre}</span>
+                <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 3, color: 'var(--red)', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans' }}><IconStar size={10} color="var(--red)" /> {film.rating}</span>
               </div>
             </Link>
           </motion.div>
         ))}
       </div>
-      <div style={{ textAlign: 'center', marginTop: 56 }}>
-        <Link to="/films" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.2)', fontFamily: 'DM Sans, sans-serif', fontSize: 12, letterSpacing: 2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', padding: '14px 40px', borderRadius: 6, textDecoration: 'none', fontWeight: 500 }}>View All Films →</Link>
+      <div style={{ textAlign: 'center', marginTop: 36 }}>
+        <Link to="/films" className="btn-outline">View All Films</Link>
       </div>
     </Section>
   )

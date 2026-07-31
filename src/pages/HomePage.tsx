@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { homeAPI, type HomeData } from '../lib/api'
-import { Loader } from '../components/ui/Loader'
 import { HeroSection } from '../components/home/HeroSection'
 import { WhoWeAre } from '../components/home/WhoWeAre'
 import { FeaturedProduction } from '../components/home/FeaturedProduction'
@@ -13,20 +12,19 @@ import { TestimonialsSection } from '../components/home/TestimonialsSection'
 import { CTASection } from '../components/home/CTASection'
 
 export function HomePage() {
-  const [data, setData] = useState<HomeData | null>(null)
-  useEffect(() => { homeAPI.get().then(setData).catch(() => {}) }, [])
-  if (!data) return <Loader />
+  const [featured, setFeatured] = useState<any>(null)
+  useEffect(() => { homeAPI.get().then(d => setFeatured(d.featured_film)).catch(() => {}) }, [])
   return (
     <>
       <HeroSection />
       <WhoWeAre />
-      <FeaturedProduction film={data.featured_film} />
-      <ServicesSection services={data.services} />
+      <FeaturedProduction film={featured} />
+      <ServicesSection />
       <FilmsCarousel />
-      <TalentSection talent={data.talent} />
-      <GallerySection images={data.gallery} />
-      <NewsSection news={data.news} />
-      <TestimonialsSection testimonials={data.testimonials} />
+      <TalentSection />
+      <GallerySection />
+      <NewsSection />
+      <TestimonialsSection />
       <CTASection />
     </>
   )

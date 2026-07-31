@@ -6,7 +6,7 @@ export function Loader() {
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-        style={{ width: 40, height: 40, border: '3px solid rgba(240,0,0,0.2)', borderTopColor: '#F00000', borderRadius: '50%' }}
+        style={{ width: 40, height: 40, border: '3px solid var(--border)', borderTopColor: 'var(--red)', borderRadius: '50%' }}
       />
     </div>
   )

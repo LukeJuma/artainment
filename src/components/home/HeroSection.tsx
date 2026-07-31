@@ -1,59 +1,119 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { motion, useScroll, useTransform, AnimatePresence } from 'framer-motion'
-import { PLACEHOLDER } from '../../lib/constants'
+import { motion, AnimatePresence } from 'framer-motion'
+import { filmsAPI, type Film } from '../../lib/api'
+import { useTheme } from '../../contexts/ThemeContext'
+import { IconPlay } from '../ui/Icons'
 
 export function HeroSection() {
-  const { scrollY } = useScroll()
-  const y = useTransform(scrollY, [0, 600], [0, 180])
-  const opacity = useTransform(scrollY, [0, 400], [1, 0])
-  const words = ['Creating.', 'Producing.', 'Streaming.', 'Inspiring.']
-  const [wordIdx, setWordIdx] = useState(0)
+  const [films, setFilms] = useState<Film[]>([])
+  const [current, setCurrent] = useState(0)
+  const { theme } = useTheme()
+
+  useEffect(() => { filmsAPI.list().then(setFilms).catch(() => {}) }, [])
+
+  const next = useCallback(() => {
+    if (films.length) setCurrent(i => (i + 1) % films.length)
+  }, [films.length])
 
   useEffect(() => {
-    const t = setInterval(() => setWordIdx(i => (i + 1) % words.length), 2000)
+    const t = setInterval(next, 6000)
     return () => clearInterval(t)
-  }, [])
+  }, [next])
+
+  const film = films[current]
+  if (!films.length) return <section style={{ height: '100vh', background: theme === 'dark' ? '#0f0f0f' : '#fff' }} />
+
+  const isUpcoming = film?.status === 'upcoming'
 
   return (
-    <section className="hero" style={{ position: 'relative', height: '100vh', minHeight: 700, overflow: 'hidden' }}>
-      <motion.div style={{ y, position: 'absolute', inset: '-10% 0', zIndex: 0 }}>
-        <img src={PLACEHOLDER.hero} alt="The Artainment film production"
-          style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 30%' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(41,40,44,0.92) 0%, rgba(41,40,44,0.6) 50%, rgba(240,0,0,0.12) 100%)' }} />
-      </motion.div>
-      <div style={{ position: 'absolute', inset: 0, zIndex: 1, opacity: 0.04, backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 256 256\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\' opacity=\'1\'/%3E%3C/svg%3E")', backgroundSize: '256px' }} />
-      <motion.div style={{ opacity, position: 'relative', zIndex: 2, height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 80px' }}
-        className="hero-content">
-        <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, delay: 0.2 }}
-          style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 32 }}>
-          <div style={{ width: 48, height: 1, background: '#F00000' }} />
-          <span style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 14, letterSpacing: 4, color: 'rgba(255,255,255,0.6)', fontStyle: 'italic' }}>Kenya's Premier Creative Studio</span>
+    <section style={{ position: 'relative', height: '100vh', minHeight: 500, overflow: 'hidden', background: theme === 'dark' ? '#0f0f0f' : '#fff' }}>
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={current}
+          initial={{ opacity: 0, scale: 1.05 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8 }}
+          style={{ position: 'absolute', inset: 0 }}
+        >
+          <img
+            src={film?.backdrop_url || film?.poster_url || 'https://images.unsplash.com/photo-1478720568477-152d9b164e26?w=1920&h=900&fit=crop&auto=format'}
+            alt={film?.title}
+            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+          />
+          <div style={{
+            position: 'absolute', inset: 0,
+            background: theme === 'dark'
+              ? 'linear-gradient(to right, rgba(15,15,15,0.92) 0%, rgba(15,15,15,0.7) 40%, transparent 70%)'
+              : 'linear-gradient(to right, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.8) 40%, transparent 70%)',
+          }} />
+          <div className="hero-mobile-overlay" style={{
+            position: 'absolute', inset: 0,
+            background: 'linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 50%)',
+            display: 'none',
+          }} />
         </motion.div>
-        <motion.h1 initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-          style={{ fontFamily: 'Clash Display, sans-serif', fontSize: 'clamp(52px, 8vw, 108px)', fontWeight: 700, lineHeight: 0.92, color: '#fff', margin: '0 0 8px', letterSpacing: '-0.02em' }}>THE</motion.h1>
-        <motion.h1 initial={{ opacity: 0, y: 60 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1, delay: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-          style={{ fontFamily: 'Clash Display, sans-serif', fontSize: 'clamp(52px, 8vw, 108px)', fontWeight: 700, lineHeight: 0.92, color: '#F00000', margin: '0 0 8px', letterSpacing: '-0.02em' }}>ARTAINMENT</motion.h1>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.9 }} style={{ marginTop: 24, marginBottom: 48, overflow: 'hidden', height: 52 }}>
-          <AnimatePresence mode="wait">
-            <motion.p key={wordIdx} initial={{ y: 40, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -40, opacity: 0 }} transition={{ duration: 0.4 }}
-              style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 300, fontStyle: 'italic', color: '#F7BB0E', margin: 0 }}>
-              {words[wordIdx]}
-            </motion.p>
-          </AnimatePresence>
-        </motion.div>
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, delay: 1.1 }}
-          style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
-          <Link to="/films" className="btn-primary" style={{ background: '#F00000', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: '#fff', padding: '16px 36px', borderRadius: 6, textDecoration: 'none', transition: 'all 0.2s' }}>Watch Films</Link>
-          <Link to="/services" className="btn-outline" style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.3)', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: '#fff', padding: '16px 36px', borderRadius: 6, textDecoration: 'none', transition: 'all 0.2s' }}>Explore Services</Link>
-          <Link to="/about" className="btn-gold" style={{ background: 'transparent', border: '1px solid rgba(247,187,14,0.4)', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: '#F7BB0E', padding: '16px 36px', borderRadius: 6, textDecoration: 'none', transition: 'all 0.2s' }}>Join The Collective</Link>
-        </motion.div>
-      </motion.div>
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }}
-        style={{ position: 'absolute', bottom: 40, left: '50%', transform: 'translateX(-50%)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, letterSpacing: 3, color: 'rgba(255,255,255,0.4)', textTransform: 'uppercase' }}>Scroll</span>
-        <motion.div animate={{ y: [0, 8, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
-          style={{ width: 1, height: 40, background: 'linear-gradient(to bottom, rgba(255,255,255,0.4), transparent)' }} />
+      </AnimatePresence>
+
+      <div style={{
+        position: 'relative', zIndex: 2, height: '100%',
+        display: 'flex', flexDirection: 'column', justifyContent: 'center',
+        padding: '0 clamp(16px, 5vw, 80px)', maxWidth: 700,
+      }}>
+        <AnimatePresence mode="wait">
+          <motion.div key={current} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }}>
+            {film?.tag && (
+              <span style={{
+                display: 'inline-block', padding: '4px 14px', borderRadius: 4,
+                fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase',
+                background: isUpcoming ? '#F59E0B' : 'var(--red)', color: '#fff', marginBottom: 12,
+              }}>{isUpcoming ? 'Coming Soon' : film.tag}</span>
+            )}
+            <h1 className="section-heading" style={{
+              color: 'var(--text)', margin: '0 0 12px',
+              fontSize: 'clamp(36px, 8vw, 88px)', lineHeight: 0.95,
+            }}>{film?.title || ''}</h1>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12, flexWrap: 'wrap' }}>
+              {film?.genre && <span style={{ fontFamily: 'DM Sans', fontSize: 12, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: 1 }}>{film.genre}</span>}
+              {film?.year && <span style={{ fontFamily: 'DM Sans', fontSize: 12, color: 'var(--text-muted)' }}>{film.year}</span>}
+              {film?.duration && <span style={{ fontFamily: 'DM Sans', fontSize: 12, color: 'var(--text-muted)' }}>{film.duration}</span>}
+              {film?.rating ? <span style={{ fontFamily: 'DM Sans', fontSize: 12, color: 'var(--red)', fontWeight: 600 }}>{film.rating}</span> : null}
+            </div>
+            {film?.synopsis && (
+              <p style={{ fontFamily: 'DM Sans', fontSize: 14, lineHeight: 1.7, color: 'var(--text-secondary)', marginBottom: 24, maxWidth: 480 }}>
+                {film.synopsis.length > 150 ? film.synopsis.slice(0, 150) + '...' : film.synopsis}
+              </p>
+            )}
+            <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+              <Link to={`/films/${film?.slug || ''}`} className="btn-red">
+                <IconPlay size={14} color="#fff" /> {isUpcoming ? 'Watch Trailer' : 'Watch Now'}
+              </Link>
+              <Link to="/films" className="btn-outline">Browse Films</Link>
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        <div style={{ display: 'flex', gap: 6, marginTop: 40 }}>
+          {films.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              style={{
+                width: i === current ? 28 : 8, height: 8, borderRadius: 4, border: 'none', cursor: 'pointer',
+                background: i === current ? 'var(--red)' : 'var(--border)',
+                transition: 'all 0.3s', minHeight: 8,
+              }}
+            />
+          ))}
+        </div>
+      </div>
+
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2 }}
+        style={{ position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+        <span style={{ fontFamily: 'DM Sans', fontSize: 9, letterSpacing: 3, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Scroll</span>
+        <motion.div animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
+          style={{ width: 1, height: 24, background: `linear-gradient(to bottom, var(--text-muted), transparent)` }} />
       </motion.div>
     </section>
   )

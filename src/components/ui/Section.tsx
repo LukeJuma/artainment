@@ -1,10 +1,10 @@
 import type { ReactNode } from 'react'
 
-export function Section({ children, style = {}, dark = true }: { children: ReactNode; style?: React.CSSProperties; dark?: boolean }) {
+export function Section({ children, style = {}, className = '' }: { children: ReactNode; style?: React.CSSProperties; className?: string }) {
   return (
     <section
-      className="section"
-      style={{ padding: '120px 80px', background: dark ? '#29282C' : '#1E1D21', ...style }}
+      className={`section-pad ${className}`}
+      style={{ padding: 'clamp(48px, 8vw, 100px) clamp(20px, 5vw, 80px)', ...style }}
     >
       {children}
     </section>

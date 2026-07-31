@@ -16,31 +16,34 @@ const units = [
 
 export function WhoWeAre() {
   const { ref, inView } = useInView()
-
   return (
-    <Section dark={false}>
-      <div ref={ref} style={{ maxWidth: 1280, margin: '0 auto' }}>
-        <div className="who-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '60px 80px', marginBottom: 80, alignItems: 'start' }}>
+    <Section style={{ background: 'var(--bg)' }}>
+      <div ref={ref} style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div className="who-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(24px, 5vw, 80px)', marginBottom: 48, alignItems: 'start' }}>
           <div>
             <SectionLabel text="Who We Are" />
-            <h2 style={{ fontFamily: 'Clash Display, sans-serif', fontSize: 'clamp(38px, 5vw, 64px)', fontWeight: 600, color: '#fff', lineHeight: 1.05, margin: 0 }}>
-              A Complete<br />Creative<br /><em style={{ fontFamily: 'Cormorant Garamond, serif', fontStyle: 'italic', color: '#F7BB0E', fontWeight: 300 }}>Ecosystem.</em>
+            <h2 className="section-heading" style={{ color: 'var(--text)', margin: 0 }}>
+              A Complete Creative<br /><span style={{ color: 'var(--red)' }}>Ecosystem.</span>
             </h2>
           </div>
-          <div style={{ paddingTop: 20 }}>
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 17, lineHeight: 1.8, color: 'rgba(255,255,255,0.65)', margin: '0 0 24px' }}>The Artainment is Kenya's foremost creative media company — a studio, a streaming platform, a talent collective, and a creative agency united under one identity.</p>
-            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 20, lineHeight: 1.7, color: 'rgba(255,255,255,0.45)', fontStyle: 'italic', margin: 0 }}>"We don't just make content. We build culture."</p>
+          <div style={{ paddingTop: 8 }}>
+            <p style={{ fontFamily: 'DM Sans', fontSize: 15, lineHeight: 1.8, color: 'var(--text-secondary)', margin: '0 0 16px' }}>
+              The Artainment is Kenya's foremost creative media company — a studio, a streaming platform, a talent collective, and a creative agency united under one identity.
+            </p>
+            <p style={{ fontFamily: 'Domine, serif', fontSize: 17, lineHeight: 1.7, color: 'var(--text-muted)', fontStyle: 'italic', margin: 0 }}>
+              "We don't just make content. We build culture."
+            </p>
           </div>
         </div>
         <motion.div variants={stagger} initial="hidden" animate={inView ? 'visible' : 'hidden'}
           className="units-grid"
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, background: 'rgba(255,255,255,0.06)' }}>
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, background: 'var(--border)' }}>
           {units.map(u => (
             <motion.div key={u.num} variants={fadeUp}
-              style={{ background: '#1E1D21', padding: '40px 32px', transition: 'background 0.3s', borderTop: '2px solid transparent' }}>
-              <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 36, color: 'rgba(247,187,14,0.2)', fontWeight: 300, marginBottom: 16, lineHeight: 1 }}>{u.num}</div>
-              <h3 style={{ fontFamily: 'Clash Display, sans-serif', fontSize: 16, fontWeight: 600, color: '#fff', margin: '0 0 10px' }}>{u.title}</h3>
-              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, lineHeight: 1.7, color: 'rgba(255,255,255,0.45)', margin: 0 }}>{u.desc}</p>
+              style={{ background: 'var(--bg)', padding: 'clamp(20px, 3vw, 36px)', transition: 'all 0.3s' }}>
+              <div style={{ fontFamily: 'Domine, serif', fontSize: 24, color: 'var(--border)', fontWeight: 700, marginBottom: 10 }}>{u.num}</div>
+              <h3 style={{ fontFamily: 'DM Sans', fontSize: 14, fontWeight: 700, color: 'var(--text)', margin: '0 0 6px' }}>{u.title}</h3>
+              <p style={{ fontFamily: 'DM Sans', fontSize: 12, lineHeight: 1.7, color: 'var(--text-muted)', margin: 0 }}>{u.desc}</p>
             </motion.div>
           ))}
         </motion.div>

@@ -1,31 +1,39 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { type GalleryImage } from '../../lib/api'
-import { PLACEHOLDER } from '../../lib/constants'
-import { useInView, fadeUp, stagger } from '../../lib/animations'
+import { galleryAPI, type GalleryImage } from '../../lib/api'
+import { useInView } from '../../lib/animations'
 import { Section } from '../ui/Section'
 import { SectionLabel } from '../ui/SectionLabel'
 
-export function GallerySection({ images }: { images: GalleryImage[] }) {
+export function GallerySection() {
+  const [images, setImages] = useState<GalleryImage[]>([])
   const { ref, inView } = useInView()
-  const srcs = images.length > 0 ? images.map(i => i.image_url) : PLACEHOLDER.gallery
+  useEffect(() => { galleryAPI.list().then(setImages).catch(() => {}) }, [])
+
   return (
-    <Section style={{ padding: '120px 0' }}>
-      <div ref={ref} style={{ padding: '0 80px', marginBottom: 48, maxWidth: 1280, margin: '0 auto 48px' }}
-        className="gallery-header">
-        <SectionLabel text="Behind The Scenes" />
-        <h2 style={{ fontFamily: 'Clash Display, sans-serif', fontSize: 'clamp(36px, 4.5vw, 60px)', fontWeight: 600, color: '#fff', lineHeight: 1.05, margin: 0 }}>In The Making</h2>
+    <Section style={{ background: 'var(--bg-muted)' }}>
+      <div ref={ref} style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div className="gallery-header" style={{ marginBottom: 28 }}>
+          <SectionLabel text="Behind The Scenes" />
+          <h2 className="section-heading" style={{ color: 'var(--text)', margin: 0 }}>Our Gallery</h2>
+        </div>
+        <div className="gallery-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gridAutoRows: 180, gap: 8, maxHeight: 560 }}>
+          {images.slice(0, 6).map((img, i) => (
+            <motion.div key={img.id}
+              initial={{ opacity: 0, scale: 0.95 }} animate={inView ? { opacity: 1, scale: 1 } : {}}
+              transition={{ delay: i * 0.08 }}
+              style={{
+                borderRadius: 6, overflow: 'hidden', cursor: 'pointer',
+                ...(i === 0 ? { gridColumn: 'span 2', gridRow: 'span 2' } : {}),
+              }}>
+              <img src={img.image_url} alt={img.caption || ''}
+                style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.4s' }}
+                onMouseEnter={e => (e.currentTarget.style.transform = 'scale(1.05)')}
+                onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')} loading="lazy" />
+            </motion.div>
+          ))}
+        </div>
       </div>
-      <motion.div variants={stagger} initial="hidden" animate={inView ? 'visible' : 'hidden'}
-        className="gallery-grid"
-        style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gridTemplateRows: 'auto auto', gap: 3, maxHeight: 700, overflow: 'hidden', padding: '0 80px' }}>
-        {srcs.map((src, i) => (
-          <motion.div key={i} variants={fadeUp}
-            style={{ gridColumn: i === 0 ? '1' : 'auto', gridRow: i === 0 ? '1 / 3' : 'auto', overflow: 'hidden', background: '#2d2c30', minHeight: i === 0 ? 500 : 240 }}>
-            <img src={src} alt={`Behind the scenes ${i + 1}`}
-              style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} loading="lazy" />
-          </motion.div>
-        ))}
-      </motion.div>
     </Section>
   )
 }

@@ -1,33 +1,45 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { type NewsArticle } from '../../lib/api'
-import { imgOr } from '../../lib/utils'
+import { newsAPI, type NewsArticle } from '../../lib/api'
 import { useInView, fadeUp, stagger } from '../../lib/animations'
 import { Section } from '../ui/Section'
 import { SectionLabel } from '../ui/SectionLabel'
+import { IconClock } from '../ui/Icons'
 
-export function NewsSection({ news }: { news: NewsArticle[] }) {
+export function NewsSection() {
+  const [news, setNews] = useState<NewsArticle[]>([])
   const { ref, inView } = useInView()
+  useEffect(() => { newsAPI.list().then(setNews).catch(() => {}) }, [])
+
   return (
-    <Section dark={false}>
-      <div ref={ref} style={{ maxWidth: 1280, margin: '0 auto' }}>
+    <Section style={{ background: 'var(--bg)' }}>
+      <div ref={ref} style={{ maxWidth: 1200, margin: '0 auto' }}>
         <SectionLabel text="Latest News" />
-        <h2 style={{ fontFamily: 'Clash Display, sans-serif', fontSize: 'clamp(36px, 4.5vw, 60px)', fontWeight: 600, color: '#fff', lineHeight: 1.05, margin: '0 0 64px' }}>Stories & Updates</h2>
+        <h2 className="section-heading" style={{ color: 'var(--text)', margin: '0 0 36px' }}>Studio Updates</h2>
         <motion.div variants={stagger} initial="hidden" animate={inView ? 'visible' : 'hidden'}
           className="news-grid"
-          style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 32, alignItems: 'start' }}>
-          {news.map((item, i) => (
-            <motion.article key={item.id} variants={fadeUp}>
-              <div style={{ overflow: 'hidden', borderRadius: 6, marginBottom: 20, background: '#2d2c30', height: i === 0 ? 300 : 200 }}>
-                <img src={imgOr('news', item.image_url, i)} alt={item.title}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} loading="lazy" />
+          style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
+          {news.map(n => (
+            <motion.div key={n.id} variants={fadeUp} style={{
+              background: 'var(--bg-muted)', borderRadius: 8, overflow: 'hidden',
+              border: '1px solid var(--border)', transition: 'box-shadow 0.3s',
+            }}
+            onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)')}
+            onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
+            >
+              {n.image_url && <img src={n.image_url} alt="" style={{ width: '100%', height: 180, objectFit: 'cover' }} />}
+              <div style={{ padding: 16 }}>
+                <span style={{ fontFamily: 'DM Sans', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--red)' }}>{n.category}</span>
+                <h3 style={{ fontFamily: 'Chonburi', fontSize: 15, color: 'var(--text)', margin: '6px 0', lineHeight: 1.3 }}>{n.title}</h3>
+                <p style={{ fontFamily: 'DM Sans', fontSize: 13, color: 'var(--text-muted)', margin: 0, lineHeight: 1.6 }}>{n.excerpt}</p>
+                {n.published_at && (
+                  <span style={{ fontFamily: 'DM Sans', fontSize: 11, color: 'var(--text-muted)', marginTop: 10, display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <IconClock size={12} color="var(--text-muted)" />
+                    {new Date(n.published_at).toLocaleDateString('en-KE', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </span>
+                )}
               </div>
-              <div style={{ display: 'flex', gap: 16, alignItems: 'center', marginBottom: 12 }}>
-                <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, letterSpacing: 1.5, color: '#F00000', textTransform: 'uppercase', fontWeight: 600 }}>{item.category}</span>
-                <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{item.published_at ? new Date(item.published_at).toLocaleDateString() : ''}</span>
-              </div>
-              <h3 style={{ fontFamily: 'Clash Display, sans-serif', fontSize: i === 0 ? 22 : 16, fontWeight: 600, color: '#fff', margin: '0 0 12px', lineHeight: 1.3 }}>{item.title}</h3>
-              {i === 0 && item.excerpt && <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, lineHeight: 1.7, color: 'rgba(255,255,255,0.5)', margin: 0 }}>{item.excerpt}</p>}
-            </motion.article>
+            </motion.div>
           ))}
         </motion.div>
       </div>

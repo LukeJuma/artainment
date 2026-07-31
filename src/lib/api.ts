@@ -388,6 +388,48 @@ export const adminAPI = {
   deleteTestimonial: (token: string, id: number) =>
     api(`/admin/testimonials/${id}`, { method: 'DELETE', token }),
 
+  // Gallery
+  createGalleryImage: (token: string, data: Partial<GalleryImage>) =>
+    api<GalleryImage>('/admin/gallery', { method: 'POST', token, body: data }),
+  deleteGalleryImage: (token: string, id: number) =>
+    api(`/admin/gallery/${id}`, { method: 'DELETE', token }),
+
+  // Mic Mtaani Admin
+  mmArticles: (token: string) => api<MMPaginated<MMArticle>>('/admin/micmtaani/articles', { token }),
+  mmCreateArticle: (token: string, data: Partial<MMArticle>) =>
+    api<MMArticle>('/admin/micmtaani/articles', { method: 'POST', token, body: data }),
+  mmUpdateArticle: (token: string, id: number, data: Partial<MMArticle>) =>
+    api<MMArticle>(`/admin/micmtaani/articles/${id}`, { method: 'PUT', token, body: data }),
+  mmDeleteArticle: (token: string, id: number) =>
+    api(`/admin/micmtaani/articles/${id}`, { method: 'DELETE', token }),
+  mmCreateCategory: (token: string, data: Partial<MMCategory>) =>
+    api<MMCategory>('/admin/micmtaani/categories', { method: 'POST', token, body: data }),
+  mmDeleteCategory: (token: string, id: number) =>
+    api(`/admin/micmtaani/categories/${id}`, { method: 'DELETE', token }),
+  mmJournalists: (token: string) => api<MMJournalist[]>('/admin/micmtaani/journalists', { token }),
+  mmCreateJournalist: (token: string, data: Partial<MMJournalist>) =>
+    api<MMJournalist>('/admin/micmtaani/journalists', { method: 'POST', token, body: data }),
+  mmDeleteJournalist: (token: string, id: number) =>
+    api(`/admin/micmtaani/journalists/${id}`, { method: 'DELETE', token }),
+  mmSubmissions: (token: string) => api<MMPaginated<any>>('/admin/micmtaani/submissions', { token }),
+  mmApproveSubmission: (token: string, id: number) =>
+    api(`/admin/micmtaani/submissions/${id}/approve`, { method: 'POST', token }),
+  mmRejectSubmission: (token: string, id: number) =>
+    api(`/admin/micmtaani/submissions/${id}/reject`, { method: 'POST', token }),
+  mmPendingComments: (token: string) => api<MMPaginated<MMComment>>('/admin/micmtaani/comments', { token }),
+  mmApproveComment: (token: string, id: number) =>
+    api(`/admin/micmtaani/comments/${id}/approve`, { method: 'POST', token }),
+  mmDeleteComment: (token: string, id: number) =>
+    api(`/admin/micmtaani/comments/${id}`, { method: 'DELETE', token }),
+  mmCreateEvent: (token: string, data: Partial<MMEvent>) =>
+    api<MMEvent>('/admin/micmtaani/events', { method: 'POST', token, body: data }),
+  mmDeleteEvent: (token: string, id: number) =>
+    api(`/admin/micmtaani/events/${id}`, { method: 'DELETE', token }),
+  mmCreateBusiness: (token: string, data: Partial<MMBusiness>) =>
+    api<MMBusiness>('/admin/micmtaani/businesses', { method: 'POST', token, body: data }),
+  mmDeleteBusiness: (token: string, id: number) =>
+    api(`/admin/micmtaani/businesses/${id}`, { method: 'DELETE', token }),
+
   // Upload
   upload: (token: string, file: File, folder?: string) => {
     const formData = new FormData();

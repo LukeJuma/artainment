@@ -3,24 +3,28 @@ import { motion } from 'framer-motion'
 import { useInView } from '../../lib/animations'
 import { Section } from '../ui/Section'
 import { SectionLabel } from '../ui/SectionLabel'
+import { IconArrowRight } from '../ui/Icons'
 
 export function CTASection() {
   const { ref, inView } = useInView()
   return (
-    <Section style={{ padding: '140px 80px', position: 'relative', overflow: 'hidden' }}>
-      <div ref={ref} style={{ maxWidth: 1280, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-        <div className="cta-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }}>
-          <motion.div initial={{ opacity: 0, x: -40 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.8 }}>
+    <Section style={{ background: 'var(--bg)' }}>
+      <div ref={ref} style={{ maxWidth: 1200, margin: '0 auto' }}>
+        <div className="cta-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(24px, 5vw, 80px)', alignItems: 'center' }}>
+          <motion.div initial={{ opacity: 0, x: -30 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.7 }}>
             <SectionLabel text="Work With Us" />
-            <h2 style={{ fontFamily: 'Clash Display, sans-serif', fontSize: 'clamp(42px, 5vw, 72px)', fontWeight: 700, color: '#fff', lineHeight: 1, margin: '0 0 24px' }}>Ready to Tell<br />Your Story?</h2>
-            <p style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 22, lineHeight: 1.7, color: 'rgba(255,255,255,0.5)', fontStyle: 'italic', margin: 0 }}>From concept to screen, we bring your vision to life with artistry, precision and an African heart.</p>
+            <h2 className="section-heading" style={{ color: 'var(--text)', margin: '0 0 16px' }}>Ready to Tell Your Story?</h2>
+            <p style={{ fontFamily: 'Domine, serif', fontSize: 17, lineHeight: 1.7, color: 'var(--text-muted)', fontStyle: 'italic', margin: 0 }}>From concept to screen, we bring your vision to life with artistry, precision and an African heart.</p>
           </motion.div>
-          <motion.div initial={{ opacity: 0, x: 40 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.8, delay: 0.2 }}
-            style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <motion.div initial={{ opacity: 0, x: 30 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.7, delay: 0.15 }}
+            style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {['Book Photography', 'Book Videography', 'Commission a Film', 'Hire Our Talent', 'Partner With Us'].map((label) => (
               <Link key={label} to="/contact"
-                style={{ background: 'transparent', border: '1px solid rgba(255,255,255,0.12)', fontFamily: 'DM Sans, sans-serif', fontSize: 14, fontWeight: 500, color: 'rgba(255,255,255,0.7)', padding: '18px 28px', borderRadius: 6, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                {label} <span style={{ color: '#F00000' }}>→</span>
+                style={{ background: 'var(--bg)', border: '1.5px solid var(--border)', fontFamily: 'DM Sans', fontSize: 13, fontWeight: 500, color: 'var(--text)', padding: '14px 20px', borderRadius: 6, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'all 0.2s', minHeight: 48 }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--red)'; e.currentTarget.style.color = 'var(--red)' }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text)' }}
+              >
+                {label} <IconArrowRight size={16} color="var(--red)" />
               </Link>
             ))}
           </motion.div>
