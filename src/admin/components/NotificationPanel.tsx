@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Bell, Check, Clock, AlertTriangle, DollarSign, Users, Trophy, Ticket, Settings } from 'lucide-react'
+import { X, Check, Clock, AlertTriangle, DollarSign, Users, Trophy, Ticket, Settings } from 'lucide-react'
 
 interface NotificationPanelProps {
   open: boolean

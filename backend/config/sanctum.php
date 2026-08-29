@@ -50,7 +50,8 @@ return [
     |
     */
 
-    'expiration' => null,
+    // 24 hours (1440 minutes). Leaked tokens auto-expire server-side.
+    'expiration' => 1440,
 
     /*
     |--------------------------------------------------------------------------

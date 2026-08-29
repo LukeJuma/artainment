@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { newsAPI, type NewsArticle } from '../../lib/api'
+import { Link } from 'react-router-dom'
+import { type NewsArticle } from '../../lib/api'
 import { useInView, fadeUp, stagger } from '../../lib/animations'
 import { Section } from '../ui/Section'
 import { SectionLabel } from '../ui/SectionLabel'
 import { IconClock } from '../ui/Icons'
 
-export function NewsSection() {
-  const [news, setNews] = useState<NewsArticle[]>([])
+export function NewsSection({ news }: { news: NewsArticle[] }) {
   const { ref, inView } = useInView()
-  useEffect(() => { newsAPI.list().then(setNews).catch(() => {}) }, [])
+
+  if (!news.length) return null
 
   return (
     <Section style={{ background: 'var(--bg)' }}>
@@ -27,18 +27,20 @@ export function NewsSection() {
             onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.08)')}
             onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
             >
-              {n.image_url && <img src={n.image_url} alt="" style={{ width: '100%', height: 180, objectFit: 'cover' }} />}
-              <div style={{ padding: 16 }}>
-                <span style={{ fontFamily: 'DM Sans', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--red)' }}>{n.category}</span>
-                <h3 style={{ fontFamily: 'Chonburi', fontSize: 15, color: 'var(--text)', margin: '6px 0', lineHeight: 1.3 }}>{n.title}</h3>
-                <p style={{ fontFamily: 'DM Sans', fontSize: 13, color: 'var(--text-muted)', margin: 0, lineHeight: 1.6 }}>{n.excerpt}</p>
-                {n.published_at && (
-                  <span style={{ fontFamily: 'DM Sans', fontSize: 11, color: 'var(--text-muted)', marginTop: 10, display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <IconClock size={12} color="var(--text-muted)" />
-                    {new Date(n.published_at).toLocaleDateString('en-KE', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </span>
-                )}
-              </div>
+              <Link to={`/news/${n.slug}`} style={{ textDecoration: 'none' }}>
+                {n.image_url && <img src={n.image_url} alt="" loading="lazy" style={{ width: '100%', height: 180, objectFit: 'cover' }} />}
+                <div style={{ padding: 16 }}>
+                  <span style={{ fontFamily: 'DM Sans', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--red)' }}>{n.category}</span>
+                  <h3 style={{ fontFamily: 'Chonburi', fontSize: 15, color: 'var(--text)', margin: '6px 0', lineHeight: 1.3 }}>{n.title}</h3>
+                  <p style={{ fontFamily: 'DM Sans', fontSize: 13, color: 'var(--text-muted)', margin: 0, lineHeight: 1.6 }}>{n.excerpt}</p>
+                  {n.published_at && (
+                    <span style={{ fontFamily: 'DM Sans', fontSize: 11, color: 'var(--text-muted)', marginTop: 10, display: 'flex', alignItems: 'center', gap: 4 }}>
+                      <IconClock size={12} color="var(--text-muted)" />
+                      {new Date(n.published_at).toLocaleDateString('en-KE', { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                  )}
+                </div>
+              </Link>
             </motion.div>
           ))}
         </motion.div>

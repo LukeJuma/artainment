@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, LayoutDashboard, BarChart3, Film, Tv, Music, Podcast,
   Calendar, Trophy, Users, CreditCard, DollarSign, Star, Shield,
-  Megaphone, Bell, MessageSquare, Settings, Terminal, UserCog,
-  Ticket, Headphones, X, ArrowRight,
+  Settings, Terminal,
+  Ticket, ArrowRight,
 } from 'lucide-react'
 
 interface CommandPaletteProps {
@@ -25,7 +25,7 @@ const commandItems = [
     { id: 'micmtaani', label: 'Mic Mtaani', desc: 'Competition management', icon: Trophy },
   ]},
   { group: 'People & Commerce', items: [
-    { id: 'artists', label: 'Artists', desc: 'Artist profiles', icon: Star },
+    { id: 'actors', label: 'Actors', desc: 'Actor profiles', icon: Star },
     { id: 'users', label: 'Users', desc: 'User management', icon: Users },
     { id: 'subscriptions', label: 'Subscriptions', desc: 'Plans & billing', icon: CreditCard },
     { id: 'payments', label: 'Payments', desc: 'Transactions', icon: DollarSign },

@@ -25,7 +25,15 @@ class FilmController extends Controller
             $query->where('status', $request->status);
         }
 
-        $films = $query->orderBy('sort_order')->orderByDesc('created_at')->get();
+        $perPage = min((int) $request->input('per_page', 24), 50);
+        $films = $query->orderBy('sort_order')->orderByDesc('created_at')->paginate($perPage);
+
+        if (!$request->user() || !$request->user()->is_admin) {
+            $films->getCollection()->each(function ($film) {
+                $film->has_full_video = (bool) ($film->full_video_url || $film->youtube_url);
+                $film->full_video_url = null;
+            });
+        }
 
         return response()->json($films);
     }
@@ -33,6 +41,15 @@ class FilmController extends Controller
     public function show(string $slug): JsonResponse
     {
         $film = Film::where('slug', $slug)->firstOrFail();
+
+        // Hide full_video_url from public (unauthenticated) responses — expose a boolean instead.
+        // youtube_url (e.g. a YouTube-hosted film) stays visible so it can play directly on the site.
+        $request = request();
+        if (!$request->user() || !$request->user()->is_admin) {
+            $film->has_full_video = (bool) ($film->full_video_url || $film->youtube_url);
+            $film->full_video_url = null;
+        }
+
         return response()->json($film);
     }
 
@@ -44,11 +61,15 @@ class FilmController extends Controller
             'synopsis' => 'nullable|string',
             'genre' => 'required|string|max:100',
             'year' => 'required|string|max:10',
+            'release_date' => 'nullable|date',
             'duration' => 'nullable|string|max:20',
             'rating' => 'nullable|numeric|min:0|max:10',
             'poster_url' => 'nullable|string|max:500',
             'backdrop_url' => 'nullable|string|max:500',
             'video_url' => 'nullable|string|max:500',
+            'full_video_url' => 'nullable|string|max:500',
+            'youtube_url' => 'nullable|string|max:500',
+            'cast' => 'nullable|array',
             'tag' => 'nullable|string|max:50',
             'status' => 'nullable|in:upcoming,in_production,completed',
             'featured' => 'nullable|boolean',
@@ -68,11 +89,15 @@ class FilmController extends Controller
             'synopsis' => 'nullable|string',
             'genre' => 'sometimes|required|string|max:100',
             'year' => 'sometimes|required|string|max:10',
+            'release_date' => 'nullable|date',
             'duration' => 'nullable|string|max:20',
             'rating' => 'nullable|numeric|min:0|max:10',
             'poster_url' => 'nullable|string|max:500',
             'backdrop_url' => 'nullable|string|max:500',
             'video_url' => 'nullable|string|max:500',
+            'full_video_url' => 'nullable|string|max:500',
+            'youtube_url' => 'nullable|string|max:500',
+            'cast' => 'nullable|array',
             'tag' => 'nullable|string|max:50',
             'status' => 'nullable|in:upcoming,in_production,completed',
             'featured' => 'nullable|boolean',

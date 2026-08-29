@@ -150,7 +150,7 @@ export function MicMtaaniArticlePage() {
                 background: 'var(--bg)', borderRadius: 8, border: '1px solid var(--border)', overflow: 'hidden',
                 minHeight: 44,
               }}>
-                <img src={r.image_url || PLACEHOLDER_IMG} alt="" style={{ width: '100%', height: 160, objectFit: 'cover' }} />
+                <img src={r.image_url || PLACEHOLDER_IMG} alt="" loading="lazy" style={{ width: '100%', height: 160, objectFit: 'cover' }} />
                 <div style={{ padding: 16, flex: 1 }}>
                   <h4 style={{ fontSize: 'clamp(14px, 2.5vw, 15px)', fontWeight: 600, margin: 0, lineHeight: 1.3 }}>{r.headline}</h4>
                   <span style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}><IconClock size={12} /> {r.reading_time} min read</span>

@@ -1,8 +1,8 @@
 export const NAV_LINKS = [
-  { label: 'Films', path: '/films' },
-  { label: 'Services', path: '/services' },
-  { label: 'Talent', path: '/talent' },
-  { label: 'Productions', path: '/productions' },
+  { label: 'Movies', path: '/films' },
+  { label: 'Series', path: '/series' },
+  { label: 'Actors', path: '/actors' },
+  { label: 'Podcasts', path: '/podcasts' },
   { label: 'About', path: '/about' },
   { label: 'Contact', path: '/contact' },
 ]

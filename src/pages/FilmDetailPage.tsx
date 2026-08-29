@@ -1,64 +1,92 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { filmsAPI, type Film } from '../lib/api'
-import { imgOr } from '../lib/utils'
-import { Section } from '../components/ui/Section'
-import { SectionLabel } from '../components/ui/SectionLabel'
+import { Link, useParams } from 'react-router-dom'
+import { AnimatePresence } from 'framer-motion'
+import { filmsAPI, videoStreamUrl, fullFilmStreamUrl, type Film } from '../lib/api'
 import { Loader } from '../components/ui/Loader'
-import { IconStar, IconPlay, IconClock } from '../components/ui/Icons'
+import { VideoModal } from '../components/ui/VideoModal'
+import { FilmDetailHero } from '../components/film/FilmDetailHero'
+import { FilmCastCrew } from '../components/film/FilmCastCrew'
+import { FilmDescription } from '../components/film/FilmDescription'
+import { FilmRelated } from '../components/film/FilmRelated'
 
 export function FilmDetailPage() {
   const { slug } = useParams()
   const [film, setFilm] = useState<Film | null>(null)
+  const [related, setRelated] = useState<Film[]>([])
   const [error, setError] = useState(false)
-  useEffect(() => { if (!slug) return; filmsAPI.get(slug).then(setFilm).catch(() => setError(true)) }, [slug])
+  const [showTrailer, setShowTrailer] = useState(false)
+  const [showFull, setShowFull] = useState(false)
 
-  if (error) return <div style={{ paddingTop: 80, textAlign: 'center', color: 'var(--text)', fontFamily: 'Chonburi, cursive', fontSize: 24 }}>Film not found.</div>
+  useEffect(() => {
+    if (!slug) return
+    let alive = true
+    setError(false)
+    setFilm(null)
+    setRelated([])
+    setShowTrailer(false)
+    setShowFull(false)
+
+    filmsAPI.get(slug)
+      .then(async f => {
+        if (!alive) return
+        setFilm(f)
+        try {
+          const all = await filmsAPI.list()
+          if (!alive) return
+          const others = all.filter(x => x.id !== f.id)
+          const sameGenre = others.filter(x => x.genre === f.genre)
+          const rest = others.filter(x => x.genre !== f.genre)
+          setRelated([...sameGenre, ...rest].slice(0, 6))
+        } catch {
+          /* related films are optional */
+        }
+      })
+      .catch(() => { if (alive) setError(true) })
+
+    return () => { alive = false }
+  }, [slug])
+
+  if (error) {
+    return (
+      <div style={{ paddingTop: 120, textAlign: 'center' }}>
+        <p style={{ fontFamily: 'Chonburi, cursive', fontSize: 24, color: 'var(--text)', marginBottom: 24 }}>Film not found.</p>
+        <Link to="/films" className="btn-outline">Browse Movies</Link>
+      </div>
+    )
+  }
+
   if (!film) return <Loader />
 
   return (
     <div style={{ paddingTop: 0 }}>
-      <div className="film-backdrop" style={{ position: 'relative', height: 700, overflow: 'hidden' }}>
-        <motion.img initial={{ scale: 1.05 }} animate={{ scale: 1 }} transition={{ duration: 1.2, ease: 'easeOut' }}
-          src={imgOr('film', film.backdrop_url)} alt={film.title}
-          style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, var(--bg) 0%, color-mix(in srgb, var(--bg) 70%, transparent) 40%, color-mix(in srgb, var(--bg) 30%, transparent) 100%)' }} />
-        <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.7, delay: 0.3 }}
-          className="film-backdrop-content" style={{ position: 'absolute', bottom: 24, left: 80, right: 80, zIndex: 2 }}>
-          <SectionLabel text="The Artainment" />
-          <h1 style={{ fontFamily: 'Chonburi, cursive', fontSize: 'clamp(36px, 6vw, 90px)', fontWeight: 700, color: 'var(--text)', lineHeight: 0.9, margin: '0 0 20px' }}>{film.title}</h1>
-          <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-            <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--red)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}><IconStar size={12} color="var(--red)" /> {film.rating} / 10</span>
-            <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--text-muted)' }} />
-            <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-secondary)' }}>{film.year}</span>
-            <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--text-muted)' }} />
-            <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-secondary)' }}>{film.genre}</span>
-            {film.duration && <><span style={{ width: 4, height: 4, borderRadius: '50%', background: 'var(--text-muted)' }} /><span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-secondary)', display: 'inline-flex', alignItems: 'center', gap: 4 }}><IconClock size={12} color="var(--text-secondary)" /> {film.duration}</span></>}
-          </div>
-        </motion.div>
-      </div>
-      <Section>
-        <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.4 }}>
-            {film.synopsis && <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 18, lineHeight: 1.9, color: 'var(--text-secondary)', margin: '0 0 48px' }}>{film.synopsis}</p>}
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.55 }}
-            style={{ background: 'var(--bg-muted)', borderRadius: 12, overflow: 'hidden', marginBottom: 48, aspectRatio: '16/9', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid var(--border)' }}>
-            {film.video_url ? (
-              <video controls style={{ width: '100%', height: '100%' }} poster={imgOr('film', film.backdrop_url)}>
-                <source src={film.video_url} type="video/mp4" />
-              </video>
-            ) : (
-              <div style={{ textAlign: 'center' }}>
-                <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'center' }}><IconPlay size={48} color="var(--text-muted)" /></div>
-                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-muted)' }}>Streaming coming soon</p>
-                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-muted)' }}>Video will be available once uploaded by admin</p>
-              </div>
-            )}
-          </motion.div>
-        </div>
-      </Section>
+      <FilmDetailHero
+        film={film}
+        onPlayTrailer={() => setShowTrailer(true)}
+        onPlayFull={() => setShowFull(true)}
+      />
+
+      <AnimatePresence>
+        {showTrailer && film.video_url && (
+          <VideoModal
+            src={videoStreamUrl(film.video_url)!}
+            title={`${film.title} trailer`}
+            poster={film.backdrop_url || film.poster_url}
+            onClose={() => setShowTrailer(false)}
+          />
+        )}
+        {showFull && film.has_full_video && (
+          <VideoModal
+            src={film.youtube_url || fullFilmStreamUrl(film.slug)}
+            title={film.title}
+            poster={film.backdrop_url || film.poster_url}
+            onClose={() => setShowFull(false)}
+          />
+        )}
+      </AnimatePresence>
+
+      <FilmCastCrew film={film} />
+      <FilmDescription film={film} />
+      <FilmRelated films={related} />
     </div>
   )
 }

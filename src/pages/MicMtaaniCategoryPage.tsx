@@ -6,7 +6,8 @@ import { MMNavbar } from '../components/micmtaani/MMNavbar'
 import { MMFooter } from '../components/micmtaani/MMFooter'
 import { IconClock } from '../components/ui/Icons'
 
-function timeAgo(date: string) {
+function timeAgo(date: string | null) {
+  if (!date) return ''
   const diff = Date.now() - new Date(date).getTime()
   const mins = Math.floor(diff / 60000)
   if (mins < 60) return `${mins}m ago`
@@ -64,7 +65,7 @@ export function MicMtaaniCategoryPage() {
                 onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)')}
                 onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
                 >
-                  {a.image_url && <img src={a.image_url} alt="" style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 6 }} />}
+                  {a.image_url && <img src={a.image_url} alt="" loading="lazy" style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 6 }} />}
                   <div>
                     <h3 style={{ fontSize: 'clamp(15px, 3vw, 17px)', fontWeight: 700, margin: '4px 0', lineHeight: 1.3 }}>{a.headline}</h3>
                     {a.subtitle && <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: '4px 0' }}>{a.subtitle}</p>}

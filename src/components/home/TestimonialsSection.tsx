@@ -1,15 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { testimonialsAPI, type Testimonial } from '../../lib/api'
+import { type Testimonial } from '../../lib/api'
 import { useInView } from '../../lib/animations'
 import { Section } from '../ui/Section'
 import { SectionLabel } from '../ui/SectionLabel'
 
-export function TestimonialsSection() {
-  const [testimonials, setTestimonials] = useState<Testimonial[]>([])
+export function TestimonialsSection({ testimonials }: { testimonials: Testimonial[] }) {
   const [active, setActive] = useState(0)
   const { ref, inView } = useInView()
-  useEffect(() => { testimonialsAPI.list().then(setTestimonials).catch(() => {}) }, [])
+
+  useEffect(() => { setActive(0) }, [testimonials.length])
 
   useEffect(() => {
     if (testimonials.length < 2) return

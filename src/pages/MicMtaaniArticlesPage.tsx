@@ -6,7 +6,8 @@ import { MMNavbar } from '../components/micmtaani/MMNavbar'
 import { MMFooter } from '../components/micmtaani/MMFooter'
 import { IconClock, IconEye } from '../components/ui/Icons'
 
-function timeAgo(date: string) {
+function timeAgo(date: string | null) {
+  if (!date) return ''
   const diff = Date.now() - new Date(date).getTime()
   const mins = Math.floor(diff / 60000)
   if (mins < 60) return `${mins}m ago`
@@ -87,7 +88,7 @@ export function MicMtaaniArticlesPage() {
                 onMouseEnter={e => (e.currentTarget.style.boxShadow = '0 2px 12px rgba(0,0,0,0.08)')}
                 onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
                 >
-                  {a.image_url && <img src={a.image_url} alt="" style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 6 }} />}
+                  {a.image_url && <img src={a.image_url} alt="" loading="lazy" style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 6 }} />}
                   <div>
                     <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 4 }}>
                       {a.is_breaking && <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--red)', textTransform: 'uppercase' }}>BREAKING</span>}

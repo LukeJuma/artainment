@@ -6,7 +6,8 @@ import { MMNavbar } from '../components/micmtaani/MMNavbar'
 import { MMFooter } from '../components/micmtaani/MMFooter'
 import { IconSearch, IconClock } from '../components/ui/Icons'
 
-function timeAgo(date: string) {
+function timeAgo(date: string | null) {
+  if (!date) return ''
   const diff = Date.now() - new Date(date).getTime()
   const mins = Math.floor(diff / 60000)
   if (mins < 60) return `${mins}m ago`
@@ -81,7 +82,7 @@ export function MicMtaaniSearchPage() {
                 background: 'var(--bg)', border: '1px solid var(--border)',
                 minHeight: 44,
               }}>
-                {a.image_url && <img src={a.image_url} alt="" style={{ width: '100%', height: 80, objectFit: 'cover', borderRadius: 6 }} />}
+                {a.image_url && <img src={a.image_url} alt="" loading="lazy" style={{ width: '100%', height: 80, objectFit: 'cover', borderRadius: 6 }} />}
                 <div>
                   <h3 style={{ fontSize: 'clamp(14px, 3vw, 16px)', fontWeight: 600, margin: 0, lineHeight: 1.3 }}>{a.headline}</h3>
                   {a.excerpt && <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: '4px 0 0', lineHeight: 1.4 }}>{a.excerpt.slice(0, 150)}...</p>}

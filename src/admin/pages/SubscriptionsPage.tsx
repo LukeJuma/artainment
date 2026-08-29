@@ -7,7 +7,8 @@ import { PageHeader } from '../components/PageHeader'
 import { StatCard } from '../components/StatCard'
 import { ChartCard, ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, chartTooltipStyle } from '../components/ChartCard'
 import { useApi } from '../hooks/useApi'
-import { filmsAPI, testimonialsAPI, newsAPI } from '../../lib/api'
+import { useAuth } from '../../contexts/AuthContext'
+import { adminAPI, type Subscription, type SubscriptionPlan } from '../../lib/api'
 
 const subGrowthData = [
   { month: 'Jul', total: 8300, new: 1200, churned: 340 },
@@ -18,34 +19,61 @@ const subGrowthData = [
   { month: 'Dec', total: 13900, new: 2400, churned: 220 },
 ]
 
+const planMeta: Record<string, { icon: typeof Crown; color: string }> = {
+  premium: { icon: Crown, color: '#FF4D2D' },
+  vip: { icon: Star, color: '#FFB800' },
+  family: { icon: Heart, color: '#8B5CF6' },
+  student: { icon: GraduationCap, color: '#2DD36F' },
+}
+
+const defaultMeta = { icon: Crown, color: '#3B82F6' }
+
+function formatDate(value: string | null): string {
+  if (!value) return '—'
+  const d = new Date(value)
+  return isNaN(d.getTime()) ? value : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
 export function SubscriptionsPage() {
-  const { data: films, loading: loadingFilms } = useApi(() => filmsAPI.list(), [])
-  const { data: testimonials, loading: loadingTestimonials } = useApi(() => testimonialsAPI.list(), [])
-  const { data: newsArticles, loading: loadingNews } = useApi(() => newsAPI.list(), [])
+  const { token } = useAuth()
+  const { data: plans, loading: loadingPlans } = useApi<SubscriptionPlan[]>(
+    () => adminAPI.plans(token!),
+    [token]
+  )
+  const { data: subscriptions, loading: loadingSubs } = useApi<Subscription[]>(
+    () => adminAPI.subscriptions(token!),
+    [token]
+  )
 
-  const loading = loadingFilms || loadingTestimonials || loadingNews
+  const loading = loadingPlans || loadingSubs
+  const planList = plans ?? []
+  const subList = subscriptions ?? []
 
-  const filmCount = (films ?? []).length
-  const testimonialCount = (testimonials ?? []).length
-  const newsCount = (newsArticles ?? []).length
-  const totalContent = filmCount + testimonialCount + newsCount
+  const activeSubs = subList.filter((s) => s.status === 'active')
+  const monthlyRevenue = activeSubs.reduce((sum, s) => sum + (s.plan?.price ?? 0), 0)
 
-  const plans = [
-    { name: 'Premium', price: 'KES 499/mo', subscribers: filmCount * 100 || 7100, revenue: `KES ${(filmCount * 500).toLocaleString()}K`, growth: 12, icon: Crown, color: '#FF4D2D', features: ['HD Streaming', 'Unlimited Downloads', 'No Ads', '2 Devices'] },
-    { name: 'VIP', price: 'KES 999/mo', subscribers: testimonialCount * 300 || 2300, revenue: `KES ${(testimonialCount * 330).toLocaleString()}K`, growth: 18, icon: Star, color: '#FFB800', features: ['4K Streaming', 'Early Access', 'Exclusive Content', '4 Devices', 'Priority Support'] },
-    { name: 'Family', price: 'KES 799/mo', subscribers: newsCount * 200 || 1400, revenue: `KES ${(newsCount * 157).toLocaleString()}K`, growth: 8, icon: Heart, color: '#8B5CF6', features: ['HD Streaming', '6 Profiles', 'Parental Controls', '3 Devices'] },
-    { name: 'Student', price: 'KES 249/mo', subscribers: totalContent * 50 || 3100, revenue: `KES ${(totalContent * 12).toLocaleString()}K`, growth: 22, icon: GraduationCap, color: '#2DD36F', features: ['HD Streaming', '1 Device', 'Student Discount'] },
-  ]
+  const plansWithMeta = planList.map((plan) => {
+    const meta = planMeta[plan.slug] ?? defaultMeta
+    const subscriberCount = subList.filter((s) => s.plan_id === plan.id && s.status === 'active').length
+    return {
+      ...plan,
+      priceLabel: `KES ${plan.price}/${plan.billing_interval}`,
+      subscribers: subscriberCount,
+      revenue: subscriberCount * plan.price,
+      growth: 0,
+      meta,
+    }
+  })
 
-  const recentTransactions = [
-    { id: 1, user: 'James Kamau', plan: 'Premium', amount: 'KES 499', method: 'M-Pesa', date: '2 min ago', status: 'Success' },
-    { id: 2, user: 'Amina Hassan', plan: 'VIP', amount: 'KES 999', method: 'Stripe', date: '8 min ago', status: 'Success' },
-    { id: 3, user: 'Peter Otieno', plan: 'Family', amount: 'KES 799', method: 'M-Pesa', date: '15 min ago', status: 'Success' },
-    { id: 4, user: 'Grace Wanjiku', plan: 'Student', amount: 'KES 249', method: 'PayPal', date: '22 min ago', status: 'Pending' },
-    { id: 5, user: 'Brian Kiprop', plan: 'Premium', amount: 'KES 499', method: 'M-Pesa', date: '1 hr ago', status: 'Success' },
-  ]
-
-  const totalSubs = plans.reduce((sum, p) => sum + p.subscribers, 0)
+  const recentSubscriptions = subList.slice(0, 5).map((s) => ({
+    id: s.id,
+    user: s.user?.name ?? `User #${s.user_id}`,
+    plan: s.plan?.name ?? 'Unknown',
+    method: s.plan ? `KES ${s.plan.price}` : '—',
+    amount: s.plan ? `KES ${s.plan.price}` : '—',
+    date: formatDate(s.started_at ?? s.ends_at),
+    status: s.status === 'active' ? 'Active' : s.status === 'cancelled' ? 'Cancelled' : 'Expired',
+  }))
 
   if (loading) {
     return (
@@ -71,8 +99,8 @@ export function SubscriptionsPage() {
 
       <div className="stat-grid" style={{ marginBottom: 28 }}>
         {[
-          { title: 'Active Subs', value: '', numericValue: totalSubs, change: 12, icon: Users, color: '#3B82F6', chartData: [83, 91, 102, 115, 132, 139] },
-          { title: 'Monthly Revenue', value: 'KES ', numericValue: 7700000, change: 15, icon: DollarSign, color: '#2DD36F', chartData: [52, 58, 64, 71, 78, 77] },
+          { title: 'Active Subs', value: '', numericValue: activeSubs.length, change: 12, icon: Users, color: '#3B82F6', chartData: [83, 91, 102, 115, 132, 139] },
+          { title: 'Monthly Revenue', value: 'KES ', numericValue: monthlyRevenue, change: 15, icon: DollarSign, color: '#2DD36F', chartData: [52, 58, 64, 71, 78, 77] },
           { title: 'Churn Rate', value: '', numericValue: 1.8, suffix: '%', change: -0.3, icon: TrendingUp, color: '#FFB800', chartData: [3.2, 2.8, 2.5, 2.2, 2.0, 1.8] },
           { title: 'Avg. Lifetime', value: '', numericValue: 14, suffix: ' mo', change: 8, icon: Calendar, color: '#8B5CF6', chartData: [10, 11, 11, 12, 13, 14] },
         ].map((s, i) => (
@@ -80,13 +108,21 @@ export function SubscriptionsPage() {
         ))}
       </div>
 
-      {/* Plans */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
-        {plans.map((plan, idx) => {
-          const Icon = plan.icon
+        {plansWithMeta.length === 0 ? (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            style={{ gridColumn: '1 / -1', padding: 48, textAlign: 'center', color: 'var(--admin-text-muted)', background: 'var(--admin-card)', border: '1px solid var(--admin-border)', borderRadius: 'var(--admin-radius-lg)' }}
+          >
+            No subscription plans yet
+          </motion.div>
+        ) : plansWithMeta.map((plan, idx) => {
+          const Icon = plan.meta.icon
+          const color = plan.meta.color
           return (
             <motion.div
-              key={plan.name}
+              key={plan.id}
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 + idx * 0.08 }}
@@ -107,18 +143,18 @@ export function SubscriptionsPage() {
                 left: 0,
                 right: 0,
                 height: 3,
-                background: plan.color,
+                background: color,
               }} />
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
                 <div style={{
                   width: 42,
                   height: 42,
                   borderRadius: 'var(--admin-radius-md)',
-                  background: `${plan.color}18`,
+                  background: `${color}18`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: plan.color,
+                  color,
                 }}>
                   <Icon size={20} strokeWidth={2} />
                 </div>
@@ -128,26 +164,28 @@ export function SubscriptionsPage() {
                 </div>
               </div>
               <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--admin-text)', fontFamily: "'Plus Jakarta Sans', sans-serif", marginBottom: 4 }}>{plan.name}</div>
-              <div style={{ fontSize: 24, fontWeight: 800, color: plan.color, fontFamily: "'Plus Jakarta Sans', sans-serif", marginBottom: 4 }}>{plan.price}</div>
-              <div style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginBottom: 16 }}>{plan.subscribers.toLocaleString()} subscribers</div>
+              <div style={{ fontSize: 24, fontWeight: 800, color, fontFamily: "'Plus Jakarta Sans', sans-serif", marginBottom: 4 }}>{plan.priceLabel}</div>
+              <div style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginBottom: 16 }}>{plan.subscribers} subscriber{plan.subscribers === 1 ? '' : 's'}</div>
               <div style={{ borderTop: '1px solid var(--admin-border)', paddingTop: 12 }}>
-                {plan.features.map(f => (
+                {(plan.features ?? []).map(f => (
                   <div key={f} style={{ fontSize: 12, color: 'var(--admin-text-secondary)', padding: '4px 0', display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <div style={{ width: 4, height: 4, borderRadius: 2, background: plan.color, flexShrink: 0 }} />
+                    <div style={{ width: 4, height: 4, borderRadius: 2, background: color, flexShrink: 0 }} />
                     {f}
                   </div>
                 ))}
+                {(plan.features ?? []).length === 0 && (
+                  <div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>No features listed</div>
+                )}
               </div>
               <div style={{ marginTop: 14, display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 12, borderTop: '1px solid var(--admin-border)' }}>
                 <span style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>Revenue</span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--admin-success)' }}>{plan.revenue}</span>
+                <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--admin-success)' }}>KES {plan.revenue.toLocaleString()}</span>
               </div>
             </motion.div>
           )
         })}
       </div>
 
-      {/* Growth Chart + Recent */}
       <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr', gap: 20 }}>
         <ChartCard title="Subscription Growth" subtitle="Net new subscriptions" delay={0.6}>
           <div style={{ width: '100%', height: 260 }}>
@@ -169,7 +207,9 @@ export function SubscriptionsPage() {
             <div className="admin-card-title">Recent Subscriptions</div>
           </div>
           <div style={{ maxHeight: 320, overflowY: 'auto' }}>
-            {recentTransactions.map((t) => (
+            {recentSubscriptions.length === 0 ? (
+              <div style={{ padding: 24, textAlign: 'center', color: 'var(--admin-text-muted)', fontSize: 13 }}>No subscriptions yet</div>
+            ) : recentSubscriptions.map((t) => (
               <div key={t.id} className="activity-item" style={{ padding: '10px 0' }}>
                 <div style={{
                   width: 34,
@@ -186,11 +226,11 @@ export function SubscriptionsPage() {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--admin-text)' }}>{t.user}</div>
-                  <div style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{t.plan} · {t.method}</div>
+                  <div style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{t.plan} · {t.date}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--admin-success)' }}>{t.amount}</div>
-                  <div style={{ fontSize: 10, color: t.status === 'Success' ? 'var(--admin-success)' : 'var(--admin-accent)' }}>{t.status}</div>
+                  <div style={{ fontSize: 10, color: t.status === 'Active' ? 'var(--admin-success)' : t.status === 'Cancelled' ? 'var(--admin-accent)' : 'var(--admin-text-muted)' }}>{t.status}</div>
                 </div>
               </div>
             ))}

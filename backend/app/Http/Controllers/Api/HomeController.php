@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\{Film, Service, Talent, Production, NewsArticle, Testimonial, GalleryImage, Contact, Subscriber};
+use App\Models\{Film, Service, Talent, NewsArticle, Testimonial, GalleryImage, Contact, Subscriber, Podcast};
 use Illuminate\Http\JsonResponse;
 
 class HomeController extends Controller
@@ -18,7 +18,8 @@ class HomeController extends Controller
             'gallery' => GalleryImage::orderBy('sort_order')->limit(6)->get(),
             'news' => NewsArticle::orderByDesc('published_at')->limit(3)->get(),
             'testimonials' => Testimonial::where('active', true)->orderBy('sort_order')->get(),
-            'productions' => Production::orderBy('sort_order')->limit(6)->get(),
+            'podcasts' => Podcast::where('active', true)->withCount('episodes')->orderBy('sort_order')->limit(6)->get(),
+            'coming_soon' => Film::where('status', 'upcoming')->orderBy('sort_order')->get(),
         ]);
     }
 }

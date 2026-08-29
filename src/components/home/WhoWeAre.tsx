@@ -17,7 +17,7 @@ const units = [
 export function WhoWeAre() {
   const { ref, inView } = useInView()
   return (
-    <Section style={{ background: 'var(--bg)' }}>
+    <Section style={{ background: 'var(--bg)', paddingTop: 'clamp(60px, 10vw, 100px)' }}>
       <div ref={ref} style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div className="who-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(24px, 5vw, 80px)', marginBottom: 48, alignItems: 'start' }}>
           <div>

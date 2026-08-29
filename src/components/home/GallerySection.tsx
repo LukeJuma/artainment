@@ -1,17 +1,16 @@
-import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { galleryAPI, type GalleryImage } from '../../lib/api'
+import { type GalleryImage } from '../../lib/api'
 import { useInView } from '../../lib/animations'
 import { Section } from '../ui/Section'
 import { SectionLabel } from '../ui/SectionLabel'
 
-export function GallerySection() {
-  const [images, setImages] = useState<GalleryImage[]>([])
+export function GallerySection({ images }: { images: GalleryImage[] }) {
   const { ref, inView } = useInView()
-  useEffect(() => { galleryAPI.list().then(setImages).catch(() => {}) }, [])
+
+  if (!images.length) return null
 
   return (
-    <Section style={{ background: 'var(--bg-muted)' }}>
+    <Section style={{ background: 'var(--bg-muted)', borderTop: '1px solid var(--border)' }}>
       <div ref={ref} style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div className="gallery-header" style={{ marginBottom: 28 }}>
           <SectionLabel text="Behind The Scenes" />

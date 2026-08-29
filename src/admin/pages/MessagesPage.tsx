@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { MessageSquare, Send, Search, X, Paperclip, Smile } from 'lucide-react'
+import { Send, Search, Paperclip } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
 import { useApi } from '../hooks/useApi'
 import { useAuth } from '../../contexts/AuthContext'

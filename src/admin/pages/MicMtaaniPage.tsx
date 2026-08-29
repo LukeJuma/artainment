@@ -11,8 +11,7 @@ import { useApi } from '../hooks/useApi'
 import { useAuth } from '../../contexts/AuthContext'
 import {
   adminAPI, mmAPI,
-  type MMArticle, type MMCategory, type MMJournalist,
-  type MMComment,
+  type MMArticle, type MMCategory,
 } from '../../lib/api'
 import { FileUpload } from '../components/FileUpload'
 
@@ -76,14 +75,14 @@ export function MicMtaaniPage() {
   const { data: articlesData, loading: artLoading, refetch: refetchArticles } = useApi(
     () => adminAPI.mmArticles(token!), [token]
   )
-  const { data: categories, loading: catLoading, refetch: refetchCategories } = useApi<MMCategory[]>(() => mmAPI.categories(), [])
-  const { data: journalists, loading: jourLoading, refetch: refetchJournalists } = useApi(
+  const { data: categories, refetch: refetchCategories } = useApi<MMCategory[]>(() => mmAPI.categories(), [])
+  const { data: journalists, refetch: refetchJournalists } = useApi(
     () => adminAPI.mmJournalists(token!), [token]
   )
-  const { data: commentsData, loading: commLoading, refetch: refetchComments } = useApi(
+  const { data: commentsData, refetch: refetchComments } = useApi(
     () => adminAPI.mmPendingComments(token!), [token]
   )
-  const { data: submissionsData, loading: subLoading, refetch: refetchSubmissions } = useApi(
+  const { data: submissionsData, refetch: refetchSubmissions } = useApi(
     () => adminAPI.mmSubmissions(token!), [token]
   )
 
@@ -370,7 +369,7 @@ export function MicMtaaniPage() {
                     </td>
                     <td>
                       {article.category ? (
-                        <span className="badge" style={{ background: article.category.color ? `${article.color}20` : 'rgba(255,255,255,.06)', color: article.category.color || 'var(--admin-text-secondary)' }}>
+                        <span className="badge" style={{ background: article.category.color ? `${article.category.color}20` : 'rgba(255,255,255,.06)', color: article.category.color || 'var(--admin-text-secondary)' }}>
                           {article.category.name}
                         </span>
                       ) : <span style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>—</span>}

@@ -9,9 +9,10 @@ use Illuminate\Http\Request;
 
 class NewsController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $news = NewsArticle::orderByDesc('published_at')->get();
+        $perPage = min((int) $request->input('per_page', 24), 50);
+        $news = NewsArticle::orderByDesc('published_at')->paginate($perPage);
         return response()->json($news);
     }
 

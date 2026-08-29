@@ -1,47 +1,45 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import {
-  Search, Plus, MoreHorizontal, Shield, Mail, Phone,
-  Ban, Eye, UserCheck, UserX, Download, Filter, X,
-  ChevronDown, Activity, Clock,
+  Search, Plus, Mail,
+  UserCheck, UserX, Download, X,
+  Clock, ShieldCheck, ShieldOff, Trash2,
 } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
 import { useApi } from '../hooks/useApi'
 import { useAuth } from '../../contexts/AuthContext'
-import { adminAPI, type Contact } from '../../lib/api'
+import { adminAPI, type AdminUser } from '../../lib/api'
 
 interface User {
   id: number
   name: string
   email: string
-  phone: string
-  role: 'Subscriber' | 'Creator' | 'Moderator' | 'Admin'
+  role: 'Subscriber' | 'Admin'
   status: 'Active' | 'Suspended' | 'Pending'
   verified: boolean
   joined: string
   lastActive: string
   avatar: string
+  isAdmin: boolean
 }
 
-function contactToUser(c: Contact): User {
+function adminUserToUser(u: AdminUser): User {
   return {
-    id: c.id,
-    name: c.name,
-    email: c.email,
-    phone: '-',
-    role: 'Subscriber',
-    status: c.status === 'replied' ? 'Active' : c.status === 'read' ? 'Active' : 'Pending',
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    role: u.is_admin ? 'Admin' : 'Subscriber',
+    status: 'Active',
     verified: true,
-    joined: c.created_at,
-    lastActive: c.created_at,
+    joined: u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—',
+    lastActive: u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—',
     avatar: '',
+    isAdmin: u.is_admin,
   }
 }
 
 const roleColors: Record<string, { bg: string; color: string }> = {
   Subscriber: { bg: 'rgba(255,255,255,.06)', color: 'var(--admin-text-secondary)' },
-  Creator: { bg: 'var(--admin-purple-glow)', color: 'var(--admin-purple)' },
-  Moderator: { bg: 'var(--admin-info-glow)', color: 'var(--admin-info)' },
   Admin: { bg: 'var(--admin-primary-glow)', color: 'var(--admin-primary)' },
 }
 
@@ -63,9 +61,9 @@ const avatarGradients = [
 ]
 
 export function UsersPage() {
-  const { token } = useAuth()
-  const { data: contacts, loading } = useApi<Contact[]>(
-    () => adminAPI.contacts(token!),
+  const { token, user: currentUser } = useAuth()
+  const { data: rawUsers, loading, refetch } = useApi<AdminUser[]>(
+    () => adminAPI.users(token!),
     [token]
   )
 
@@ -73,7 +71,7 @@ export function UsersPage() {
   const [selectedRole, setSelectedRole] = useState('All')
   const [selectedStatus, setSelectedStatus] = useState('All')
 
-  const users: User[] = (contacts ?? []).map(contactToUser)
+  const users: User[] = (rawUsers ?? []).map(adminUserToUser)
 
   const filtered = users.filter(u => {
     const matchSearch = u.name.toLowerCase().includes(search.toLowerCase()) || u.email.toLowerCase().includes(search.toLowerCase())
@@ -81,6 +79,34 @@ export function UsersPage() {
     const matchStatus = selectedStatus === 'All' || u.status === selectedStatus
     return matchSearch && matchRole && matchStatus
   })
+
+  const totalAdmins = users.filter(u => u.isAdmin).length
+  const totalSubscribers = users.length - totalAdmins
+  const newThisMonth = (rawUsers ?? []).filter(u => {
+    if (!u.created_at) return false
+    const d = new Date(u.created_at)
+    const now = new Date()
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+  }).length
+
+  const toggleAdmin = async (user: User) => {
+    if (!token || !currentUser || user.id === currentUser.id) return
+    try {
+      await adminAPI.updateUserRole(token, user.id, !user.isAdmin)
+      refetch()
+    } catch {
+    }
+  }
+
+  const handleDelete = async (user: User) => {
+    if (!token || !currentUser || user.id === currentUser.id) return
+    if (!window.confirm(`Delete user "${user.name}"? This cannot be undone.`)) return
+    try {
+      await adminAPI.deleteUser(token, user.id)
+      refetch()
+    } catch {
+    }
+  }
 
   if (loading) {
     return (
@@ -110,13 +136,12 @@ export function UsersPage() {
         }
       />
 
-      {/* Stats */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
         {[
-          { label: 'Total Users', value: '24,891', color: '#3B82F6' },
-          { label: 'Active Today', value: '3,421', color: '#2DD36F' },
-          { label: 'Creators', value: '1,247', color: '#8B5CF6' },
-          { label: 'Pending Verification', value: '89', color: '#FFB800' },
+          { label: 'Total Users', value: users.length.toLocaleString(), color: '#3B82F6' },
+          { label: 'Admins', value: totalAdmins.toLocaleString(), color: '#FF4D2D' },
+          { label: 'Subscribers', value: totalSubscribers.toLocaleString(), color: '#2DD36F' },
+          { label: 'New This Month', value: newThisMonth.toLocaleString(), color: '#FFB800' },
         ].map((item, idx) => (
           <motion.div
             key={item.label}
@@ -136,7 +161,6 @@ export function UsersPage() {
         ))}
       </div>
 
-      {/* Filters */}
       <div className="admin-filter-bar">
         <div className="search-input">
           <Search size={15} style={{ color: 'var(--admin-text-muted)' }} />
@@ -146,8 +170,6 @@ export function UsersPage() {
         <select className="admin-select" value={selectedRole} onChange={e => setSelectedRole(e.target.value)} style={{ padding: '8px 32px 8px 12px', fontSize: 12 }}>
           <option value="All">All Roles</option>
           <option value="Subscriber">Subscribers</option>
-          <option value="Creator">Creators</option>
-          <option value="Moderator">Moderators</option>
           <option value="Admin">Admins</option>
         </select>
         <select className="admin-select" value={selectedStatus} onChange={e => setSelectedStatus(e.target.value)} style={{ padding: '8px 32px 8px 12px', fontSize: 12 }}>
@@ -158,7 +180,6 @@ export function UsersPage() {
         </select>
       </div>
 
-      {/* Table */}
       <motion.div
         className="admin-table-wrap"
         initial={{ opacity: 0, y: 12 }}
@@ -175,13 +196,14 @@ export function UsersPage() {
               <th>Verified</th>
               <th>Joined</th>
               <th>Last Active</th>
-              <th style={{ width: 100 }}>Actions</th>
+              <th style={{ width: 110 }}>Actions</th>
             </tr>
           </thead>
           <tbody>
             {filtered.map((user, idx) => {
               const rc = roleColors[user.role]
               const sc = statusColors[user.status]
+              const isSelf = currentUser?.id === user.id
               return (
                 <motion.tr
                   key={user.id}
@@ -208,7 +230,7 @@ export function UsersPage() {
                         {user.name.split(' ').map(n => n[0]).join('')}
                       </div>
                       <div>
-                        <div className="cell-primary" style={{ fontSize: 13 }}>{user.name}</div>
+                        <div className="cell-primary" style={{ fontSize: 13 }}>{user.name}{isSelf ? ' (you)' : ''}</div>
                         <div style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{user.email}</div>
                       </div>
                     </div>
@@ -238,14 +260,26 @@ export function UsersPage() {
                   </td>
                   <td>
                     <div style={{ display: 'flex', gap: 4 }}>
-                      <button className="admin-btn admin-btn-ghost admin-btn-sm" style={{ padding: 5 }} title="View">
-                        <Eye size={13} />
+                      <button
+                        className="admin-btn admin-btn-ghost admin-btn-sm"
+                        style={{ padding: 5 }}
+                        title={user.isAdmin ? 'Revoke admin' : 'Grant admin'}
+                        disabled={isSelf}
+                        onClick={() => toggleAdmin(user)}
+                      >
+                        {user.isAdmin ? <ShieldOff size={13} /> : <ShieldCheck size={13} />}
                       </button>
                       <button className="admin-btn admin-btn-ghost admin-btn-sm" style={{ padding: 5 }} title="Email">
                         <Mail size={13} />
                       </button>
-                      <button className="admin-btn admin-btn-ghost admin-btn-sm" style={{ padding: 5 }} title="More">
-                        <MoreHorizontal size={13} />
+                      <button
+                        className="admin-btn admin-btn-ghost admin-btn-sm"
+                        style={{ padding: 5, color: isSelf ? 'var(--admin-text-faint)' : 'var(--admin-danger)' }}
+                        title="Delete"
+                        disabled={isSelf}
+                        onClick={() => handleDelete(user)}
+                      >
+                        <Trash2 size={13} />
                       </button>
                     </div>
                   </td>
@@ -256,12 +290,11 @@ export function UsersPage() {
         </table>
       </motion.div>
 
-      {/* Pagination */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 16, padding: '14px 0' }}>
         <span style={{ fontSize: 13, color: 'var(--admin-text-muted)' }}>Showing {filtered.length} of {users.length} users</span>
         <div style={{ display: 'flex', gap: 4 }}>
-          {[1, 2, 3, 4].map(p => (
-            <button key={p} className={`admin-btn ${p === 1 ? 'admin-btn-primary' : 'admin-btn-ghost'} admin-btn-sm`} style={{ minWidth: 34, padding: '6px 10px' }}>{p}</button>
+          {[1].map(p => (
+            <button key={p} className="admin-btn admin-btn-primary admin-btn-sm" style={{ minWidth: 34, padding: '6px 10px' }}>{p}</button>
           ))}
         </div>
       </div>

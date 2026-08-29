@@ -12,7 +12,21 @@ class UploadController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'file' => 'required|file|max:10240|mimes:jpg,jpeg,png,gif,webp,svg,mp4,mov,avi',
+            'file' => [
+                'required',
+                'file',
+                'mimes:jpg,jpeg,png,gif,webp,svg,mp4,mov,avi',
+                function ($attribute, $value, $fail) {
+                    $ext = strtolower($value->getClientOriginalExtension());
+                    $isVideo = in_array($ext, ['mp4', 'mov', 'avi'], true);
+                    $maxKb = $isVideo ? 2097152 : 10240;
+                    if ($value->getSize() > $maxKb * 1024) {
+                        $maxMb = $maxKb / 1024;
+                        $label = $maxMb >= 1024 ? (round($maxMb / 1024, 1) . 'GB') : ($maxMb . 'MB');
+                        $fail("The file exceeds the maximum allowed size of {$label}.");
+                    }
+                },
+            ],
             'folder' => 'nullable|string|max:100',
         ]);
 

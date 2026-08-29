@@ -19,8 +19,8 @@ export function LoginPage() {
     setLoading(true)
     setError('')
     try {
-      await login(email, password)
-      navigate('/')
+      const user = await login(email, password)
+      navigate(user?.is_admin ? '/admin' : '/')
     } catch (err: any) {
       setError(err.message || 'Login failed')
     } finally {
@@ -46,6 +46,9 @@ export function LoginPage() {
           <div>
             <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, letterSpacing: 2, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Password</label>
             <input style={inputStyle} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="password" required />
+            <div style={{ textAlign: 'right', marginTop: 8 }}>
+              <Link to="/forgot-password" style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none' }}>Forgot password?</Link>
+            </div>
           </div>
           <button type="submit" disabled={loading}
             style={{ background: 'var(--red)', border: 'none', cursor: loading ? 'wait' : 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--text)', padding: '18px 36px', minHeight: 48, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 6, marginTop: 8, opacity: loading ? 0.7 : 1 }}>

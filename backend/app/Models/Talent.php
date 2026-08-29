@@ -13,12 +13,13 @@ class Talent extends Model
 
     protected $fillable = [
         'name', 'slug', 'role', 'bio', 'credits', 'image_url',
-        'reel_url', 'active', 'sort_order',
+        'reel_url', 'socials', 'active', 'sort_order',
     ];
 
     protected $casts = [
         'credits' => 'integer',
         'active' => 'boolean',
+        'socials' => 'array',
     ];
 
     public function getRouteKeyName(): string

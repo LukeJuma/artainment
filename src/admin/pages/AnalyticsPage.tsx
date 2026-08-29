@@ -1,12 +1,15 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import {
-  DollarSign, Users, Headphones, Eye, Clock, TrendingUp, Calendar,
-  ArrowUpRight, ArrowDownRight, BarChart3, Download,
+  DollarSign, Users, Headphones, Clock,
+  Download,
 } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
 import { StatCard } from '../components/StatCard'
 import { ChartCard, ResponsiveContainer, AreaChart, Area, BarChart, Bar, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, chartTooltipStyle } from '../components/ChartCard'
+import { useApi } from '../hooks/useApi'
+import { useAuth } from '../../contexts/AuthContext'
+import { adminAPI, filmsAPI, talentAPI } from '../../lib/api'
 
 const monthlyRevenue = [
   { month: 'Jan', revenue: 180000, target: 200000 },
@@ -53,33 +56,55 @@ const watchTimeData = [
   { day: 'Sun', avg: 55, total: 23800 },
 ]
 
-const subscriptionGrowth = [
-  { month: 'Jul', premium: 4200, vip: 1200, family: 800, student: 2100 },
-  { month: 'Aug', premium: 4800, vip: 1400, family: 900, student: 2300 },
-  { month: 'Sep', premium: 5200, vip: 1600, family: 1000, student: 2500 },
-  { month: 'Oct', premium: 5800, vip: 1800, family: 1100, student: 2700 },
-  { month: 'Nov', premium: 6400, vip: 2000, family: 1200, student: 2900 },
-  { month: 'Dec', premium: 7100, vip: 2300, family: 1400, student: 3100 },
-]
-
 const topPages = [
-  { page: '/movies/rising-sun', views: 45200, bounce: 12 },
-  { page: '/mic-mtaani/live', views: 38900, bounce: 8 },
-  { page: '/events/afrobeats-night', views: 22100, bounce: 15 },
-  { page: '/music/trending', views: 19800, bounce: 18 },
-  { page: '/podcasts/the-pod-cast', views: 15600, bounce: 22 },
-  { page: '/artists/sauti-sol', views: 14200, bounce: 10 },
-]
-
-const stats = [
-  { title: 'Monthly Revenue', value: 'KES ', numericValue: 2400000, change: 12.5, icon: DollarSign, color: '#FF4D2D', chartData: [18, 22, 19, 26, 29, 31, 27, 34, 38, 35, 42, 48] },
-  { title: 'Daily Active Users', value: '', numericValue: 4100, change: 18.2, icon: Users, color: '#3B82F6', chartData: [24, 28, 32, 29, 35, 38, 41] },
-  { title: 'Avg. Watch Time', value: '', numericValue: 47, suffix: ' min', change: 5.8, icon: Clock, color: '#8B5CF6', chartData: [42, 45, 38, 48, 52, 58, 55] },
-  { title: 'Total Streams', value: '', numericValue: 4200000, change: 23.1, icon: Headphones, color: '#2DD36F', chartData: [32, 38, 42, 45, 48, 52, 55] },
+  { page: '/films', views: 45200, bounce: 12 },
+  { page: '/talent', views: 38900, bounce: 8 },
+  { page: '/services', views: 22100, bounce: 15 },
+  { page: '/micmtaani', views: 19800, bounce: 18 },
+  { page: '/news', views: 15600, bounce: 22 },
+  { page: '/about', views: 14200, bounce: 10 },
 ]
 
 export function AnalyticsPage() {
+  const { token } = useAuth()
   const [period, setPeriod] = useState('30d')
+
+  const { data: films } = useApi(() => filmsAPI.list(), [])
+  const { data: talent } = useApi(() => talentAPI.list(), [])
+  const { data: users } = useApi(() => adminAPI.users(token!), [token])
+  const { data: payments } = useApi(() => adminAPI.payments(token!), [token])
+  const { data: plans } = useApi(() => adminAPI.plans(token!), [token])
+  const { data: subscriptions } = useApi(() => adminAPI.subscriptions(token!), [token])
+
+  const stats = useMemo(() => {
+    const totalRevenue = (payments ?? []).reduce((sum, p) => sum + p.amount, 0)
+    const userCount = users?.length ?? 0
+    const filmCount = films?.length ?? 0
+    const talentCount = talent?.length ?? 0
+    const activeSubs = (subscriptions ?? []).filter(s => s.status === 'active').length
+
+    return [
+      { title: 'Monthly Revenue', value: 'KES ', numericValue: totalRevenue, change: 12.5, icon: DollarSign, color: '#FF4D2D', chartData: [18, 22, 19, 26, 29, 31, 27, 34, 38, 35, 42, 48] },
+      { title: 'Registered Users', value: '', numericValue: userCount, change: 18.2, icon: Users, color: '#3B82F6', chartData: [24, 28, 32, 29, 35, 38, 41] },
+      { title: 'Content Items', value: '', numericValue: filmCount + talentCount, change: 5.8, icon: Clock, color: '#8B5CF6', chartData: [42, 45, 38, 48, 52, 58, 55] },
+      { title: 'Active Subscriptions', value: '', numericValue: activeSubs, change: 23.1, icon: Headphones, color: '#2DD36F', chartData: [32, 38, 42, 45, 48, 52, 55] },
+    ]
+  }, [films, talent, users, payments, subscriptions])
+
+  const subscriptionGrowth = useMemo(() => {
+    const active = (subscriptions ?? []).filter(s => s.status === 'active')
+    const countFor = (slug: string) => {
+      const plan = (plans ?? []).find(p => p.slug === slug)
+      return plan ? active.filter(s => s.plan_id === plan.id).length : 0
+    }
+    return [{
+      month: 'Active',
+      premium: countFor('premium'),
+      vip: countFor('vip'),
+      family: countFor('family'),
+      student: countFor('student'),
+    }]
+  }, [plans, subscriptions])
 
   return (
     <div>
@@ -134,7 +159,7 @@ export function AnalyticsPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                 <XAxis dataKey="month" tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: '#6B7280', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}K`} />
-                <Tooltip contentStyle={chartTooltipStyle} formatter={(val: number, name: string) => [`KES ${(val / 1000).toFixed(0)}K`, name === 'revenue' ? 'Revenue' : 'Target']} />
+                <Tooltip contentStyle={chartTooltipStyle} formatter={(val: unknown, name?: unknown) => [`KES ${(Number(val) / 1000).toFixed(0)}K`, name === 'revenue' ? 'Revenue' : 'Target']} />
                 <Bar dataKey="revenue" fill="url(#revBarGrad)" radius={[4, 4, 0, 0]} barSize={24} />
                 <Bar dataKey="target" fill="rgba(255,255,255,0.08)" radius={[4, 4, 0, 0]} barSize={24} />
               </BarChart>
@@ -193,7 +218,7 @@ export function AnalyticsPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                 <XAxis dataKey="hour" tick={{ fill: '#6B7280', fontSize: 10 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: '#6B7280', fontSize: 10 }} axisLine={false} tickLine={false} tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}K`} />
-                <Tooltip contentStyle={chartTooltipStyle} formatter={(val: number) => [`${(val / 1000).toFixed(1)}K`, 'Streams']} />
+                <Tooltip contentStyle={chartTooltipStyle} formatter={(val: unknown) => [`${(Number(val) / 1000).toFixed(1)}K`, 'Streams']} />
                 <Area type="monotone" dataKey="streams" stroke="#2DD36F" strokeWidth={2} fill="url(#stGrad)" dot={false} activeDot={{ r: 4, fill: '#2DD36F', stroke: '#fff', strokeWidth: 2 }} />
               </AreaChart>
             </ResponsiveContainer>
@@ -207,7 +232,7 @@ export function AnalyticsPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
                 <XAxis dataKey="day" tick={{ fill: '#6B7280', fontSize: 10 }} axisLine={false} tickLine={false} />
                 <YAxis tick={{ fill: '#6B7280', fontSize: 10 }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={chartTooltipStyle} formatter={(val: number) => [`${val} min`, 'Avg. Watch Time']} />
+                <Tooltip contentStyle={chartTooltipStyle} formatter={(val: unknown) => [`${Number(val)} min`, 'Avg. Watch Time']} />
                 <Line type="monotone" dataKey="avg" stroke="#FFB800" strokeWidth={2} dot={false} activeDot={{ r: 4, fill: '#FFB800', stroke: '#fff', strokeWidth: 2 }} />
               </LineChart>
             </ResponsiveContainer>

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Megaphone, Gift, Share2, Mail, Search, Image, TrendingUp, Percent, Users } from 'lucide-react'
+import { Megaphone, TrendingUp, Percent, Users } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
 import { ChartCard, ResponsiveContainer, AreaChart, Area, CartesianGrid, XAxis, YAxis, Tooltip, chartTooltipStyle } from '../components/ChartCard'
 import { useApi } from '../hooks/useApi'

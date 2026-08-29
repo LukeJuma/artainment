@@ -9,9 +9,10 @@ use Illuminate\Http\Request;
 
 class TalentController extends Controller
 {
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $talent = Talent::where('active', true)->orderBy('sort_order')->get();
+        $perPage = min((int) $request->input('per_page', 24), 50);
+        $talent = Talent::where('active', true)->orderBy('sort_order')->paginate($perPage);
         return response()->json($talent);
     }
 
@@ -31,6 +32,7 @@ class TalentController extends Controller
             'credits' => 'nullable|integer|min:0',
             'image_url' => 'nullable|string|max:500',
             'reel_url' => 'nullable|string|max:500',
+            'socials' => 'nullable|array',
             'active' => 'nullable|boolean',
             'sort_order' => 'nullable|integer',
         ]);
@@ -50,6 +52,7 @@ class TalentController extends Controller
             'credits' => 'nullable|integer|min:0',
             'image_url' => 'nullable|string|max:500',
             'reel_url' => 'nullable|string|max:500',
+            'socials' => 'nullable|array',
             'active' => 'nullable|boolean',
             'sort_order' => 'nullable|integer',
         ]);

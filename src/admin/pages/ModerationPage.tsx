@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Shield, AlertTriangle, Flag, Eye, Ban, Check, X, Search, MessageSquare, Clock } from 'lucide-react'
+import { AlertTriangle, Eye, Ban, Check, X, Search, Clock } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
 import { useApi } from '../hooks/useApi'
 import { useAuth } from '../../contexts/AuthContext'

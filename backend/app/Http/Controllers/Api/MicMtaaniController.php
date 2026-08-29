@@ -21,11 +21,13 @@ class MicMtaaniController extends Controller
     {
         $breaking = MicMtaaniArticle::where('is_breaking', true)
             ->where('status', 'published')
+            ->with('category:id,name,slug,color')
             ->latest('published_at')
             ->first();
 
         $featured = MicMtaaniArticle::where('is_featured', true)
             ->where('status', 'published')
+            ->with('category:id,name,slug,color')
             ->latest('published_at')
             ->first();
 

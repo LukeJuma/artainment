@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react'
-import { motion } from 'framer-motion'
 import { Menu, Search, Plus, Bell, Clock, Sun, Moon } from 'lucide-react'
 import { CommandPalette } from './CommandPalette'
 import { NotificationPanel } from './NotificationPanel'

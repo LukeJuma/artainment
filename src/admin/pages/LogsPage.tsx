@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { motion } from 'framer-motion'
-import { Terminal, AlertTriangle, Info, AlertCircle, RefreshCcw, Download, Search, Filter } from 'lucide-react'
+import { Terminal, AlertTriangle, Info, AlertCircle, RefreshCcw, Download } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
 import { useApi } from '../hooks/useApi'
 import { filmsAPI, talentAPI, newsAPI } from '../../lib/api'

@@ -10,19 +10,31 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        User::create([
+        $adminPassword = env('SEED_ADMIN_PASSWORD');
+        if (!$adminPassword) {
+            throw new \RuntimeException('SEED_ADMIN_PASSWORD env variable is required. Set it in .env before running the seeder.');
+        }
+
+        $admin = User::create([
             'name' => 'Admin',
             'email' => 'admin@theartainment.co.ke',
-            'password' => Hash::make('password'),
+            'password' => Hash::make($adminPassword),
+        ]);
+        $admin->is_admin = true;
+        $admin->save();
+
+        Film::insert([
+            ['title' => 'Nairobi Noir', 'slug' => 'nairobi-noir', 'synopsis' => 'A gritty thriller set in the dark alleys of Nairobi, where a detective uncovers a web of corruption that reaches the highest levels of power.', 'genre' => 'Thriller', 'year' => '2024', 'duration' => '1h 52m', 'rating' => 8.4, 'tag' => 'Featured', 'status' => 'completed', 'featured' => true, 'sort_order' => 1, 'cast' => json_encode(['director' => 'Wilson Osiolo', 'cast' => ['Maryann Matega', 'Walter Muiruri'], 'producer' => 'Augustine Ngigi']), 'created_at' => now(), 'updated_at' => now()],
+            ['title' => 'The Red Soil', 'slug' => 'the-red-soil', 'synopsis' => 'A family torn between tradition and modernity in rural Kenya must confront land, legacy, and love when their eldest son returns from Nairobi with a secret.', 'genre' => 'Drama', 'year' => '2024', 'duration' => '2h 08m', 'rating' => 9.1, 'tag' => 'Award Winner', 'status' => 'completed', 'featured' => true, 'sort_order' => 2, 'cast' => null, 'created_at' => now(), 'updated_at' => now()],
+            ['title' => 'Mombasa Blue', 'slug' => 'mombasa-blue', 'synopsis' => 'A sweeping romance along the Kenyan coast, where two strangers from different worlds discover that love knows no boundaries.', 'genre' => 'Romance', 'year' => '2023', 'duration' => '1h 44m', 'rating' => 7.8, 'tag' => 'New', 'status' => 'completed', 'featured' => false, 'sort_order' => 3, 'cast' => null, 'created_at' => now(), 'updated_at' => now()],
+            ['title' => 'Savannah Dreams', 'slug' => 'savannah-dreams', 'synopsis' => 'An intimate documentary following three Maasai families as they navigate the intersection of ancient traditions and modern life.', 'genre' => 'Documentary', 'year' => '2023', 'duration' => '1h 28m', 'rating' => 8.7, 'tag' => 'Documentary', 'status' => 'completed', 'featured' => false, 'sort_order' => 4, 'cast' => null, 'created_at' => now(), 'updated_at' => now()],
+            ['title' => 'Rift Valley Stories', 'slug' => 'rift-valley-stories', 'synopsis' => 'An anthology of interconnected tales from Kenya\'s Great Rift Valley, weaving together the lives of farmers, teachers, and dreamers.', 'genre' => 'Drama', 'year' => '2024', 'duration' => '1h 58m', 'rating' => 8.2, 'tag' => 'New', 'status' => 'completed', 'featured' => false, 'sort_order' => 5, 'cast' => null, 'created_at' => now(), 'updated_at' => now()],
+            ['title' => 'City of Lights', 'slug' => 'city-of-lights', 'synopsis' => 'A sci-fi vision of Nairobi in 2050, where technology and African spirituality collide in unexpected ways.', 'genre' => 'Sci-Fi', 'year' => '2023', 'duration' => '2h 15m', 'rating' => 7.6, 'tag' => null, 'status' => 'completed', 'featured' => false, 'sort_order' => 6, 'cast' => null, 'created_at' => now(), 'updated_at' => now()],
         ]);
 
         Film::insert([
-            ['title' => 'Nairobi Noir', 'slug' => 'nairobi-noir', 'synopsis' => 'A gritty thriller set in the dark alleys of Nairobi, where a detective uncovers a web of corruption that reaches the highest levels of power.', 'genre' => 'Thriller', 'year' => '2024', 'duration' => '1h 52m', 'rating' => 8.4, 'tag' => 'Featured', 'status' => 'completed', 'featured' => true, 'sort_order' => 1, 'created_at' => now(), 'updated_at' => now()],
-            ['title' => 'The Red Soil', 'slug' => 'the-red-soil', 'synopsis' => 'A family torn between tradition and modernity in rural Kenya must confront land, legacy, and love when their eldest son returns from Nairobi with a secret.', 'genre' => 'Drama', 'year' => '2024', 'duration' => '2h 08m', 'rating' => 9.1, 'tag' => 'Award Winner', 'status' => 'completed', 'featured' => true, 'sort_order' => 2, 'created_at' => now(), 'updated_at' => now()],
-            ['title' => 'Mombasa Blue', 'slug' => 'mombasa-blue', 'synopsis' => 'A sweeping romance along the Kenyan coast, where two strangers from different worlds discover that love knows no boundaries.', 'genre' => 'Romance', 'year' => '2023', 'duration' => '1h 44m', 'rating' => 7.8, 'tag' => 'New', 'status' => 'completed', 'featured' => false, 'sort_order' => 3, 'created_at' => now(), 'updated_at' => now()],
-            ['title' => 'Savannah Dreams', 'slug' => 'savannah-dreams', 'synopsis' => 'An intimate documentary following three Maasai families as they navigate the intersection of ancient traditions and modern life.', 'genre' => 'Documentary', 'year' => '2023', 'duration' => '1h 28m', 'rating' => 8.7, 'tag' => 'Documentary', 'status' => 'completed', 'featured' => false, 'sort_order' => 4, 'created_at' => now(), 'updated_at' => now()],
-            ['title' => 'Rift Valley Stories', 'slug' => 'rift-valley-stories', 'synopsis' => 'An anthology of interconnected tales from Kenya\'s Great Rift Valley, weaving together the lives of farmers, teachers, and dreamers.', 'genre' => 'Drama', 'year' => '2024', 'duration' => '1h 58m', 'rating' => 8.2, 'tag' => 'New', 'status' => 'completed', 'featured' => false, 'sort_order' => 5, 'created_at' => now(), 'updated_at' => now()],
-            ['title' => 'City of Lights', 'slug' => 'city-of-lights', 'synopsis' => 'A sci-fi vision of Nairobi in 2050, where technology and African spirituality collide in unexpected ways.', 'genre' => 'Sci-Fi', 'year' => '2023', 'duration' => '2h 15m', 'rating' => 7.6, 'tag' => null, 'status' => 'completed', 'featured' => false, 'sort_order' => 6, 'created_at' => now(), 'updated_at' => now()],
+            ['title' => 'The Last Drumbeat', 'slug' => 'the-last-drumbeat', 'synopsis' => 'A sweeping historical epic following a community fighting to preserve its sacred traditions as the modern world encroaches.', 'genre' => 'Drama', 'year' => '2026', 'duration' => '2h 02m', 'rating' => 0, 'tag' => 'Coming Soon', 'status' => 'upcoming', 'featured' => true, 'sort_order' => 7, 'release_date' => now()->addMonths(2)->toDateString(), 'cast' => null, 'created_at' => now(), 'updated_at' => now()],
+            ['title' => 'Mtaa Knights', 'slug' => 'mtaa-knights', 'synopsis' => 'A high-octane street crime thriller set in the heart of Nakuru, where loyalty is the only currency that matters.', 'genre' => 'Action', 'year' => '2026', 'duration' => '1h 49m', 'rating' => 0, 'tag' => 'Coming Soon', 'status' => 'upcoming', 'featured' => false, 'sort_order' => 8, 'release_date' => now()->addMonths(3)->toDateString(), 'cast' => null, 'created_at' => now(), 'updated_at' => now()],
         ]);
 
         Service::insert([
@@ -199,5 +211,11 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Nakuru City Gym', 'slug' => 'nakuru-city-gym', 'description' => 'Modern fitness center with equipment, classes, and personal training services.', 'location' => 'Oginga Odinga Street, Nakuru', 'phone' => '+254 722 123 456', 'opening_hours' => 'Mon-Fri: 5:30 AM - 9:00 PM, Sat-Sun: 7:00 AM - 6:00 PM', 'category' => 'fitness', 'is_featured' => true, 'created_at' => now(), 'updated_at' => now()],
             ['name' => 'Mama Njeri Catering Services', 'slug' => 'mama-njeri-catering', 'description' => 'Home-cooked meals and event catering specializing in traditional Kikuyu cuisine.', 'location' => 'Langas, Nakuru', 'phone' => '+254 712 987 654', 'opening_hours' => 'Mon-Sat: 6:00 AM - 8:00 PM', 'category' => 'food', 'is_featured' => true, 'created_at' => now(), 'updated_at' => now()],
         ]);
+
+        $this->call(SubscriptionSeeder::class);
+        $this->call(SettingSeeder::class);
+        $this->call(SeriesSeeder::class);
+        $this->call(PodcastSeeder::class);
+        $this->call(AdditionalDataSeeder::class);
     }
 }

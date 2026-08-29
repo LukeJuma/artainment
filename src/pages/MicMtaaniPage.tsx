@@ -9,7 +9,10 @@ import { IconClock, IconEye } from '../components/ui/Icons'
 const PLACEHOLDER_IMG = 'https://images.unsplash.com/photo-1504711434969-e33886168d8c?w=800&h=500&fit=crop&auto=format'
 
 function timeAgo(date: string) {
-  const diff = Date.now() - new Date(date).getTime()
+  if (!date) return ''
+  const t = new Date(date).getTime()
+  if (isNaN(t)) return ''
+  const diff = Date.now() - t
   const mins = Math.floor(diff / 60000)
   if (mins < 60) return `${mins}m ago`
   const hrs = Math.floor(mins / 60)
@@ -111,7 +114,7 @@ export function MicMtaaniPage() {
                 onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
                 >
                   {article.image_url && (
-                    <img src={article.image_url} alt="" style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 6 }} />
+                    <img src={article.image_url} alt="" loading="lazy" style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 6 }} />
                   )}
                   <div>
                     {article.is_breaking && <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--red)', textTransform: 'uppercase', letterSpacing: 1 }}>BREAKING</span>}

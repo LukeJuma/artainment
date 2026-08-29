@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react'
-import { Upload, X, Image, Film, Loader2 } from 'lucide-react'
+import { Upload, X, Film, Loader2 } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 import { adminAPI } from '../../lib/api'
 
@@ -101,7 +101,7 @@ export function FileUpload({ value, onChange, folder = 'uploads', accept, label,
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
               {type === 'video' ? <Film size={22} style={{ color: 'var(--admin-text-muted)' }} /> : <Upload size={22} style={{ color: 'var(--admin-text-muted)' }} />}
               <div style={{ fontSize: 13, color: 'var(--admin-text-secondary)' }}>Click or drag to upload</div>
-              <div style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{type === 'video' ? 'MP4, MOV up to 50MB' : 'PNG, JPG, WebP up to 10MB'}</div>
+              <div style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{type === 'video' ? 'MP4, MOV up to 2GB' : 'PNG, JPG, WebP up to 10MB'}</div>
             </div>
           )}
         </div>

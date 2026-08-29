@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 import { Sidebar } from '../components/Sidebar'
 import { TopNav } from '../components/TopNav'
@@ -12,7 +13,7 @@ import { PodcastsPage } from '../pages/PodcastsPage'
 import { EventsPage } from '../pages/EventsPage'
 import { TicketingPage } from '../pages/TicketingPage'
 import { MicMtaaniPage } from '../pages/MicMtaaniPage'
-import { ArtistsPage } from '../pages/ArtistsPage'
+import { ActorsPage } from '../pages/ActorsPage'
 import { UsersPage } from '../pages/UsersPage'
 import { SubscriptionsPage } from '../pages/SubscriptionsPage'
 import { PaymentsPage } from '../pages/PaymentsPage'
@@ -37,7 +38,7 @@ const PAGES: Record<string, React.FC> = {
   events: EventsPage,
   ticketing: TicketingPage,
   micmtaani: MicMtaaniPage,
-  artists: ArtistsPage,
+  actors: ActorsPage,
   users: UsersPage,
   subscriptions: SubscriptionsPage,
   payments: PaymentsPage,
@@ -62,18 +63,25 @@ function useIsMobile() {
 }
 
 export function AdminLayout() {
-  const [currentPage, setCurrentPage] = useState('dashboard')
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
-  const { user, isAdmin, loading: authLoading } = useAuth()
+  const { user, isAdmin, logout, loading: authLoading } = useAuth()
   const isMobile = useIsMobile()
+  const location = useLocation()
+  const navigate = useNavigate()
 
+  const currentPage = location.pathname.split('/')[2] || 'dashboard'
   const PageComponent = PAGES[currentPage] || Dashboard
   const pageTitle = PAGE_TITLES[currentPage] || 'Dashboard'
 
   // Close mobile sidebar on navigate
   const handleNavigate = (page: string) => {
-    setCurrentPage(page)
+    if (page === 'logout') {
+      logout()
+      navigate('/')
+      return
+    }
+    navigate(`/admin/${page}`)
     if (isMobile) setMobileOpen(false)
   }
 
@@ -156,6 +164,10 @@ export function AdminLayout() {
         </div>
       </div>
     )
+  }
+
+  if (location.pathname === '/admin') {
+    return <Navigate to="/admin/dashboard" replace />
   }
 
   return (
