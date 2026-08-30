@@ -1,9 +1,5 @@
 # Frontend Environment Variables for Vercel
 
-# API Configuration
-VITE_API_BASE_URL=https://your-project.supabase.co/functions/v1/api
-VITE_APP_URL=https://your-app.vercel.app
-
-# Optional: Direct Supabase Client (if you want to use Supabase client-side)
-VITE_SUPABASE_URL=https://your-project.supabase.co
-VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+# API Configuration - deployed Laravel API endpoint (the ONLY required var)
+# VITE_API_URL is the sole env the frontend reads for the API origin.
+VITE_API_URL=https://api.theartainment.co.ke/api

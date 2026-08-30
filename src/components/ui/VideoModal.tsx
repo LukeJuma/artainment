@@ -7,16 +7,53 @@ interface VideoModalProps {
   src: string
   title: string
   poster?: string | null
+  authToken?: string | null
   onClose: () => void
 }
 
 const EASE = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
 
-export function VideoModal({ src, title, poster, onClose }: VideoModalProps) {
+export function VideoModal({ src, title, poster, authToken, onClose }: VideoModalProps) {
   const reduced = useReducedMotion()
   const closeRef = useRef<HTMLButtonElement>(null)
   const [failed, setFailed] = useState(false)
+  const [videoSrc, setVideoSrc] = useState(src)
+  const [loadingVideo, setLoadingVideo] = useState(false)
   const youTubeId = parseYouTubeId(src)
+
+  useEffect(() => {
+    setFailed(false)
+    setVideoSrc(src)
+
+    if (youTubeId || !authToken) return
+
+    const controller = new AbortController()
+    let objectUrl: string | null = null
+    setLoadingVideo(true)
+
+    fetch(src, {
+      headers: { Authorization: `Bearer ${authToken}` },
+      credentials: 'include',
+      signal: controller.signal,
+    })
+      .then(async res => {
+        if (!res.ok) throw new Error(`Video request failed with status ${res.status}`)
+        const blob = await res.blob()
+        objectUrl = URL.createObjectURL(blob)
+        setVideoSrc(objectUrl)
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setFailed(true)
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoadingVideo(false)
+      })
+
+    return () => {
+      controller.abort()
+      if (objectUrl) URL.revokeObjectURL(objectUrl)
+    }
+  }, [src, authToken, youTubeId])
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -73,12 +110,19 @@ export function VideoModal({ src, title, poster, onClose }: VideoModalProps) {
               </p>
               <a href="/login" className="btn-red" style={{ marginTop: 8 }}>Log in</a>
             </div>
+          ) : loadingVideo ? (
+            <div style={{
+              width: '100%', height: '100%', display: 'flex', alignItems: 'center',
+              justifyContent: 'center', color: 'rgba(255,255,255,0.78)', fontFamily: 'DM Sans, sans-serif',
+            }}>
+              Loading video...
+            </div>
           ) : youTubeId ? (
             <YouTubePlayer videoId={youTubeId} />
           ) : (
             <video
-              key={src}
-              src={src}
+              key={videoSrc}
+              src={videoSrc}
               controls
               autoPlay
               playsInline

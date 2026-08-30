@@ -8,6 +8,7 @@ use App\Models\Subscription;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 class VideoStreamController extends Controller
 {
@@ -16,7 +17,7 @@ class VideoStreamController extends Controller
      * The frontend's videoStreamUrl() routes trailer paths here.
      * Full video streaming goes through the authenticated streamFilm() method.
      */
-    public function stream(Request $request): BinaryFileResponse|JsonResponse
+    public function stream(Request $request): BinaryFileResponse|JsonResponse|RedirectResponse
     {
         $file = $request->query('file');
 
@@ -32,7 +33,7 @@ class VideoStreamController extends Controller
      * Requires auth:sanctum + an active (non-expired) subscription.
      * The slug is looked up in the URL; the file path comes from the film record.
      */
-    public function streamFilm(Request $request, string $slug): BinaryFileResponse|JsonResponse
+    public function streamFilm(Request $request, string $slug): BinaryFileResponse|JsonResponse|RedirectResponse
     {
         $user = $request->user();
 
@@ -58,8 +59,12 @@ class VideoStreamController extends Controller
         return $this->serveFile($film->full_video_url);
     }
 
-    private function serveFile(string $file): BinaryFileResponse|JsonResponse
+    private function serveFile(string $file): BinaryFileResponse|JsonResponse|RedirectResponse
     {
+        if (preg_match('/^https?:\/\//i', $file)) {
+            return redirect()->away($file);
+        }
+
         $path = str_replace('\\', '/', trim($file));
         $path = ltrim($path, '/');
 

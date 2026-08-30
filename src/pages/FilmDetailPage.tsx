@@ -8,9 +8,11 @@ import { FilmDetailHero } from '../components/film/FilmDetailHero'
 import { FilmCastCrew } from '../components/film/FilmCastCrew'
 import { FilmDescription } from '../components/film/FilmDescription'
 import { FilmRelated } from '../components/film/FilmRelated'
+import { useAuth } from '../contexts/AuthContext'
 
 export function FilmDetailPage() {
   const { slug } = useParams()
+  const { token } = useAuth()
   const [film, setFilm] = useState<Film | null>(null)
   const [related, setRelated] = useState<Film[]>([])
   const [error, setError] = useState(false)
@@ -79,6 +81,7 @@ export function FilmDetailPage() {
             src={film.youtube_url || fullFilmStreamUrl(film.slug)}
             title={film.title}
             poster={film.backdrop_url || film.poster_url}
+            authToken={film.youtube_url ? null : token}
             onClose={() => setShowFull(false)}
           />
         )}

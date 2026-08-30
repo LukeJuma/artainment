@@ -45,13 +45,15 @@ return [
             'visibility' => 'public',
             'throw' => false,
             'report' => false,
-            // Supabase Storage (S3-compatible) — active when FILESYSTEM_PUBLIC_DRIVER=s3
-            'key' => env('SUPABASE_ACCESS_KEY'),
-            'secret' => env('SUPABASE_SECRET_KEY'),
-            'region' => env('SUPABASE_REGION', 'us-east-1'),
-            'bucket' => env('SUPABASE_BUCKET'),
-            'endpoint' => env('SUPABASE_ENDPOINT'),
-            'use_path_style_endpoint' => env('SUPABASE_USE_PATH_STYLE', true),
+            // Supabase Storage (S3-compatible) — active when FILESYSTEM_PUBLIC_DRIVER=s3.
+            // Support both the documented SUPABASE_* names and Laravel/AWS-style names
+            // used by several hosting dashboards.
+            'key' => env('SUPABASE_ACCESS_KEY', env('AWS_ACCESS_KEY_ID')),
+            'secret' => env('SUPABASE_SECRET_KEY', env('AWS_SECRET_ACCESS_KEY')),
+            'region' => env('SUPABASE_REGION', env('AWS_DEFAULT_REGION', 'us-east-1')),
+            'bucket' => env('SUPABASE_BUCKET', env('AWS_BUCKET')),
+            'endpoint' => env('SUPABASE_ENDPOINT', env('AWS_ENDPOINT')),
+            'use_path_style_endpoint' => env('SUPABASE_USE_PATH_STYLE', env('AWS_USE_PATH_STYLE_ENDPOINT', true)),
         ],
 
         's3' => [
