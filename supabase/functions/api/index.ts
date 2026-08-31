@@ -175,132 +175,164 @@ serve(async (req) => {
 
     // Home page data
     if (path === '/home' && method === 'GET') {
-      // Get featured film
-      const { data: featuredFilm } = await supabase
-        .from('films')
-        .select('*')
-        .eq('featured', true)
-        .order('sort_order')
-        .limit(1)
-        .single()
+      try {
+        // Get featured film (handle potential foreign key issues)
+        const { data: featuredFilm } = await supabase
+          .from('films')
+          .select('*')
+          .eq('featured', true)
+          .eq('status', 'completed')
+          .order('sort_order')
+          .limit(1)
+          .single()
 
-      // Get recent films
-      const { data: films } = await supabase
-        .from('films')
-        .select('*')
-        .eq('status', 'completed')
-        .order('created_at', { ascending: false })
-        .limit(8)
+        // Get recent films (only completed ones)
+        const { data: films } = await supabase
+          .from('films')
+          .select('*')
+          .eq('status', 'completed')
+          .order('created_at', { ascending: false })
+          .limit(8)
 
-      // Get services
-      const { data: services } = await supabase
-        .from('services')
-        .select('*')
-        .eq('active', true)
-        .order('sort_order')
+        // Get services (only active ones)
+        const { data: services } = await supabase
+          .from('services')
+          .select('*')
+          .eq('active', true)
+          .order('sort_order')
 
-      // Get talent
-      const { data: talent } = await supabase
-        .from('talent')
-        .select('*')
-        .eq('active', true)
-        .order('sort_order')
-        .limit(6)
+        // Get talent (only active ones)
+        const { data: talent } = await supabase
+          .from('talent')
+          .select('*')
+          .eq('active', true)
+          .order('sort_order')
+          .limit(6)
 
-      // Get gallery images
-      const { data: gallery } = await supabase
-        .from('gallery_images')
-        .select('*')
-        .order('sort_order')
-        .limit(8)
+        // Get gallery images
+        const { data: gallery } = await supabase
+          .from('gallery_images')
+          .select('*')
+          .order('sort_order')
+          .limit(8)
 
-      // Get news articles
-      const { data: news } = await supabase
-        .from('news_articles')
-        .select('*')
-        .not('published_at', 'is', null)
-        .order('published_at', { ascending: false })
-        .limit(4)
+        // Get news articles (only published ones)
+        const { data: news } = await supabase
+          .from('news_articles')
+          .select('*')
+          .eq('status', 'published')
+          .not('published_at', 'is', null)
+          .order('published_at', { ascending: false })
+          .limit(4)
 
-      // Get testimonials
-      const { data: testimonials } = await supabase
-        .from('testimonials')
-        .select('*')
-        .eq('active', true)
-        .order('sort_order')
+        // Get testimonials (only active ones)
+        const { data: testimonials } = await supabase
+          .from('testimonials')
+          .select('*')
+          .eq('active', true)
+          .order('sort_order')
 
-      // Get podcasts
-      const { data: podcasts } = await supabase
-        .from('podcasts')
-        .select('*')
-        .eq('active', true)
-        .order('sort_order')
-        .limit(4)
+        // Get podcasts (only active ones)
+        const { data: podcasts } = await supabase
+          .from('podcasts')
+          .select('*')
+          .eq('active', true)
+          .order('sort_order')
+          .limit(4)
 
-      // Get coming soon films
-      const { data: comingSoon } = await supabase
-        .from('films')
-        .select('*')
-        .in('status', ['upcoming', 'in_production'])
-        .order('release_date')
-        .limit(4)
+        // Get coming soon films
+        const { data: comingSoon } = await supabase
+          .from('films')
+          .select('*')
+          .in('status', ['upcoming', 'in_production'])
+          .order('release_date')
+          .limit(4)
 
-      return new Response(
-        JSON.stringify({
-          featured_film: featuredFilm,
-          films: films || [],
-          services: services || [],
-          talent: talent || [],
-          gallery: gallery || [],
-          news: news || [],
-          testimonials: testimonials || [],
-          podcasts: podcasts || [],
-          coming_soon: comingSoon || []
-        }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+        return new Response(
+          JSON.stringify({
+            featured_film: featuredFilm || null,
+            films: films || [],
+            services: services || [],
+            talent: talent || [],
+            gallery: gallery || [],
+            news: news || [],
+            testimonials: testimonials || [],
+            podcasts: podcasts || [],
+            coming_soon: comingSoon || []
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      } catch (error) {
+        console.error('Home API Error:', error)
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to load home data',
+            details: error.message 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        )
+      }
     }
 
     // Films endpoints
     if (path === '/films' && method === 'GET') {
-      const genre = url.searchParams.get('genre')
-      const paginate = url.searchParams.get('paginate')
-      
-      let query = supabase
-        .from('films')
-        .select('*')
-        .order('sort_order')
+      try {
+        const genre = url.searchParams.get('genre')
+        const paginate = url.searchParams.get('paginate')
+        
+        let query = supabase
+          .from('films')
+          .select('*')
+          .eq('status', 'completed') // Only show completed films
+          .order('sort_order')
 
-      if (genre && genre !== 'All') {
-        query = query.eq('genre', genre)
-      }
+        if (genre && genre !== 'All') {
+          query = query.eq('genre', genre)
+        }
 
-      const { data: films, error } = await query
+        const { data: films, error } = await query
 
-      if (error) {
+        if (error) {
+          console.error('Films API Error:', error)
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        if (paginate === 'true') {
+          return new Response(
+            JSON.stringify({
+              data: films || [],
+              current_page: 1,
+              last_page: 1,
+              per_page: films?.length || 0,
+              total: films?.length || 0
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
         return new Response(
-          JSON.stringify({ error: error.message }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-      }
-
-      if (paginate === 'true') {
-        return new Response(
-          JSON.stringify({
-            data: films,
-            current_page: 1,
-            last_page: 1,
-            per_page: films?.length || 0,
-            total: films?.length || 0
-          }),
+          JSON.stringify(films || []),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
+      } catch (error) {
+        console.error('Films API Error:', error)
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to load films',
+            details: error.message 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        )
       }
-
-      return new Response(
-        JSON.stringify(films),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
     }
 
     // Single film
