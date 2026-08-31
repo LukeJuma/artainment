@@ -91,19 +91,6 @@ serve(async (req) => {
 
     console.log(`${method} ${path} (original: ${url.pathname})`)
 
-    // Debug route to check users
-    if (path === '/debug/users' && method === 'GET') {
-      const { data: users, error } = await supabase
-        .from('users')
-        .select('id, name, email, is_admin, created_at')
-        .limit(5)
-
-      return new Response(
-        JSON.stringify({ users, error }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
     // Authentication endpoints
     if (path === '/auth/login' && method === 'POST') {
       const { email, password } = await req.json()

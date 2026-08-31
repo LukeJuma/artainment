@@ -1,5 +1,11 @@
 const API_BASE = (import.meta as any).env?.VITE_API_URL || 'http://localhost:8000/api';
 
+// Debug: Log the API base in non-production
+if (typeof window !== 'undefined' && window.location.hostname !== 'the-artainment.vercel.app') {
+  console.log('API_BASE:', API_BASE);
+  console.log('Environment:', (import.meta as any).env);
+}
+
 export const API_ORIGIN = API_BASE.replace(/\/api\/?$/, '');
 
 export function videoStreamUrl(path?: string | null): string | null {

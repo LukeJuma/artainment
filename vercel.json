@@ -1,9 +1,10 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
-  "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  "framework": "vite",
+  "env": {
+    "VITE_API_URL": "https://etjkivwwnqafyphqamgh.supabase.co/functions/v1/api",
+    "VITE_APP_URL": "https://the-artainment.vercel.app",
+    "VITE_SUPABASE_URL": "https://etjkivwwnqafyphqamgh.supabase.co"
+  }
 }

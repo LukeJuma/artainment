@@ -17,12 +17,13 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 8443,
     strictPort: true,
-    proxy: {
+    // Only use proxy in development for local backend
+    proxy: process.env.NODE_ENV === 'development' ? {
       '/api': {
-        target: 'http://localhost:8001',
+        target: 'http://localhost:8000',
         changeOrigin: true,
       },
-    },
+    } : undefined,
   },
   preview: {
     host: '0.0.0.0',
