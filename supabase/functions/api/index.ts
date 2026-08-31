@@ -358,6 +358,643 @@ serve(async (req) => {
       )
     }
 
+    // Series endpoints
+    if (path === '/series' && method === 'GET') {
+      try {
+        const paginate = url.searchParams.get('paginate')
+        const page = parseInt(url.searchParams.get('page') || '1')
+        const perPage = 10
+
+        let query = supabase
+          .from('series')
+          .select('*')
+          .order('sort_order')
+
+        const { data: series, error } = await query
+
+        if (error) {
+          console.error('Series API Error:', error)
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        if (paginate === 'true') {
+          const total = series?.length || 0
+          const startIndex = (page - 1) * perPage
+          const paginatedData = series?.slice(startIndex, startIndex + perPage) || []
+          
+          return new Response(
+            JSON.stringify({
+              data: paginatedData,
+              current_page: page,
+              last_page: Math.ceil(total / perPage),
+              per_page: perPage,
+              total: total
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        return new Response(
+          JSON.stringify(series || []),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      } catch (error) {
+        console.error('Series API Error:', error)
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to load series',
+            details: error.message 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        )
+      }
+    }
+
+    // Single series
+    if (path.startsWith('/series/') && method === 'GET') {
+      const slug = path.replace('/series/', '')
+      
+      const { data: series, error } = await supabase
+        .from('series')
+        .select('*')
+        .eq('slug', slug)
+        .single()
+
+      if (error || !series) {
+        return new Response(
+          JSON.stringify({ message: 'Series not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      return new Response(
+        JSON.stringify(series),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Actors (talent) endpoints
+    if (path === '/actors' && method === 'GET') {
+      try {
+        const paginate = url.searchParams.get('paginate')
+        const page = parseInt(url.searchParams.get('page') || '1')
+        const perPage = 10
+
+        // Check if talent table exists and has data
+        let query = supabase
+          .from('talent')
+          .select('*')
+          .eq('active', true)
+          .order('sort_order')
+
+        const { data: talent, error } = await query
+
+        if (error) {
+          console.error('Talent API Error:', error)
+          // Return empty array if table doesn't exist or has no data
+          const emptyResult = paginate === 'true' ? {
+            data: [],
+            current_page: 1,
+            last_page: 1,
+            per_page: perPage,
+            total: 0
+          } : []
+          
+          return new Response(
+            JSON.stringify(emptyResult),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        if (paginate === 'true') {
+          const total = talent?.length || 0
+          const startIndex = (page - 1) * perPage
+          const paginatedData = talent?.slice(startIndex, startIndex + perPage) || []
+          
+          return new Response(
+            JSON.stringify({
+              data: paginatedData,
+              current_page: page,
+              last_page: Math.ceil(total / perPage) || 1,
+              per_page: perPage,
+              total: total
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        return new Response(
+          JSON.stringify(talent || []),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      } catch (error) {
+        console.error('Talent API Error:', error)
+        // Return empty array on any error
+        const emptyResult = url.searchParams.get('paginate') === 'true' ? {
+          data: [],
+          current_page: 1,
+          last_page: 1,
+          per_page: 10,
+          total: 0
+        } : []
+        
+        return new Response(
+          JSON.stringify(emptyResult),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+    }
+
+    // Single actor (talent)
+    if (path.startsWith('/actors/') && method === 'GET') {
+      const slug = path.replace('/actors/', '')
+      
+      try {
+        const { data: talent, error } = await supabase
+          .from('talent')
+          .select('*')
+          .eq('slug', slug)
+          .single()
+
+        if (error || !talent) {
+          return new Response(
+            JSON.stringify({ message: 'Actor not found' }),
+            { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        return new Response(
+          JSON.stringify(talent),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      } catch (error) {
+        return new Response(
+          JSON.stringify({ message: 'Actor not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+    }
+
+    // Podcasts endpoints
+    if (path === '/podcasts' && method === 'GET') {
+      try {
+        const paginate = url.searchParams.get('paginate')
+        const page = parseInt(url.searchParams.get('page') || '1')
+        const perPage = 10
+
+        let query = supabase
+          .from('podcasts')
+          .select('*')
+          .eq('active', true)
+          .order('sort_order')
+
+        const { data: podcasts, error } = await query
+
+        if (error) {
+          console.error('Podcasts API Error:', error)
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        if (paginate === 'true') {
+          const total = podcasts?.length || 0
+          const startIndex = (page - 1) * perPage
+          const paginatedData = podcasts?.slice(startIndex, startIndex + perPage) || []
+          
+          return new Response(
+            JSON.stringify({
+              data: paginatedData,
+              current_page: page,
+              last_page: Math.ceil(total / perPage),
+              per_page: perPage,
+              total: total
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        return new Response(
+          JSON.stringify(podcasts || []),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      } catch (error) {
+        console.error('Podcasts API Error:', error)
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to load podcasts',
+            details: error.message 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        )
+      }
+    }
+
+    // Single podcast
+    if (path.startsWith('/podcasts/') && method === 'GET') {
+      const slug = path.replace('/podcasts/', '')
+      
+      const { data: podcast, error } = await supabase
+        .from('podcasts')
+        .select('*')
+        .eq('slug', slug)
+        .single()
+
+      if (error || !podcast) {
+        return new Response(
+          JSON.stringify({ message: 'Podcast not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      return new Response(
+        JSON.stringify(podcast),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Productions endpoint (no pagination)
+    if (path === '/productions' && method === 'GET') {
+      try {
+        const { data: productions, error } = await supabase
+          .from('productions')
+          .select('*')
+          .order('sort_order')
+
+        if (error) {
+          console.error('Productions API Error:', error)
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        return new Response(
+          JSON.stringify(productions || []),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      } catch (error) {
+        console.error('Productions API Error:', error)
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to load productions',
+            details: error.message 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        )
+      }
+    }
+
+    // News endpoints
+    if (path === '/news' && method === 'GET') {
+      try {
+        const paginate = url.searchParams.get('paginate')
+        const page = parseInt(url.searchParams.get('page') || '1')
+        const perPage = 10
+
+        let query = supabase
+          .from('news_articles')
+          .select('*')
+          .eq('status', 'published')
+          .not('published_at', 'is', null)
+          .order('published_at', { ascending: false })
+
+        const { data: news, error } = await query
+
+        if (error) {
+          console.error('News API Error:', error)
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        if (paginate === 'true') {
+          const total = news?.length || 0
+          const startIndex = (page - 1) * perPage
+          const paginatedData = news?.slice(startIndex, startIndex + perPage) || []
+          
+          return new Response(
+            JSON.stringify({
+              data: paginatedData,
+              current_page: page,
+              last_page: Math.ceil(total / perPage),
+              per_page: perPage,
+              total: total
+            }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        return new Response(
+          JSON.stringify(news || []),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      } catch (error) {
+        console.error('News API Error:', error)
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to load news',
+            details: error.message 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        )
+      }
+    }
+
+    // Single news article
+    if (path.startsWith('/news/') && method === 'GET') {
+      const slug = path.replace('/news/', '')
+      
+      const { data: article, error } = await supabase
+        .from('news_articles')
+        .select('*')
+        .eq('slug', slug)
+        .eq('status', 'published')
+        .single()
+
+      if (error || !article) {
+        return new Response(
+          JSON.stringify({ message: 'Article not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      return new Response(
+        JSON.stringify(article),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Testimonials endpoint (no pagination)
+    if (path === '/testimonials' && method === 'GET') {
+      try {
+        const { data: testimonials, error } = await supabase
+          .from('testimonials')
+          .select('*')
+          .eq('active', true)
+          .order('sort_order')
+
+        if (error) {
+          console.error('Testimonials API Error:', error)
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        return new Response(
+          JSON.stringify(testimonials || []),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      } catch (error) {
+        console.error('Testimonials API Error:', error)
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to load testimonials',
+            details: error.message 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        )
+      }
+    }
+
+    // Gallery endpoint (no pagination)
+    if (path === '/gallery' && method === 'GET') {
+      try {
+        const { data: gallery, error } = await supabase
+          .from('gallery_images')
+          .select('*')
+          .order('sort_order')
+
+        if (error) {
+          console.error('Gallery API Error:', error)
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        return new Response(
+          JSON.stringify(gallery || []),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      } catch (error) {
+        console.error('Gallery API Error:', error)
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to load gallery',
+            details: error.message 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        )
+      }
+    }
+
+    // Services endpoint (no pagination)
+    if (path === '/services' && method === 'GET') {
+      try {
+        const { data: services, error } = await supabase
+          .from('services')
+          .select('*')
+          .eq('active', true)
+          .order('sort_order')
+
+        if (error) {
+          console.error('Services API Error:', error)
+          return new Response(
+            JSON.stringify({ error: error.message }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        return new Response(
+          JSON.stringify(services || []),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      } catch (error) {
+        console.error('Services API Error:', error)
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to load services',
+            details: error.message 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        )
+      }
+    }
+
+    // Contact form submission
+    if (path === '/contact' && method === 'POST') {
+      try {
+        const body = await req.json()
+        const { name, email, service, message } = body
+
+        if (!name || !email || !message) {
+          return new Response(
+            JSON.stringify({ message: 'Name, email, and message are required' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        const { data, error } = await supabase
+          .from('contacts')
+          .insert([{
+            name,
+            email,
+            service: service || null,
+            message,
+            status: 'pending'
+          }])
+
+        if (error) {
+          console.error('Contact submission error:', error)
+          return new Response(
+            JSON.stringify({ message: 'Failed to submit contact form' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        return new Response(
+          JSON.stringify({ message: 'Contact form submitted successfully' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      } catch (error) {
+        console.error('Contact API Error:', error)
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to submit contact form',
+            details: error.message 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        )
+      }
+    }
+
+    // Newsletter subscription
+    if (path === '/subscribe' && method === 'POST') {
+      try {
+        const body = await req.json()
+        const { email } = body
+
+        if (!email) {
+          return new Response(
+            JSON.stringify({ message: 'Email is required' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        const { data, error } = await supabase
+          .from('subscribers')
+          .insert([{
+            email
+          }])
+
+        if (error) {
+          console.error('Subscription error:', error)
+          return new Response(
+            JSON.stringify({ message: 'Failed to subscribe to newsletter' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        return new Response(
+          JSON.stringify({ message: 'Successfully subscribed to newsletter' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      } catch (error) {
+        console.error('Subscribe API Error:', error)
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to subscribe',
+            details: error.message 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        )
+      }
+    }
+
+    // Review submission
+    if (path === '/reviews' && method === 'POST') {
+      try {
+        const body = await req.json()
+        const { film_id, name, rating, comment } = body
+
+        if (!name || !rating) {
+          return new Response(
+            JSON.stringify({ message: 'Name and rating are required' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        const { data, error } = await supabase
+          .from('reviews')
+          .insert([{
+            film_id: film_id || null,
+            name,
+            rating,
+            comment: comment || null,
+            is_approved: false
+          }])
+
+        if (error) {
+          console.error('Review submission error:', error)
+          return new Response(
+            JSON.stringify({ message: 'Failed to submit review' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+
+        return new Response(
+          JSON.stringify({ message: 'Review submitted successfully and pending approval' }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      } catch (error) {
+        console.error('Review API Error:', error)
+        return new Response(
+          JSON.stringify({ 
+            error: 'Failed to submit review',
+            details: error.message 
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+            status: 500 
+          }
+        )
+      }
+    }
+
     // Default response for unhandled routes
     return new Response(
       JSON.stringify({ 
@@ -369,7 +1006,22 @@ serve(async (req) => {
           'GET /auth/user',
           'GET /home',
           'GET /films',
-          'GET /films/:slug'
+          'GET /films/:slug',
+          'GET /series',
+          'GET /series/:slug', 
+          'GET /actors',
+          'GET /actors/:slug',
+          'GET /podcasts',
+          'GET /podcasts/:slug',
+          'GET /productions',
+          'GET /news',
+          'GET /news/:slug',
+          'GET /testimonials',
+          'GET /gallery',
+          'GET /services',
+          'POST /contact',
+          'POST /subscribe',
+          'POST /reviews'
         ]
       }),
       { 
