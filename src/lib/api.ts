@@ -1,12 +1,17 @@
 // Get API URL from environment or use hardcoded fallback
 const getApiUrl = () => {
-  // Check if we're in production (Vercel deployment)
-  if (typeof window !== 'undefined' && window.location.hostname === 'the-artainment.vercel.app') {
+  // Always use environment variable in production
+  if ((import.meta as any).env?.VITE_API_URL) {
+    return (import.meta as any).env.VITE_API_URL;
+  }
+  
+  // Check if we're on any Vercel deployment domain
+  if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
     return 'https://etjkivwwnqafyphqamgh.supabase.co/functions/v1/api';
   }
   
-  // Use environment variable for local development
-  return (import.meta as any).env?.VITE_API_URL || 'http://localhost:8000/api';
+  // Default for local development
+  return 'http://localhost:8000/api';
 };
 
 const API_BASE = getApiUrl();
@@ -17,7 +22,7 @@ if (typeof window !== 'undefined') {
   console.log('- Hostname:', window.location.hostname);
   console.log('- API_BASE:', API_BASE);
   console.log('- Environment VITE_API_URL:', (import.meta as any).env?.VITE_API_URL);
-  console.log('- Is Production:', window.location.hostname === 'the-artainment.vercel.app');
+  console.log('- Is Vercel:', window.location.hostname.includes('vercel.app'));
 }
 
 export const API_ORIGIN = API_BASE.replace(/\/api\/?$/, '');

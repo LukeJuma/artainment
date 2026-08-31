@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Artainment - Deployment Test</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            max-width: 800px; 
+            margin: 40px auto; 
+            padding: 20px;
+            background: #111;
+            color: #fff;
+        }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+        .info { color: #2196F3; }
+        .test-item { margin: 10px 0; padding: 10px; border: 1px solid #333; }
+        pre { background: #222; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Artainment Deployment Test</h1>
+    <p>This page tests if your new Vercel deployment is working correctly.</p>
+
+    <div id="results"></div>
+
+    <script>
+        const results = document.getElementById('results');
+        
+        function addResult(title, status, message) {
+            const div = document.createElement('div');
+            div.className = 'test-item';
+            div.innerHTML = `
+                <h3 class="${status}">${status === 'success' ? '✅' : status === 'error' ? '❌' : 'ℹ️'} ${title}</h3>
+                <p>${message}</p>
+            `;
+            results.appendChild(div);
+        }
+
+        // Test 1: Environment Detection
+        addResult('Environment Detection', 'info', 
+            `Hostname: ${window.location.hostname}<br>
+             Protocol: ${window.location.protocol}<br>
+             Full URL: ${window.location.href}`);
+
+        // Test 2: API Configuration
+        const apiUrl = 'https://etjkivwwnqafyphqamgh.supabase.co/functions/v1/api';
+        addResult('API Configuration', 'info', `API Base URL: ${apiUrl}`);
+
+        // Test 3: API Connectivity
+        async function testAPI() {
+            try {
+                const response = await fetch(`${apiUrl}/home`);
+                const data = await response.json();
+                
+                if (response.ok && data.films) {
+                    addResult('API Connectivity', 'success', 
+                        `✅ API is working!<br>
+                         Films loaded: ${data.films.length}<br>
+                         Services loaded: ${data.services.length}<br>
+                         Testimonials loaded: ${data.testimonials.length}`);
+                } else {
+                    addResult('API Connectivity', 'error', 
+                        `❌ API returned error: ${JSON.stringify(data, null, 2)}`);
+                }
+            } catch (error) {
+                addResult('API Connectivity', 'error', 
+                    `❌ Failed to connect to API: ${error.message}`);
+            }
+        }
+
+        // Test 4: Route Navigation
+        function testRoutes() {
+            const routes = ['/films', '/services', '/contact', '/about'];
+            addResult('Route Testing', 'info', 
+                `Test these routes manually:<br>
+                 ${routes.map(route => `<a href="${route}" style="color: #2196F3;">${route}</a>`).join('<br>')}`);
+        }
+
+        // Run tests
+        testAPI();
+        testRoutes();
+
+        // Test 5: Build Information
+        addResult('Build Information', 'info', 
+            `User Agent: ${navigator.userAgent}<br>
+             Timestamp: ${new Date().toISOString()}<br>
+             Page loaded successfully!`);
+    </script>
+</body>
+</html>
