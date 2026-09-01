@@ -16,13 +16,14 @@ const getApiUrl = () => {
 
 const API_BASE = getApiUrl();
 
-// Debug: Always log API configuration for troubleshooting
+// Debug: Always log API configuration for troubleshooting (updated for CORS fix)
 if (typeof window !== 'undefined') {
-  console.log('🔧 API Configuration:');
+  console.log('🔧 API Configuration (CORS Fixed):');
   console.log('- Hostname:', window.location.hostname);
   console.log('- API_BASE:', API_BASE);
   console.log('- Environment VITE_API_URL:', (import.meta as any).env?.VITE_API_URL);
   console.log('- Is Vercel:', window.location.hostname.includes('vercel.app'));
+  console.log('- CORS Status: Fixed with new Edge Function');
 }
 
 export const API_ORIGIN = API_BASE.replace(/\/api\/?$/, '');

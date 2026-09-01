@@ -4,9 +4,12 @@ import { encode, decode } from "https://deno.land/std@0.182.0/encoding/base64.ts
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, accept',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Max-Age': '86400', // 24 hours
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, accept, x-requested-with, cache-control, pragma',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS, HEAD',
+  'Access-Control-Max-Age': '86400',
+  'Access-Control-Allow-Credentials': 'true',
+  'Vary': 'Origin, Access-Control-Request-Method, Access-Control-Request-Headers',
+  'Content-Type': 'application/json'
 }
 
 // Initialize Supabase client
@@ -80,9 +83,20 @@ async function verifyPassword(password: string, hash: string): Promise<boolean> 
 }
 
 serve(async (req) => {
-  // Handle CORS
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
+    return new Response(null, { 
+      status: 200, 
+      headers: corsHeaders 
+    })
+  }
+
+  // Add CORS headers to all responses
+  const addCorsHeaders = (response: Response): Response => {
+    Object.entries(corsHeaders).forEach(([key, value]) => {
+      response.headers.set(key, value)
+    })
+    return response
   }
 
   try {
@@ -104,19 +118,19 @@ serve(async (req) => {
         .single()
 
       if (error || !user) {
-        return new Response(
+        return addCorsHeaders(new Response(
           JSON.stringify({ message: 'Invalid credentials' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        ))
       }
 
       // Verify password
       const passwordValid = await verifyPassword(password, user.password)
       if (!passwordValid) {
-        return new Response(
+        return addCorsHeaders(new Response(
           JSON.stringify({ message: 'Invalid credentials' }),
-          { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
+          { status: 401, headers: { 'Content-Type': 'application/json' } }
+        ))
       }
 
       // Create JWT token
@@ -129,7 +143,7 @@ serve(async (req) => {
       const token = await createJWT(tokenPayload)
 
       // Return user and token
-      return new Response(
+      return addCorsHeaders(new Response(
         JSON.stringify({
           user: {
             id: user.id,
@@ -139,8 +153,8 @@ serve(async (req) => {
           },
           token
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+        { headers: { 'Content-Type': 'application/json' } }
+      ))
     }
 
     // Get user info
@@ -248,7 +262,7 @@ serve(async (req) => {
           .order('release_date')
           .limit(4)
 
-        return new Response(
+        return addCorsHeaders(new Response(
           JSON.stringify({
             featured_film: featuredFilm || null,
             films: films || [],
@@ -260,8 +274,8 @@ serve(async (req) => {
             podcasts: podcasts || [],
             coming_soon: comingSoon || []
           }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
+          { headers: { 'Content-Type': 'application/json' } }
+        ))
       } catch (error) {
         console.error('Home API Error:', error)
         return new Response(
