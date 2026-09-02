@@ -132,7 +132,7 @@ export function AdminLayout() {
             <p style={{ fontSize: 13, color: 'var(--admin-text-muted)', marginBottom: 20 }}>Please sign in to access the admin dashboard.</p>
             <button
               className="admin-btn admin-btn-primary"
-              onClick={() => window.location.href = '/login'}
+              onClick={() => navigate('/login')}
             >
               Sign In
             </button>
@@ -156,7 +156,7 @@ export function AdminLayout() {
             <p style={{ fontSize: 13, color: 'var(--admin-text-muted)', marginBottom: 20 }}>You don't have admin privileges to access this page.</p>
             <button
               className="admin-btn admin-btn-primary"
-              onClick={() => window.location.href = '/'}
+              onClick={() => navigate('/')}
             >
               Go Home
             </button>

@@ -64,7 +64,7 @@ export async function api<T = any>(endpoint: string, options: ApiOptions = {}): 
   const config: RequestInit = {
     method,
     headers,
-    credentials: 'include',
+    credentials: 'omit',
   };
 
   if (body) {
