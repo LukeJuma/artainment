@@ -21,9 +21,21 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [showControls, setShowControls] = useState(true)
   const [isLoading, setIsLoading] = useState(true)
+  const [hasError, setHasError] = useState(false)
   const [playbackRate, setPlaybackRate] = useState(1)
   const [showSettings, setShowSettings] = useState(false)
   const controlsTimeoutRef = useRef<NodeJS.Timeout>()
+
+  // Check if this is a YouTube URL
+  const isYouTubeUrl = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)/.test(src || '')
+
+  useEffect(() => {
+    if (isYouTubeUrl) {
+      setHasError(true)
+      setIsLoading(false)
+      return
+    }
+  }, [src, isYouTubeUrl])
 
   // Format time display
   const formatTime = (seconds: number) => {
@@ -233,21 +245,53 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
         cursor: showControls || !isPlaying ? 'default' : 'none',
       }}
     >
-      {/* Video Element */}
-      <video
-        ref={videoRef}
-        src={src}
-        poster={poster || undefined}
-        playsInline
-        preload="metadata"
-        onClick={togglePlayPause}
-        style={{
-          width: '100%',
-          height: '100%',
-          objectFit: 'contain',
-          display: 'block',
-        }}
-      />
+      {/* Video Element or Error */}
+      {hasError || isYouTubeUrl ? (
+        <div style={{
+          width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', gap: 16, padding: 32, textAlign: 'center',
+          color: 'rgba(255,255,255,0.9)', fontFamily: 'DM Sans, sans-serif',
+          background: 'linear-gradient(135deg, rgba(20,20,24,0.95) 0%, rgba(10,10,12,0.95) 100%)',
+        }}>
+          <div style={{
+            width: 64, height: 64, borderRadius: '50%', background: 'rgba(239,68,68,0.2)',
+            border: '2px solid rgba(239,68,68,0.4)', display: 'flex', alignItems: 'center',
+            justifyContent: 'center', fontSize: 24, color: '#ff6b6b', marginBottom: 8,
+          }}>
+            📺
+          </div>
+          <h3 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: '#fff' }}>
+            {isYouTubeUrl ? 'YouTube Video Detected' : 'Enhanced Player Error'}
+          </h3>
+          <p style={{ fontSize: 15, margin: 0, color: 'rgba(255,255,255,0.7)', maxWidth: 420, lineHeight: 1.6 }}>
+            {isYouTubeUrl 
+              ? 'YouTube videos work best with the Standard Player. Switch to Standard mode for optimal playback experience.'
+              : 'This video cannot be played in Enhanced mode. Try using the Standard Player or check if the video source is valid.'
+            }
+          </p>
+          <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+            <button onClick={onClose} className="btn-red" style={{ fontSize: 14, padding: '10px 20px' }}>
+              Close & Use Standard Player
+            </button>
+          </div>
+        </div>
+      ) : (
+        <video
+          ref={videoRef}
+          src={src}
+          poster={poster || undefined}
+          playsInline
+          preload="metadata"
+          onClick={togglePlayPause}
+          onError={() => setHasError(true)}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'contain',
+            display: 'block',
+          }}
+        />
+      )}
 
       {/* Loading Spinner */}
       {isLoading && (
@@ -272,7 +316,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
 
       {/* Play Button Overlay (when paused) */}
       <AnimatePresence>
-        {!isPlaying && !isLoading && (
+        {!isPlaying && !isLoading && !hasError && !isYouTubeUrl && (
           <motion.button
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -303,7 +347,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
 
       {/* Controls Overlay */}
       <AnimatePresence>
-        {showControls && (
+        {showControls && !hasError && !isYouTubeUrl && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

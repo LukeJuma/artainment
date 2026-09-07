@@ -68,43 +68,54 @@ export function FilmDetailPage() {
         onPlayFull={() => setShowFull(true)}
       />
 
-      {/* Player Preference Toggle (for videos) */}
+      {/* Player Preference Toggle (only for non-YouTube videos or as option for YouTube) */}
       {(Boolean(film.video_url) || Boolean(film.has_full_video ?? film.full_video_url)) && (
         <div style={{
           maxWidth: 1280, margin: '0 auto', padding: '24px 32px',
-          display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 12,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         }}>
-          <span style={{
-            fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-secondary)',
-          }}>
-            Video Player:
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{
+              fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-secondary)',
+            }}>
+              💡 Toggle between Standard (YouTube) and Enhanced (custom) video players
+            </span>
+          </div>
           <div style={{
-            display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: 8,
-            border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden',
+            display: 'flex', alignItems: 'center', gap: 12,
           }}>
-            <button
-              onClick={() => setUseCustomPlayer(false)}
-              style={{
-                padding: '8px 16px', background: !useCustomPlayer ? 'var(--red)' : 'transparent',
-                border: 'none', color: !useCustomPlayer ? '#fff' : 'var(--text-secondary)',
-                fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s ease',
-                fontFamily: 'DM Sans, sans-serif',
-              }}
-            >
-              Standard
-            </button>
-            <button
-              onClick={() => setUseCustomPlayer(true)}
-              style={{
-                padding: '8px 16px', background: useCustomPlayer ? 'var(--red)' : 'transparent',
-                border: 'none', color: useCustomPlayer ? '#fff' : 'var(--text-secondary)',
-                fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s ease',
-                fontFamily: 'DM Sans, sans-serif',
-              }}
-            >
-              Enhanced
-            </button>
+            <span style={{
+              fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-secondary)',
+            }}>
+              Player:
+            </span>
+            <div style={{
+              display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: 8,
+              border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden',
+            }}>
+              <button
+                onClick={() => setUseCustomPlayer(false)}
+                style={{
+                  padding: '8px 16px', background: !useCustomPlayer ? 'var(--red)' : 'transparent',
+                  border: 'none', color: !useCustomPlayer ? '#fff' : 'var(--text-secondary)',
+                  fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s ease',
+                  fontFamily: 'DM Sans, sans-serif',
+                }}
+              >
+                Standard
+              </button>
+              <button
+                onClick={() => setUseCustomPlayer(true)}
+                style={{
+                  padding: '8px 16px', background: useCustomPlayer ? 'var(--red)' : 'transparent',
+                  border: 'none', color: useCustomPlayer ? '#fff' : 'var(--text-secondary)',
+                  fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s ease',
+                  fontFamily: 'DM Sans, sans-serif',
+                }}
+              >
+                Enhanced
+              </button>
+            </div>
           </div>
         </div>
       )}

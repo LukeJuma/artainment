@@ -21,7 +21,8 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
   const [failed, setFailed] = useState(false)
   const [videoSrc, setVideoSrc] = useState(src)
   const [loadingVideo, setLoadingVideo] = useState(false)
-  const youTubeId = useCustomPlayer ? null : parseYouTubeId(src) // Skip YouTube if custom player forced
+  const youTubeId = parseYouTubeId(src) // Always check for YouTube URLs
+  const forceCustomPlayer = useCustomPlayer && !youTubeId // Only force custom for non-YouTube URLs
 
   useEffect(() => {
     setFailed(false)
@@ -144,8 +145,42 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
               }} />
               <p style={{ fontSize: 16, fontWeight: 500, margin: 0 }}>Loading video...</p>
             </div>
-          ) : youTubeId ? (
+          ) : youTubeId && !forceCustomPlayer ? (
             <YouTubePlayer videoId={youTubeId} />
+          ) : youTubeId && forceCustomPlayer ? (
+            // For YouTube URLs in Enhanced mode, show a message
+            <div style={{
+              width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center', gap: 16, padding: 32, textAlign: 'center',
+              color: 'rgba(255,255,255,0.9)', fontFamily: 'DM Sans, sans-serif',
+              background: 'linear-gradient(135deg, rgba(20,20,24,0.95) 0%, rgba(10,10,12,0.95) 100%)',
+            }}>
+              <div style={{
+                width: 64, height: 64, borderRadius: '50%', background: 'rgba(239,68,68,0.2)',
+                border: '2px solid rgba(239,68,68,0.4)', display: 'flex', alignItems: 'center',
+                justifyContent: 'center', fontSize: 24, color: '#ff6b6b', marginBottom: 8,
+              }}>
+                📺
+              </div>
+              <h3 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: '#fff' }}>
+                Enhanced Player Not Available
+              </h3>
+              <p style={{ fontSize: 15, margin: 0, color: 'rgba(255,255,255,0.7)', maxWidth: 420, lineHeight: 1.6 }}>
+                YouTube videos work best with the Standard Player. Switch to Standard mode for this video or use uploaded files for Enhanced Player experience.
+              </p>
+              <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="btn-red" 
+                  style={{ fontSize: 14, padding: '10px 20px' }}
+                >
+                  Use Standard Player
+                </button>
+                <button onClick={onClose} className="btn-outline-light" style={{ fontSize: 14, padding: '10px 20px' }}>
+                  Close
+                </button>
+              </div>
+            </div>
           ) : (
             <EnhancedVideoPlayer
               src={videoSrc}
@@ -158,7 +193,7 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
         </div>
 
         {/* Custom close button (only show if not using enhanced player which has its own) */}
-        {(youTubeId || failed || loadingVideo) && (
+        {(youTubeId || failed || loadingVideo || forceCustomPlayer) && (
           <button
             ref={closeRef}
             onClick={onClose}
