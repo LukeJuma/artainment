@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Auth API</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+        .test-section { background: #f5f5f5; padding: 20px; margin: 20px 0; border-radius: 5px; }
+        .result { background: #e8f5e8; padding: 15px; margin: 10px 0; border-radius: 5px; font-family: monospace; white-space: pre-wrap; }
+        .error { background: #ffe8e8; }
+        button { background: #007cba; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; margin: 5px; }
+        input { padding: 10px; margin: 5px; width: 300px; border: 1px solid #ddd; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Auth API Tester</h1>
+    
+    <div class="test-section">
+        <h2>1. Test API Connection</h2>
+        <button onclick="testAPI()">Test API Base</button>
+        <div id="api-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Test Login</h2>
+        <input type="email" id="email" placeholder="Email" value="admin@theartainment.co.ke">
+        <input type="password" id="password" placeholder="Password" value="Admin123!">
+        <button onclick="testLogin()">Test Login</button>
+        <div id="login-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Test Auth Me (after login)</h2>
+        <button onclick="testAuthMe()">Test /auth/me</button>
+        <div id="auth-me-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Test Admin Dashboard (needs auth)</h2>
+        <button onclick="testAdminDashboard()">Test Admin Dashboard</button>
+        <div id="admin-result" class="result"></div>
+    </div>
+
+    <script>
+        let authToken = null;
+
+        async function testAPI() {
+            const result = document.getElementById('api-result');
+            result.textContent = 'Testing...';
+            
+            try {
+                const response = await fetch('https://etjkivwwnqafyphqamgh.supabase.co/functions/v1/api/test');
+                const data = await response.json();
+                
+                result.className = 'result';
+                result.textContent = `✅ Status: ${response.status}\n${JSON.stringify(data, null, 2)}`;
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Error: ${error.message}`;
+            }
+        }
+
+        async function testLogin() {
+            const result = document.getElementById('login-result');
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            result.textContent = 'Logging in...';
+            
+            try {
+                const response = await fetch('https://etjkivwwnqafyphqamgh.supabase.co/functions/v1/api/auth/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    authToken = data.token;
+                    result.className = 'result';
+                    result.textContent = `✅ Status: ${response.status}\n✅ Login Success!\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    result.className = 'result error';
+                    result.textContent = `❌ Status: ${response.status}\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Error: ${error.message}`;
+            }
+        }
+
+        async function testAuthMe() {
+            const result = document.getElementById('auth-me-result');
+            
+            if (!authToken) {
+                result.className = 'result error';
+                result.textContent = '❌ No auth token. Please login first.';
+                return;
+            }
+            
+            result.textContent = 'Testing auth/me...';
+            
+            try {
+                const response = await fetch('https://etjkivwwnqafyphqamgh.supabase.co/functions/v1/api/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.className = 'result';
+                    result.textContent = `✅ Status: ${response.status}\n✅ Auth Me Success!\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    result.className = 'result error';
+                    result.textContent = `❌ Status: ${response.status}\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Error: ${error.message}`;
+            }
+        }
+
+        async function testAdminDashboard() {
+            const result = document.getElementById('admin-result');
+            
+            if (!authToken) {
+                result.className = 'result error';
+                result.textContent = '❌ No auth token. Please login first.';
+                return;
+            }
+            
+            result.textContent = 'Testing admin dashboard...';
+            
+            try {
+                const response = await fetch('https://etjkivwwnqafyphqamgh.supabase.co/functions/v1/api/admin/dashboard/stats', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    result.className = 'result';
+                    result.textContent = `✅ Status: ${response.status}\n✅ Admin Dashboard Success!\n${JSON.stringify(data, null, 2)}`;
+                } else {
+                    result.className = 'result error';
+                    result.textContent = `❌ Status: ${response.status}\n${JSON.stringify(data, null, 2)}`;
+                }
+            } catch (error) {
+                result.className = 'result error';
+                result.textContent = `❌ Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

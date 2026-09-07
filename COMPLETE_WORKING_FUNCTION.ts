@@ -513,6 +513,326 @@ serve(async (req) => {
     }
     
     // ═══════════════════════════════════════════════════════════════
+    // ADMIN DASHBOARD ENDPOINTS
+    // ═══════════════════════════════════════════════════════════════
+
+    // Helper function to verify admin auth
+    function getAdminToken(req: Request) {
+      const authHeader = req.headers.get('Authorization')
+      if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        throw new Error('No authentication token provided')
+      }
+      const token = authHeader.substring(7)
+      if (!token.startsWith('admin-token-')) {
+        throw new Error('Invalid admin token')
+      }
+      return token
+    }
+
+    // Dashboard Stats
+    if (path === '/admin/dashboard/stats' && method === 'GET') {
+      try {
+        getAdminToken(req) // Verify admin auth
+
+        const [
+          { count: filmsCount }, { count: seriesCount }, { count: podcastsCount },
+          { count: newsCount }, { count: talentCount }, { count: servicesCount },
+          { count: galleryCount }, { count: testimonialsCount }, { count: usersCount },
+          { count: articlesCount }, { count: categoriesCount }, { count: eventsCount }
+        ] = await Promise.all([
+          supabase.from('films').select('*', { count: 'exact', head: true }),
+          supabase.from('series').select('*', { count: 'exact', head: true }),
+          supabase.from('podcasts').select('*', { count: 'exact', head: true }),
+          supabase.from('news_articles').select('*', { count: 'exact', head: true }),
+          supabase.from('talent').select('*', { count: 'exact', head: true }),
+          supabase.from('services').select('*', { count: 'exact', head: true }),
+          supabase.from('gallery_images').select('*', { count: 'exact', head: true }),
+          supabase.from('testimonials').select('*', { count: 'exact', head: true }),
+          supabase.from('users').select('*', { count: 'exact', head: true }),
+          supabase.from('mic_mtaani_articles').select('*', { count: 'exact', head: true }),
+          supabase.from('mic_mtaani_categories').select('*', { count: 'exact', head: true }),
+          supabase.from('mic_mtaani_events').select('*', { count: 'exact', head: true })
+        ])
+
+        const { data: topFilms } = await supabase.from('films').select('*').eq('featured', true).limit(5)
+
+        return new Response(JSON.stringify({
+          content_counts: {
+            films: filmsCount || 0,
+            series: seriesCount || 0,
+            podcasts: podcastsCount || 0,
+            news: newsCount || 0,
+            talent: talentCount || 0,
+            services: servicesCount || 0,
+            gallery: galleryCount || 0,
+            testimonials: testimonialsCount || 0
+          },
+          user_counts: {
+            total_users: usersCount || 0,
+            new_this_month: 0,
+            new_today: 0,
+            active_subscribers: 0
+          },
+          revenue: {
+            total_all_time: 0,
+            this_month: 0,
+            this_week: 0,
+            today: 0
+          },
+          monthly_revenue: [],
+          ticket_stats: {
+            total_sold: 0,
+            this_month: 0
+          },
+          mic_mtaani: {
+            articles: articlesCount || 0,
+            categories: categoriesCount || 0,
+            events: eventsCount || 0
+          },
+          recent_activity: [],
+          top_films: topFilms || []
+        }), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    // Admin Films CRUD
+    if (path === '/admin/films' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const { data: films } = await supabase.from('films').select('*').order('sort_order')
+        return new Response(JSON.stringify(films || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    if (path === '/admin/films' && method === 'POST') {
+      try {
+        getAdminToken(req)
+        const body = await req.json()
+        const { error, data } = await supabase.from('films').insert([body]).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to create film' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/films/') && method === 'PUT') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/films/', ''))
+        const body = await req.json()
+        const { error, data } = await supabase.from('films').update(body).eq('id', id).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to update film' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/films/') && method === 'DELETE') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/films/', ''))
+        const { error } = await supabase.from('films').delete().eq('id', id)
+        if (error) throw error
+        return new Response(JSON.stringify({ message: 'Film deleted successfully' }), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to delete film' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    // Admin Series CRUD
+    if (path === '/admin/series' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const { data: series } = await supabase.from('series').select('*').order('sort_order')
+        return new Response(JSON.stringify(series || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    if (path === '/admin/series' && method === 'POST') {
+      try {
+        getAdminToken(req)
+        const body = await req.json()
+        const { error, data } = await supabase.from('series').insert([body]).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to create series' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    // Admin Talent CRUD
+    if (path === '/admin/talent' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const { data: talent } = await supabase.from('talent').select('*').order('sort_order')
+        return new Response(JSON.stringify(talent || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    if (path === '/admin/talent' && method === 'POST') {
+      try {
+        getAdminToken(req)
+        const body = await req.json()
+        const { error, data } = await supabase.from('talent').insert([body]).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to create talent' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    // Admin Podcasts CRUD
+    if (path === '/admin/podcasts' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const { data: podcasts } = await supabase.from('podcasts').select('*').order('sort_order')
+        return new Response(JSON.stringify(podcasts || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    // Admin Services CRUD
+    if (path === '/admin/services' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const { data: services } = await supabase.from('services').select('*').order('sort_order')
+        return new Response(JSON.stringify(services || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    // Admin News CRUD
+    if (path === '/admin/news' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const { data: news } = await supabase.from('news_articles').select('*').order('created_at', { ascending: false })
+        return new Response(JSON.stringify(news || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    // Admin Testimonials CRUD
+    if (path === '/admin/testimonials' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const { data: testimonials } = await supabase.from('testimonials').select('*').order('sort_order')
+        return new Response(JSON.stringify(testimonials || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    // Admin Gallery CRUD
+    if (path === '/admin/gallery' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const { data: gallery } = await supabase.from('gallery_images').select('*').order('sort_order')
+        return new Response(JSON.stringify(gallery || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    // Admin Contacts
+    if (path === '/admin/contacts' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const { data: contacts } = await supabase.from('contacts').select('*').order('created_at', { ascending: false })
+        return new Response(JSON.stringify(contacts || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    // Admin Reviews
+    if (path === '/admin/reviews' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const { data: reviews } = await supabase.from('reviews').select('*').order('created_at', { ascending: false })
+        return new Response(JSON.stringify(reviews || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    // Admin Mic Mtaani Articles
+    if (path === '/admin/micmtaani/articles' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const { data: articles } = await supabase.from('mic_mtaani_articles').select('*').order('created_at', { ascending: false })
+        return new Response(JSON.stringify({ data: articles || [] }), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ data: [] }), { headers: corsHeaders })
+      }
+    }
+
+    if (path === '/admin/micmtaani/articles' && method === 'POST') {
+      try {
+        getAdminToken(req)
+        const body = await req.json()
+        const { error, data } = await supabase.from('mic_mtaani_articles').insert([body]).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to create article' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    // Admin Users
+    if (path === '/admin/users' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const { data: users } = await supabase.from('users').select('*').order('created_at', { ascending: false })
+        return new Response(JSON.stringify(users || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify([]), { headers: corsHeaders })
+      }
+    }
+
+    // Admin Settings
+    if (path === '/admin/settings' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        return new Response(JSON.stringify({
+          platform_name: 'The Artainment',
+          tagline: 'Discover, Stream, Experience',
+          support_email: 'support@theartainment.co.ke',
+          currency: 'KES',
+          timezone: 'Africa/Nairobi'
+        }), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    // File Upload Endpoint
+    if (path === '/upload' && method === 'POST') {
+      try {
+        getAdminToken(req)
+        return new Response(JSON.stringify({ 
+          url: 'https://placeholder.com/300x200',
+          path: '/uploads/placeholder.jpg',
+          filename: 'placeholder.jpg'
+        }), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
     // DEFAULT 404 RESPONSE
     // ═══════════════════════════════════════════════════════════════
     
@@ -525,7 +845,11 @@ serve(async (req) => {
         'GET /news', 'GET /news/{slug}', 'GET /services', 'GET /testimonials', 'GET /gallery',
         'GET /productions', 'GET /micmtaani', 'GET /micmtaani/categories', 'GET /micmtaani/articles',
         'GET /micmtaani/articles/{slug}', 'GET /micmtaani/events', 'GET /micmtaani/businesses',
-        'GET /micmtaani/businesses/{slug}', 'POST /contact', 'POST /subscribe', 'POST /auth/login'
+        'GET /micmtaani/businesses/{slug}', 'POST /contact', 'POST /subscribe', 'POST /auth/login',
+        'GET /admin/dashboard/stats', 'GET|POST|PUT|DELETE /admin/films', 'GET /admin/series',
+        'GET /admin/talent', 'GET /admin/podcasts', 'GET /admin/services', 'GET /admin/news',
+        'GET /admin/testimonials', 'GET /admin/gallery', 'GET /admin/contacts', 'GET /admin/reviews',
+        'GET|POST /admin/micmtaani/articles', 'GET /admin/users', 'GET /admin/settings', 'POST /upload'
       ]
     }), { 
       status: 404, 

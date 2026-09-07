@@ -76,7 +76,7 @@ export function FilmDetailPage() {
             onClose={() => setShowTrailer(false)}
           />
         )}
-        {showFull && film.has_full_video && (
+        {showFull && Boolean(film.has_full_video ?? film.full_video_url) && (
           <VideoModal
             src={film.youtube_url || fullFilmStreamUrl(film.slug)}
             title={film.title}
