@@ -688,6 +688,133 @@ serve(async (req) => {
       }
     }
 
+    // Admin Series Seasons CRUD
+    if (path.startsWith('/admin/series/') && path.includes('/seasons') && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const seriesId = parseInt(path.split('/')[3]) // Extract series ID from /admin/series/{id}/seasons
+        const { data: seasons } = await supabase
+          .from('seasons')
+          .select(`
+            *,
+            episodes:episodes(*)
+          `)
+          .eq('series_id', seriesId)
+          .order('season_number', { ascending: true })
+        return new Response(JSON.stringify(seasons || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/series/') && path.includes('/seasons') && method === 'POST') {
+      try {
+        getAdminToken(req)
+        const seriesId = parseInt(path.split('/')[3]) // Extract series ID from /admin/series/{id}/seasons
+        const body = await req.json()
+        
+        // Add series_id to the season data
+        const seasonData = { ...body, series_id: seriesId }
+        
+        const { error, data } = await supabase.from('seasons').insert([seasonData]).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        console.error('Season creation error:', error)
+        return new Response(JSON.stringify({ 
+          message: 'Failed to create season',
+          error: error.message 
+        }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/seasons/') && method === 'PUT') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/seasons/', ''))
+        const body = await req.json()
+        const { error, data } = await supabase.from('seasons').update(body).eq('id', id).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to update season' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/seasons/') && method === 'DELETE') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/seasons/', ''))
+        const { error } = await supabase.from('seasons').delete().eq('id', id)
+        if (error) throw error
+        return new Response(JSON.stringify({ message: 'Season deleted successfully' }), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to delete season' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    // Admin Episodes CRUD
+    if (path.startsWith('/admin/seasons/') && path.includes('/episodes') && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const seasonId = parseInt(path.split('/')[3]) // Extract season ID from /admin/seasons/{id}/episodes
+        const { data: episodes } = await supabase
+          .from('episodes')
+          .select('*')
+          .eq('season_id', seasonId)
+          .order('episode_number', { ascending: true })
+        return new Response(JSON.stringify(episodes || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/seasons/') && path.includes('/episodes') && method === 'POST') {
+      try {
+        getAdminToken(req)
+        const seasonId = parseInt(path.split('/')[3]) // Extract season ID from /admin/seasons/{id}/episodes
+        const body = await req.json()
+        
+        // Add season_id to the episode data
+        const episodeData = { ...body, season_id: seasonId }
+        
+        const { error, data } = await supabase.from('episodes').insert([episodeData]).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        console.error('Episode creation error:', error)
+        return new Response(JSON.stringify({ 
+          message: 'Failed to create episode',
+          error: error.message 
+        }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/episodes/') && method === 'PUT') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/episodes/', ''))
+        const body = await req.json()
+        const { error, data } = await supabase.from('episodes').update(body).eq('id', id).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to update episode' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/episodes/') && method === 'DELETE') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/episodes/', ''))
+        const { error } = await supabase.from('episodes').delete().eq('id', id)
+        if (error) throw error
+        return new Response(JSON.stringify({ message: 'Episode deleted successfully' }), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to delete episode' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
     // Admin Talent CRUD
     if (path === '/admin/talent' && method === 'GET') {
       try {
@@ -1220,7 +1347,7 @@ serve(async (req) => {
       }
     }
 
-    // YouTube video proxy for Enhanced Player (embeddable iframe)
+    // YouTube video proxy for Enhanced Player (completely custom player)
     if (path.startsWith('/youtube/proxy/') && method === 'GET') {
       try {
         const videoId = path.replace('/youtube/proxy/', '')
@@ -1229,27 +1356,195 @@ serve(async (req) => {
           return new Response('Invalid video ID', { status: 400 })
         }
 
-        // Create a custom HTML page that embeds YouTube without branding
+        // Create a completely custom HTML page that replaces YouTube UI entirely
         const html = `
 <!DOCTYPE html>
-<html style="margin:0;padding:0;background:#000;">
+<html style="margin:0;padding:0;background:#000;font-family:'DM Sans',sans-serif;">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Video Player</title>
+  <title>Enhanced Player</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { height: 100%; background: #000; overflow: hidden; }
-    iframe { width: 100%; height: 100%; border: none; }
+    html, body { 
+      height: 100vh; 
+      background: #000; 
+      overflow: hidden; 
+      font-family: 'DM Sans', sans-serif;
+    }
+    
+    #video-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    #youtube-embed {
+      width: 100%;
+      height: 100%;
+      border: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+    
+    #custom-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
+      pointer-events: none;
+      background: transparent;
+    }
+    
+    #brand-overlay {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
+      padding: 20px;
+      border-radius: 12px;
+      color: white;
+      pointer-events: none;
+    }
+    
+    #brand-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+    }
+    
+    #brand-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
+    }
+    
+    #close-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      width: 40px;
+      height: 40px;
+      background: rgba(0,0,0,0.8);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 300;
+      pointer-events: all;
+      z-index: 3;
+      backdrop-filter: blur(10px);
+      transition: all 0.2s ease;
+    }
+    
+    #close-btn:hover {
+      background: rgba(0,0,0,0.95);
+      transform: scale(1.05);
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease-out forwards;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Hide YouTube branding completely */
+    iframe {
+      border: none !important;
+      outline: none !important;
+    }
   </style>
 </head>
 <body>
-  <iframe 
-    src="https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&controls=1&showinfo=0&iv_load_policy=3&cc_load_policy=0&playsinline=1&enablejsapi=1"
-    allow="autoplay; encrypted-media; fullscreen"
-    allowfullscreen
-    frameborder="0">
-  </iframe>
+  <div id="video-container">
+    <!-- YouTube embed with minimal UI -->
+    <iframe 
+      id="youtube-embed"
+      src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&cc_load_policy=0&playsinline=1&enablejsapi=1&origin=the-artainment.vercel.app&widget_referrer=the-artainment.vercel.app"
+      allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
+      allowfullscreen
+      frameborder="0">
+    </iframe>
+    
+    <!-- Custom branded overlay -->
+    <div id="custom-overlay">
+      <button id="close-btn" onclick="closePlayer()" title="Close player">✕</button>
+      <div id="brand-overlay" class="fade-in">
+        <div id="brand-title">Playing in Enhanced Player</div>
+        <div id="brand-badge">The Artainment</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Close player function
+    function closePlayer() {
+      if (window.parent !== window) {
+        window.parent.postMessage('closePlayer', '*');
+      } else {
+        window.close();
+      }
+    }
+    
+    // Hide brand overlay after 5 seconds
+    setTimeout(() => {
+      const overlay = document.getElementById('brand-overlay');
+      if (overlay) {
+        overlay.style.opacity = '0';
+        overlay.style.transition = 'opacity 0.5s ease-out';
+      }
+    }, 5000);
+    
+    // Show overlay on hover
+    document.addEventListener('mousemove', () => {
+      const overlay = document.getElementById('brand-overlay');
+      if (overlay) {
+        overlay.style.opacity = '1';
+        clearTimeout(window.hideTimer);
+        window.hideTimer = setTimeout(() => {
+          overlay.style.opacity = '0';
+        }, 3000);
+      }
+    });
+    
+    // Prevent right-click context menu
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    
+    // Handle fullscreen
+    document.addEventListener('fullscreenchange', () => {
+      const overlay = document.getElementById('custom-overlay');
+      const closeBtn = document.getElementById('close-btn');
+      if (document.fullscreenElement) {
+        if (overlay) overlay.style.display = 'none';
+      } else {
+        if (overlay) overlay.style.display = 'block';
+      }
+    });
+  </script>
 </body>
 </html>`
 
@@ -1257,6 +1552,8 @@ serve(async (req) => {
           headers: {
             ...corsHeaders,
             'Content-Type': 'text/html; charset=utf-8',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'X-Frame-Options': 'SAMEORIGIN',
           }
         })
 
@@ -1283,6 +1580,8 @@ serve(async (req) => {
         'POST /auth/login', 'GET /auth/user', 'GET /auth/me',
         'GET /admin/dashboard/stats', 
         'GET|POST|PUT|DELETE /admin/films', 'GET|POST|PUT|DELETE /admin/series',
+        'GET|POST /admin/series/{id}/seasons', 'PUT|DELETE /admin/seasons/{id}',
+        'GET|POST /admin/seasons/{id}/episodes', 'PUT|DELETE /admin/episodes/{id}',
         'GET|POST|PUT|DELETE /admin/talent', 'GET|POST|PUT|DELETE /admin/services', 
         'GET|POST|PUT|DELETE /admin/news', 'GET|POST|PUT|DELETE /admin/testimonials',
         'GET|POST|PUT|DELETE /admin/gallery', 'GET /admin/contacts', 'GET /admin/reviews',

@@ -94,11 +94,21 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose()
     }
+    
+    const onMessage = (event: MessageEvent) => {
+      if (event.data === 'closePlayer') {
+        onClose()
+      }
+    }
+    
     document.addEventListener('keydown', onKey)
+    window.addEventListener('message', onMessage)
     document.body.style.overflow = 'hidden'
     closeRef.current?.focus()
+    
     return () => {
       document.removeEventListener('keydown', onKey)
+      window.removeEventListener('message', onMessage)
       document.body.style.overflow = ''
     }
   }, [onClose])
