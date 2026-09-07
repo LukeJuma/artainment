@@ -12,6 +12,7 @@ interface EnhancedVideoPlayerProps {
 
 export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClose }: EnhancedVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null)
+  const iframeRef = useRef<HTMLIFrameElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -26,16 +27,25 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
   const [showSettings, setShowSettings] = useState(false)
   const controlsTimeoutRef = useRef<NodeJS.Timeout>()
 
-  // Check if this is a YouTube URL
+  // Check if this is a YouTube proxy URL (our custom proxy)
+  const isYouTubeProxy = src?.includes('/youtube/proxy/')
+  // Check if this is a direct YouTube URL
   const isYouTubeUrl = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)/.test(src || '')
 
   useEffect(() => {
-    if (isYouTubeUrl) {
+    if (isYouTubeUrl && !isYouTubeProxy) {
       setHasError(true)
       setIsLoading(false)
       return
     }
-  }, [src, isYouTubeUrl])
+    
+    // For YouTube proxy, we'll use iframe and custom controls are not applicable
+    if (isYouTubeProxy) {
+      setIsLoading(false)
+      setIsPlaying(true) // Assume playing since we can't control iframe
+      return
+    }
+  }, [src, isYouTubeUrl, isYouTubeProxy])
 
   // Format time display
   const formatTime = (seconds: number) => {
@@ -245,8 +255,8 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
         cursor: showControls || !isPlaying ? 'default' : 'none',
       }}
     >
-      {/* Video Element or Error */}
-      {hasError || isYouTubeUrl ? (
+      {/* Video Element, YouTube Proxy, or Error */}
+      {hasError || (isYouTubeUrl && !isYouTubeProxy) ? (
         <div style={{
           width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
           alignItems: 'center', justifyContent: 'center', gap: 16, padding: 32, textAlign: 'center',
@@ -273,6 +283,75 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
             <button onClick={onClose} className="btn-red" style={{ fontSize: 14, padding: '10px 20px' }}>
               Close & Use Standard Player
             </button>
+          </div>
+        </div>
+      ) : isYouTubeProxy ? (
+        // YouTube Proxy iframe - Custom Enhanced Experience
+        <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+          <iframe
+            ref={iframeRef}
+            src={src}
+            style={{
+              width: '100%',
+              height: '100%',
+              border: 'none',
+              borderRadius: '16px',
+              display: 'block',
+            }}
+            allow="autoplay; encrypted-media; fullscreen"
+            allowFullScreen
+            onLoad={() => setIsLoading(false)}
+          />
+          {/* Custom overlay for YouTube proxy */}
+          <div style={{
+            position: 'absolute',
+            bottom: 16,
+            left: 16,
+            right: 16,
+            background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%)',
+            padding: '16px 20px',
+            borderRadius: '0 0 12px 12px',
+            color: '#fff',
+            fontFamily: 'DM Sans, sans-serif',
+            pointerEvents: 'none',
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontSize: 16, fontWeight: 600, marginBottom: 4 }}>
+                  {title}
+                </div>
+                <div style={{ 
+                  fontSize: 12, 
+                  color: 'rgba(255,255,255,0.8)', 
+                  background: 'rgba(239,68,68,0.2)', 
+                  padding: '2px 8px', 
+                  borderRadius: 4,
+                  display: 'inline-block'
+                }}>
+                  Enhanced Player
+                </div>
+              </div>
+              {onClose && (
+                <button
+                  onClick={onClose}
+                  style={{
+                    background: 'rgba(0,0,0,0.6)',
+                    border: 'none',
+                    color: '#fff',
+                    width: 32,
+                    height: 32,
+                    borderRadius: 6,
+                    cursor: 'pointer',
+                    pointerEvents: 'all',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  ✕
+                </button>
+              )}
+            </div>
           </div>
         </div>
       ) : (
@@ -314,9 +393,9 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
         </div>
       )}
 
-      {/* Play Button Overlay (when paused) */}
+      {/* Play Button Overlay - Only for regular videos */}
       <AnimatePresence>
-        {!isPlaying && !isLoading && !hasError && !isYouTubeUrl && (
+        {!isPlaying && !isLoading && !hasError && !(isYouTubeUrl && !isYouTubeProxy) && !isYouTubeProxy && (
           <motion.button
             initial={{ opacity: 0, scale: 0.5 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -345,9 +424,9 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
         )}
       </AnimatePresence>
 
-      {/* Controls Overlay */}
+      {/* Controls Overlay - Only for regular videos, not YouTube proxy */}
       <AnimatePresence>
-        {showControls && !hasError && !isYouTubeUrl && (
+        {showControls && !hasError && !(isYouTubeUrl && !isYouTubeProxy) && !isYouTubeProxy && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

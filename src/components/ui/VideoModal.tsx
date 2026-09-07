@@ -14,6 +14,7 @@ interface VideoModalProps {
 }
 
 const EASE = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
+const API_BASE = 'https://etjkivwwnqafyphqamgh.supabase.co/functions/v1/api'
 
 export function VideoModal({ src, title, poster, authToken, onClose, useCustomPlayer = false }: VideoModalProps) {
   const reduced = useReducedMotion()
@@ -21,13 +22,21 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
   const [failed, setFailed] = useState(false)
   const [videoSrc, setVideoSrc] = useState(src)
   const [loadingVideo, setLoadingVideo] = useState(false)
-  const youTubeId = parseYouTubeId(src) // Always check for YouTube URLs
-  const forceCustomPlayer = useCustomPlayer && !youTubeId // Only force custom for non-YouTube URLs
+  const [processingYouTube, setProcessingYouTube] = useState(false)
+  const youTubeId = parseYouTubeId(src)
+  const shouldUseEnhancedForYouTube = useCustomPlayer && youTubeId
 
   useEffect(() => {
     setFailed(false)
     setVideoSrc(src)
 
+    // If Enhanced Player requested for YouTube, process the video
+    if (shouldUseEnhancedForYouTube) {
+      processYouTubeForEnhancedPlayer(youTubeId!)
+      return
+    }
+
+    // Regular handling for non-YouTube or Standard YouTube
     if (youTubeId || !authToken) return
 
     const controller = new AbortController()
@@ -56,7 +65,30 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
       controller.abort()
       if (objectUrl) URL.revokeObjectURL(objectUrl)
     }
-  }, [src, authToken, youTubeId])
+  }, [src, authToken, youTubeId, shouldUseEnhancedForYouTube])
+
+  const processYouTubeForEnhancedPlayer = async (videoId: string) => {
+    setProcessingYouTube(true)
+    setLoadingVideo(true)
+    
+    try {
+      // Get video info from our API
+      const response = await fetch(`${API_BASE}/youtube/info/${videoId}`)
+      const data = await response.json()
+      
+      if (!response.ok) throw new Error(data.message || 'Failed to process YouTube video')
+      
+      // Use our proxy URL for Enhanced Player
+      setVideoSrc(`${API_BASE}/youtube/proxy/${videoId}`)
+      
+    } catch (error) {
+      console.error('YouTube processing error:', error)
+      setFailed(true)
+    } finally {
+      setProcessingYouTube(false)
+      setLoadingVideo(false)
+    }
+  }
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -120,18 +152,21 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
                 Unable to load this video
               </h3>
               <p style={{ fontSize: 15, margin: 0, color: 'rgba(255,255,255,0.7)', maxWidth: 420, lineHeight: 1.6 }}>
-                This content may require an active subscription or special access. Please log in or contact support if you believe this is an error.
+                {processingYouTube 
+                  ? 'Failed to process YouTube video for Enhanced Player. You can try using Standard Player instead.'
+                  : 'This content may require an active subscription or special access. Please log in or contact support if you believe this is an error.'
+                }
               </p>
               <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
                 <a href="/login" className="btn-red" style={{ fontSize: 14, padding: '10px 20px' }}>
-                  Log in
+                  {processingYouTube ? 'Try Standard Player' : 'Log in'}
                 </a>
                 <button onClick={onClose} className="btn-outline-light" style={{ fontSize: 14, padding: '10px 20px' }}>
                   Close
                 </button>
               </div>
             </div>
-          ) : loadingVideo ? (
+          ) : loadingVideo || processingYouTube ? (
             <div style={{
               width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
               alignItems: 'center', justifyContent: 'center', gap: 16,
@@ -143,44 +178,26 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
                 borderTop: '3px solid var(--red)', borderRadius: '50%',
                 animation: 'spin 1s linear infinite',
               }} />
-              <p style={{ fontSize: 16, fontWeight: 500, margin: 0 }}>Loading video...</p>
-            </div>
-          ) : youTubeId && !forceCustomPlayer ? (
-            <YouTubePlayer videoId={youTubeId} />
-          ) : youTubeId && forceCustomPlayer ? (
-            // For YouTube URLs in Enhanced mode, show a message
-            <div style={{
-              width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
-              alignItems: 'center', justifyContent: 'center', gap: 16, padding: 32, textAlign: 'center',
-              color: 'rgba(255,255,255,0.9)', fontFamily: 'DM Sans, sans-serif',
-              background: 'linear-gradient(135deg, rgba(20,20,24,0.95) 0%, rgba(10,10,12,0.95) 100%)',
-            }}>
-              <div style={{
-                width: 64, height: 64, borderRadius: '50%', background: 'rgba(239,68,68,0.2)',
-                border: '2px solid rgba(239,68,68,0.4)', display: 'flex', alignItems: 'center',
-                justifyContent: 'center', fontSize: 24, color: '#ff6b6b', marginBottom: 8,
-              }}>
-                📺
-              </div>
-              <h3 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: '#fff' }}>
-                Enhanced Player Not Available
-              </h3>
-              <p style={{ fontSize: 15, margin: 0, color: 'rgba(255,255,255,0.7)', maxWidth: 420, lineHeight: 1.6 }}>
-                YouTube videos work best with the Standard Player. Switch to Standard mode for this video or use uploaded files for Enhanced Player experience.
+              <p style={{ fontSize: 16, fontWeight: 500, margin: 0 }}>
+                {processingYouTube ? 'Processing YouTube video for Enhanced Player...' : 'Loading video...'}
               </p>
-              <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-                <button 
-                  onClick={() => window.location.reload()} 
-                  className="btn-red" 
-                  style={{ fontSize: 14, padding: '10px 20px' }}
-                >
-                  Use Standard Player
-                </button>
-                <button onClick={onClose} className="btn-outline-light" style={{ fontSize: 14, padding: '10px 20px' }}>
-                  Close
-                </button>
-              </div>
+              {processingYouTube && (
+                <p style={{ fontSize: 14, margin: 0, color: 'rgba(255,255,255,0.6)' }}>
+                  Preparing custom player experience
+                </p>
+              )}
             </div>
+          ) : youTubeId && !shouldUseEnhancedForYouTube ? (
+            <YouTubePlayer videoId={youTubeId} />
+          ) : shouldUseEnhancedForYouTube ? (
+            // Enhanced Player with processed YouTube video
+            <EnhancedVideoPlayer
+              src={videoSrc}
+              title={title}
+              poster={poster}
+              autoPlay={true}
+              onClose={onClose}
+            />
           ) : (
             <EnhancedVideoPlayer
               src={videoSrc}
@@ -193,7 +210,7 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
         </div>
 
         {/* Custom close button (only show if not using enhanced player which has its own) */}
-        {(youTubeId || failed || loadingVideo || forceCustomPlayer) && (
+        {(youTubeId && !shouldUseEnhancedForYouTube) || failed || loadingVideo || processingYouTube ? (
           <button
             ref={closeRef}
             onClick={onClose}
