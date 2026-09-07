@@ -233,3 +233,66 @@ export function IconInstagram({ size, color, style, className }: IconProps) {
     </svg>
   )
 }
+
+export function IconPause({ size, color, style, className }: IconProps) {
+  return (
+    <svg width={size || dflt.size} height={size || dflt.size} viewBox="0 0 24 24" fill={color || dflt.color} stroke="none" style={style} className={className}>
+      <rect x="6" y="4" width="4" height="16" />
+      <rect x="14" y="4" width="4" height="16" />
+    </svg>
+  )
+}
+
+export function IconVolumeX({ size, color, style, className }: IconProps) {
+  return (
+    <svg width={size || dflt.size} height={size || dflt.size} viewBox="0 0 24 24" fill="none" stroke={color || dflt.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <line x1="23" y1="9" x2="17" y2="15" />
+      <line x1="17" y1="9" x2="23" y2="15" />
+    </svg>
+  )
+}
+
+export function IconVolume2({ size, color, style, className }: IconProps) {
+  return (
+    <svg width={size || dflt.size} height={size || dflt.size} viewBox="0 0 24 24" fill="none" stroke={color || dflt.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+      <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07" />
+    </svg>
+  )
+}
+
+export function IconMaximize({ size, color, style, className }: IconProps) {
+  return (
+    <svg width={size || dflt.size} height={size || dflt.size} viewBox="0 0 24 24" fill="none" stroke={color || dflt.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+      <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
+    </svg>
+  )
+}
+
+export function IconSettings({ size, color, style, className }: IconProps) {
+  return (
+    <svg width={size || dflt.size} height={size || dflt.size} viewBox="0 0 24 24" fill="none" stroke={color || dflt.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+    </svg>
+  )
+}
+
+export function IconSkipBack({ size, color, style, className }: IconProps) {
+  return (
+    <svg width={size || dflt.size} height={size || dflt.size} viewBox="0 0 24 24" fill="none" stroke={color || dflt.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+      <polygon points="19 20 9 12 19 4 19 20" fill={color || dflt.color} />
+      <line x1="5" y1="19" x2="5" y2="5" />
+    </svg>
+  )
+}
+
+export function IconSkipForward({ size, color, style, className }: IconProps) {
+  return (
+    <svg width={size || dflt.size} height={size || dflt.size} viewBox="0 0 24 24" fill="none" stroke={color || dflt.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={style} className={className}>
+      <polygon points="5 4 15 12 5 20 5 4" fill={color || dflt.color} />
+      <line x1="19" y1="5" x2="19" y2="19" />
+    </svg>
+  )
+}

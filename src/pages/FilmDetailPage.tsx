@@ -18,6 +18,7 @@ export function FilmDetailPage() {
   const [error, setError] = useState(false)
   const [showTrailer, setShowTrailer] = useState(false)
   const [showFull, setShowFull] = useState(false)
+  const [useCustomPlayer, setUseCustomPlayer] = useState(false) // New state for player preference
 
   useEffect(() => {
     if (!slug) return
@@ -67,6 +68,47 @@ export function FilmDetailPage() {
         onPlayFull={() => setShowFull(true)}
       />
 
+      {/* Player Preference Toggle (for videos) */}
+      {(Boolean(film.video_url) || Boolean(film.has_full_video ?? film.full_video_url)) && (
+        <div style={{
+          maxWidth: 1280, margin: '0 auto', padding: '24px 32px',
+          display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 12,
+        }}>
+          <span style={{
+            fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-secondary)',
+          }}>
+            Video Player:
+          </span>
+          <div style={{
+            display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: 8,
+            border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden',
+          }}>
+            <button
+              onClick={() => setUseCustomPlayer(false)}
+              style={{
+                padding: '8px 16px', background: !useCustomPlayer ? 'var(--red)' : 'transparent',
+                border: 'none', color: !useCustomPlayer ? '#fff' : 'var(--text-secondary)',
+                fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s ease',
+                fontFamily: 'DM Sans, sans-serif',
+              }}
+            >
+              Standard
+            </button>
+            <button
+              onClick={() => setUseCustomPlayer(true)}
+              style={{
+                padding: '8px 16px', background: useCustomPlayer ? 'var(--red)' : 'transparent',
+                border: 'none', color: useCustomPlayer ? '#fff' : 'var(--text-secondary)',
+                fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s ease',
+                fontFamily: 'DM Sans, sans-serif',
+              }}
+            >
+              Enhanced
+            </button>
+          </div>
+        </div>
+      )}
+
       <AnimatePresence>
         {showTrailer && film.video_url && (
           <VideoModal
@@ -74,6 +116,7 @@ export function FilmDetailPage() {
             title={`${film.title} trailer`}
             poster={film.backdrop_url || film.poster_url}
             onClose={() => setShowTrailer(false)}
+            useCustomPlayer={useCustomPlayer}
           />
         )}
         {showFull && Boolean(film.has_full_video ?? film.full_video_url) && (
@@ -83,6 +126,7 @@ export function FilmDetailPage() {
             poster={film.backdrop_url || film.poster_url}
             authToken={film.youtube_url ? null : token}
             onClose={() => setShowFull(false)}
+            useCustomPlayer={useCustomPlayer}
           />
         )}
       </AnimatePresence>
