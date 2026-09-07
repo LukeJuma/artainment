@@ -688,12 +688,27 @@ serve(async (req) => {
       }
     }
 
+    // Helper function to extract IDs from nested paths
+    function extractIdsFromPath(path, pattern) {
+      // Match patterns like /admin/series/1/seasons or /admin/seasons/1/episodes
+      const regex = new RegExp(pattern.replace(/\{id\}/g, '(\\d+)'))
+      const match = path.match(regex)
+      return match ? match.slice(1).map(id => parseInt(id)) : []
+    }
+
     // Admin Series Seasons CRUD
-    if (path.startsWith('/admin/series/') && path.includes('/seasons') && method === 'GET') {
+    if (path.includes('/admin/series/') && path.endsWith('/seasons') && method === 'GET') {
       try {
         getAdminToken(req)
-        const seriesId = parseInt(path.split('/')[3]) // Extract series ID from /admin/series/{id}/seasons
-        const { data: seasons } = await supabase
+        const [seriesId] = extractIdsFromPath(path, '/admin/series/{id}/seasons')
+        
+        if (!seriesId) {
+          return new Response(JSON.stringify({ message: 'Invalid series ID' }), { status: 400, headers: corsHeaders })
+        }
+        
+        console.log('Getting seasons for series ID:', seriesId)
+        
+        const { data: seasons, error } = await supabase
           .from('seasons')
           .select(`
             *,
@@ -701,29 +716,69 @@ serve(async (req) => {
           `)
           .eq('series_id', seriesId)
           .order('season_number', { ascending: true })
+          
+        if (error) {
+          console.error('Supabase seasons select error:', error)
+          return new Response(JSON.stringify({ 
+            message: 'Failed to get seasons',
+            error: error.message 
+          }), { status: 500, headers: corsHeaders })
+        }
+        
         return new Response(JSON.stringify(seasons || []), { headers: corsHeaders })
       } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+        console.error('Get seasons error:', error)
+        return new Response(JSON.stringify({ 
+          message: 'Unauthorized',
+          error: error.message 
+        }), { status: 401, headers: corsHeaders })
       }
     }
 
-    if (path.startsWith('/admin/series/') && path.includes('/seasons') && method === 'POST') {
+    if (path.includes('/admin/series/') && path.endsWith('/seasons') && method === 'POST') {
       try {
         getAdminToken(req)
-        const seriesId = parseInt(path.split('/')[3]) // Extract series ID from /admin/series/{id}/seasons
+        const [seriesId] = extractIdsFromPath(path, '/admin/series/{id}/seasons')
+        
+        if (!seriesId) {
+          return new Response(JSON.stringify({ message: 'Invalid series ID' }), { status: 400, headers: corsHeaders })
+        }
+        
+        console.log('Creating season for series ID:', seriesId)
+        
         const body = await req.json()
+        console.log('Request body:', body)
         
         // Add series_id to the season data
-        const seasonData = { ...body, series_id: seriesId }
+        const seasonData = { 
+          ...body, 
+          series_id: seriesId,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+        
+        console.log('Season data to insert:', seasonData)
         
         const { error, data } = await supabase.from('seasons').insert([seasonData]).select().single()
-        if (error) throw error
+        
+        if (error) {
+          console.error('Supabase seasons insert error:', error)
+          return new Response(JSON.stringify({ 
+            message: 'Failed to create season',
+            error: error.message,
+            details: error.details || 'No additional details',
+            hint: error.hint || 'Check if seasons table exists'
+          }), { status: 500, headers: corsHeaders })
+        }
+        
+        console.log('Season created successfully:', data)
         return new Response(JSON.stringify(data), { headers: corsHeaders })
       } catch (error) {
         console.error('Season creation error:', error)
         return new Response(JSON.stringify({ 
           message: 'Failed to create season',
-          error: error.message 
+          error: error.message,
+          stack: error.stack
         }), { status: 500, headers: corsHeaders })
       }
     }
@@ -812,6 +867,38 @@ serve(async (req) => {
         return new Response(JSON.stringify({ message: 'Episode deleted successfully' }), { headers: corsHeaders })
       } catch (error) {
         return new Response(JSON.stringify({ message: 'Failed to delete episode' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    // Debug endpoint to check seasons table
+    if (path === '/admin/debug/seasons' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        // Check if seasons table exists and get its structure
+        const { data: seasons, error } = await supabase
+          .from('seasons')
+          .select('*')
+          .limit(1)
+        
+        if (error) {
+          return new Response(JSON.stringify({
+            error: 'Seasons table issue',
+            details: error.message,
+            hint: error.hint,
+            code: error.code
+          }), { status: 500, headers: corsHeaders })
+        }
+        
+        return new Response(JSON.stringify({
+          message: 'Seasons table exists',
+          sample_data: seasons,
+          table_accessible: true
+        }), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({
+          error: 'Debug check failed',
+          message: error.message
+        }), { status: 500, headers: corsHeaders })
       }
     }
 
