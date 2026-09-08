@@ -1275,6 +1275,175 @@ serve(async (req) => {
         return new Response(JSON.stringify({ message: 'Failed to create article' }), { status: 500, headers: corsHeaders })
       }
     }
+
+    if (path.startsWith('/admin/micmtaani/articles/') && method === 'PUT') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/micmtaani/articles/', ''))
+        const body = await req.json()
+        const { error, data } = await supabase.from('mic_mtaani_articles').update(body).eq('id', id).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to update article' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/micmtaani/articles/') && method === 'DELETE') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/micmtaani/articles/', ''))
+        const { error } = await supabase.from('mic_mtaani_articles').delete().eq('id', id)
+        if (error) throw error
+        return new Response(JSON.stringify({ message: 'Article deleted successfully' }), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to delete article' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    // Admin Mic Mtaani Categories
+    if (path === '/admin/micmtaani/categories' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const { data: categories } = await supabase.from('mic_mtaani_categories').select('*').order('sort_order')
+        return new Response(JSON.stringify(categories || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    if (path === '/admin/micmtaani/categories' && method === 'POST') {
+      try {
+        getAdminToken(req)
+        const body = await req.json()
+        const { error, data } = await supabase.from('mic_mtaani_categories').insert([body]).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to create category' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/micmtaani/categories/') && method === 'PUT') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/micmtaani/categories/', ''))
+        const body = await req.json()
+        const { error, data } = await supabase.from('mic_mtaani_categories').update(body).eq('id', id).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to update category' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/micmtaani/categories/') && method === 'DELETE') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/micmtaani/categories/', ''))
+        const { error } = await supabase.from('mic_mtaani_categories').delete().eq('id', id)
+        if (error) throw error
+        return new Response(JSON.stringify({ message: 'Category deleted successfully' }), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to delete category' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    // Admin Mic Mtaani Events
+    if (path === '/admin/micmtaani/events' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const { data: events } = await supabase.from('mic_mtaani_events').select('*').order('starts_at', { ascending: false })
+        return new Response(JSON.stringify(events || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    if (path === '/admin/micmtaani/events' && method === 'POST') {
+      try {
+        getAdminToken(req)
+        const body = await req.json()
+        const { error, data } = await supabase.from('mic_mtaani_events').insert([body]).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to create event' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/micmtaani/events/') && method === 'PUT') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/micmtaani/events/', ''))
+        const body = await req.json()
+        const { error, data } = await supabase.from('mic_mtaani_events').update(body).eq('id', id).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to update event' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/micmtaani/events/') && method === 'DELETE') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/micmtaani/events/', ''))
+        const { error } = await supabase.from('mic_mtaani_events').delete().eq('id', id)
+        if (error) throw error
+        return new Response(JSON.stringify({ message: 'Event deleted successfully' }), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to delete event' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    // Admin Mic Mtaani Businesses
+    if (path === '/admin/micmtaani/businesses' && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const { data: businesses } = await supabase.from('mic_mtaani_businesses').select('*').order('name')
+        return new Response(JSON.stringify(businesses || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    if (path === '/admin/micmtaani/businesses' && method === 'POST') {
+      try {
+        getAdminToken(req)
+        const body = await req.json()
+        const { error, data } = await supabase.from('mic_mtaani_businesses').insert([body]).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to create business' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/micmtaani/businesses/') && method === 'PUT') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/micmtaani/businesses/', ''))
+        const body = await req.json()
+        const { error, data } = await supabase.from('mic_mtaani_businesses').update(body).eq('id', id).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to update business' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/micmtaani/businesses/') && method === 'DELETE') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/micmtaani/businesses/', ''))
+        const { error } = await supabase.from('mic_mtaani_businesses').delete().eq('id', id)
+        if (error) throw error
+        return new Response(JSON.stringify({ message: 'Business deleted successfully' }), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to delete business' }), { status: 500, headers: corsHeaders })
+      }
+    }
     // Admin Users
     if (path === '/admin/users' && method === 'GET') {
       try {
@@ -1752,7 +1921,9 @@ serve(async (req) => {
         'GET|POST|PUT|DELETE /admin/talent', 'GET|POST|PUT|DELETE /admin/services', 
         'GET|POST|PUT|DELETE /admin/news', 'GET|POST|PUT|DELETE /admin/testimonials',
         'GET|POST|PUT|DELETE /admin/gallery', 'GET /admin/contacts', 'GET /admin/reviews',
-        'GET|POST /admin/micmtaani/articles', 'GET /admin/users', 'GET /admin/settings', 
+        'GET|POST|PUT|DELETE /admin/micmtaani/articles', 'GET|POST|PUT|DELETE /admin/micmtaani/categories',
+        'GET|POST|PUT|DELETE /admin/micmtaani/events', 'GET|POST|PUT|DELETE /admin/micmtaani/businesses',
+        'GET /admin/users', 'GET /admin/settings', 
         'POST /upload'
       ]
     }), { 

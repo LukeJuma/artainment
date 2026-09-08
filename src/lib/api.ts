@@ -249,8 +249,9 @@ export interface Series {
   rating: number;
   poster_url: string | null;
   backdrop_url: string | null;
+  video_url: string | null; // Trailer URL
   tag: string | null;
-  status: 'upcoming' | 'in_production' | 'completed';
+  status: 'upcoming' | 'in_production' | 'completed' | 'active';
   featured: boolean;
   sort_order: number;
   seasons_count?: number;

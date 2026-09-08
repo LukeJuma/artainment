@@ -7,12 +7,13 @@ import { MediaArt } from '../ui/MediaArt'
 interface SeriesDetailHeroProps {
   series: Series
   onStart: () => void
+  onPlayTrailer?: () => void
   startable: boolean
 }
 
 const EASE = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
 
-export function SeriesDetailHero({ series, onStart, startable }: SeriesDetailHeroProps) {
+export function SeriesDetailHero({ series, onStart, onPlayTrailer, startable }: SeriesDetailHeroProps) {
   const reduced = useReducedMotion()
   const artwork = series.backdrop_url || series.poster_url
 
@@ -136,6 +137,15 @@ export function SeriesDetailHero({ series, onStart, startable }: SeriesDetailHer
                 style={{ display: 'inline-flex', alignItems: 'center', gap: 10, minHeight: 52, padding: '0 30px' }}
               >
                 <IconPlay size={18} color="#fff" /> Start Watching
+              </button>
+            )}
+            {series.video_url && onPlayTrailer && (
+              <button
+                onClick={onPlayTrailer}
+                className="btn-outline-light"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 10, minHeight: 52, padding: '0 30px' }}
+              >
+                <IconPlay size={18} color="currentColor" /> Watch Trailer
               </button>
             )}
             <Link to="/series" className="btn-outline-light" style={{ minHeight: 52, padding: '0 30px' }}>

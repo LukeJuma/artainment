@@ -12,6 +12,7 @@ export function SeriesDetailPage() {
   const [series, setSeries] = useState<Series | null>(null)
   const [error, setError] = useState(false)
   const [playing, setPlaying] = useState<Episode | null>(null)
+  const [showTrailer, setShowTrailer] = useState(false)
   const [useCustomPlayer, setUseCustomPlayer] = useState(true) // Default to Enhanced Player for better experience
 
   useEffect(() => {
@@ -20,6 +21,7 @@ export function SeriesDetailPage() {
     setError(false)
     setSeries(null)
     setPlaying(null)
+    setShowTrailer(false)
     seriesAPI.get(slug)
       .then(s => { if (alive) setSeries(s) })
       .catch(() => { if (alive) setError(true) })
@@ -45,10 +47,11 @@ export function SeriesDetailPage() {
         series={series}
         startable={Boolean(firstPlayable)}
         onStart={() => firstPlayable && setPlaying(firstPlayable)}
+        onPlayTrailer={() => setShowTrailer(true)}
       />
 
       {/* Player Preference Toggle */}
-      {Boolean(firstPlayable) && (
+      {(Boolean(firstPlayable) || Boolean(series.video_url)) && (
         <div style={{
           maxWidth: 1280, margin: '0 auto', padding: '24px 32px',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
@@ -100,6 +103,15 @@ export function SeriesDetailPage() {
       )}
 
       <AnimatePresence>
+        {showTrailer && series.video_url && (
+          <VideoModal
+            src={videoStreamUrl(series.video_url)!}
+            title={`${series.title} trailer`}
+            poster={series.backdrop_url || series.poster_url}
+            onClose={() => setShowTrailer(false)}
+            useCustomPlayer={useCustomPlayer}
+          />
+        )}
         {playing && playing.video_url && (
           <VideoModal
             src={videoStreamUrl(playing.video_url)!}
