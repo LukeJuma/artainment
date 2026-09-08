@@ -151,12 +151,14 @@ serve(async (req) => {
     if (path === '/home') {
       try {
         const [
-          { data: featuredFilm }, { data: films }, { data: services }, { data: talent }, 
-          { data: gallery }, { data: news }, { data: testimonials }, { data: podcasts }, 
-          { data: comingSoon }
+          { data: featuredFilm }, { data: films }, { data: series }, { data: mbokaSeriesData }, 
+          { data: services }, { data: talent }, { data: gallery }, { data: news }, 
+          { data: testimonials }, { data: podcasts }, { data: comingSoon }
         ] = await Promise.all([
           supabase.from('films').select('*').eq('featured', true).eq('status', 'completed').limit(1).single(),
-          supabase.from('films').select('*').eq('status', 'completed').order('created_at', { ascending: false }).limit(8),
+          supabase.from('films').select('*').eq('status', 'completed').order('created_at', { ascending: false }).limit(6),
+          supabase.from('series').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(6),
+          supabase.from('series').select('*').eq('title', 'Mboka').single(),
           supabase.from('services').select('*').eq('active', true).order('sort_order'),
           supabase.from('talent').select('*').eq('active', true).order('sort_order').limit(6),
           supabase.from('gallery_images').select('*').order('sort_order').limit(8),
@@ -166,10 +168,41 @@ serve(async (req) => {
           supabase.from('films').select('*').in('status', ['upcoming', 'in_production']).order('release_date').limit(4)
         ])
 
+        // Create hero items combining featured film, Mboka series, and other content
+        const heroItems = []
+        
+        // Add featured film if exists
+        if (featuredFilm) {
+          heroItems.push({ ...featuredFilm, type: 'film' })
+        }
+        
+        // Add Mboka series to hero section
+        if (mbokaSeriesData) {
+          heroItems.push({ ...mbokaSeriesData, type: 'series' })
+        }
+        
+        // Add other films/series to complete hero section (up to 5 total)
+        const additionalItems = [...(films || []).slice(0, 3), ...(series || []).slice(0, 2)]
+          .map(item => ({ 
+            ...item, 
+            type: films?.includes(item) ? 'film' : 'series' 
+          }))
+          .slice(0, 5 - heroItems.length)
+        
+        heroItems.push(...additionalItems)
+
         return new Response(JSON.stringify({
-          featured_film: featuredFilm || null, films: films || [], services: services || [],
-          talent: talent || [], gallery: gallery || [], news: news || [],
-          testimonials: testimonials || [], podcasts: podcasts || [], coming_soon: comingSoon || []
+          hero_items: heroItems,
+          featured_film: featuredFilm || null, 
+          films: films || [], 
+          series: series || [],
+          services: services || [],
+          talent: talent || [], 
+          gallery: gallery || [], 
+          news: news || [],
+          testimonials: testimonials || [], 
+          podcasts: podcasts || [], 
+          coming_soon: comingSoon || []
         }), { headers: corsHeaders })
       } catch (error) {
         return new Response(JSON.stringify({ error: 'Failed to load home data', details: error.message }),
@@ -234,10 +267,21 @@ serve(async (req) => {
     if (path.startsWith('/series/')) {
       const slug = path.replace('/series/', '')
       try {
-        const { data: series } = await supabase.from('series').select('*').eq('slug', slug).single()
+        const { data: series } = await supabase
+          .from('series')
+          .select(`
+            *,
+            seasons:seasons(
+              *,
+              episodes:episodes(*)
+            )
+          `)
+          .eq('slug', slug)
+          .single()
         if (!series) return new Response(JSON.stringify({ message: 'Series not found' }), { status: 404, headers: corsHeaders })
         return new Response(JSON.stringify(series), { headers: corsHeaders })
       } catch (error) {
+        console.error('Series fetch error:', error)
         return new Response(JSON.stringify({ message: 'Series not found' }), { status: 404, headers: corsHeaders })
       }
     }

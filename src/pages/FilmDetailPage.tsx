@@ -78,7 +78,7 @@ export function FilmDetailPage() {
             <span style={{
               fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-secondary)',
             }}>
-              💡 Toggle between Standard (YouTube) and Enhanced (custom) video players
+              💡 Enhanced player replaces YouTube controls with a custom cinematic UI
             </span>
           </div>
           <div style={{
