@@ -1040,6 +1040,43 @@ serve(async (req) => {
       }
     }
 
+    if (path === '/admin/podcasts' && method === 'POST') {
+      try {
+        getAdminToken(req)
+        const body = await req.json()
+        const { error, data } = await supabase.from('podcasts').insert([body]).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to create podcast' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/podcasts/') && method === 'PUT') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/podcasts/', ''))
+        const body = await req.json()
+        const { error, data } = await supabase.from('podcasts').update(body).eq('id', id).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to update podcast' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/podcasts/') && method === 'DELETE') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/podcasts/', ''))
+        const { error } = await supabase.from('podcasts').delete().eq('id', id)
+        if (error) throw error
+        return new Response(JSON.stringify({ message: 'Podcast deleted successfully' }), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to delete podcast' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
     // Admin Services CRUD
     if (path === '/admin/services' && method === 'GET') {
       try {
@@ -1918,8 +1955,8 @@ serve(async (req) => {
         'GET|POST|PUT|DELETE /admin/films', 'GET|POST|PUT|DELETE /admin/series',
         'GET|POST /admin/series/{id}/seasons', 'PUT|DELETE /admin/seasons/{id}',
         'GET|POST /admin/seasons/{id}/episodes', 'PUT|DELETE /admin/episodes/{id}',
-        'GET|POST|PUT|DELETE /admin/talent', 'GET|POST|PUT|DELETE /admin/services', 
-        'GET|POST|PUT|DELETE /admin/news', 'GET|POST|PUT|DELETE /admin/testimonials',
+        'GET|POST|PUT|DELETE /admin/talent', 'GET|POST|PUT|DELETE /admin/podcasts',
+        'GET|POST|PUT|DELETE /admin/services', 'GET|POST|PUT|DELETE /admin/news', 'GET|POST|PUT|DELETE /admin/testimonials',
         'GET|POST|PUT|DELETE /admin/gallery', 'GET /admin/contacts', 'GET /admin/reviews',
         'GET|POST|PUT|DELETE /admin/micmtaani/articles', 'GET|POST|PUT|DELETE /admin/micmtaani/categories',
         'GET|POST|PUT|DELETE /admin/micmtaani/events', 'GET|POST|PUT|DELETE /admin/micmtaani/businesses',
