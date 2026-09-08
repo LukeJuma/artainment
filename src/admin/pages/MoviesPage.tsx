@@ -66,7 +66,7 @@ export function MoviesPage() {
   const [formError, setFormError] = useState('')
   const [uploading, setUploading] = useState(0)
 
-  const { data: films, loading, refetch } = useApi(() => filmsAPI.list(), [])
+  const { data: films, loading, refetch } = useApi(() => adminAPI.listFilms(token!), [token])
 
   const filtered = (films || []).filter(f => {
     const matchSearch = !search || f.title.toLowerCase().includes(search.toLowerCase()) || f.genre.toLowerCase().includes(search.toLowerCase())

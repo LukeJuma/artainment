@@ -81,7 +81,7 @@ export function SeriesPage() {
   const [episodeForm, setEpisodeForm] = useState<EpisodeForm>(emptyEpisodeForm)
   const [episodeError, setEpisodeError] = useState('')
 
-  const { data: series, loading, refetch } = useApi(() => seriesAPI.list(), [])
+  const { data: series, loading, refetch } = useApi(() => adminAPI.listSeries(token!), [token])
 
   const filtered = (series || []).filter(s => s.title.toLowerCase().includes(search.toLowerCase()))
 

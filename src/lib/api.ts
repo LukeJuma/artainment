@@ -701,6 +701,8 @@ export const adminAPI = {
     api(`/admin/notifications/${id}`, { method: 'DELETE', token }),
 
   // Films
+  listFilms: (token: string) =>
+    api<Film[]>('/admin/films', { token }),
   createFilm: (token: string, data: Partial<Film>) =>
     api<Film>('/admin/films', { method: 'POST', token, body: data }),
   updateFilm: (token: string, id: number, data: Partial<Film>) =>
@@ -709,6 +711,8 @@ export const adminAPI = {
     api(`/admin/films/${id}`, { method: 'DELETE', token }),
 
   // Series
+  listSeries: (token: string) =>
+    api<Series[]>('/admin/series', { token }),
   createSeries: (token: string, data: Partial<Series>) =>
     api<Series>('/admin/series', { method: 'POST', token, body: data }),
   updateSeries: (token: string, id: number, data: Partial<Series>) =>
