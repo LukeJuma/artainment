@@ -157,7 +157,13 @@ serve(async (req) => {
         ] = await Promise.all([
           supabase.from('films').select('*').eq('featured', true).eq('status', 'completed').limit(1).single(),
           supabase.from('films').select('*').eq('status', 'completed').order('created_at', { ascending: false }).limit(6),
-          supabase.from('series').select('*').eq('status', 'active').order('created_at', { ascending: false }).limit(6),
+          supabase.from('series').select(`
+            *,
+            seasons:seasons(
+              *,
+              episodes:episodes(*)
+            )
+          `).in('status', ['active', 'completed']).order('created_at', { ascending: false }).limit(6),
           supabase.from('series').select('*').eq('title', 'Mboka').single(),
           supabase.from('services').select('*').eq('active', true).order('sort_order'),
           supabase.from('talent').select('*').eq('active', true).order('sort_order').limit(6),
@@ -167,6 +173,13 @@ serve(async (req) => {
           supabase.from('podcasts').select('*').eq('active', true).order('sort_order').limit(4),
           supabase.from('films').select('*').in('status', ['upcoming', 'in_production']).order('release_date').limit(4)
         ])
+
+        // Calculate episode counts for series
+        const seriesWithCounts = (series || []).map(s => ({
+          ...s,
+          seasons_count: s.seasons?.length || 0,
+          episodes_count: s.seasons?.reduce((total, season) => total + (season.episodes?.length || 0), 0) || 0
+        }))
 
         // Create hero items combining featured film, Mboka series, and other content
         const heroItems = []
@@ -178,11 +191,17 @@ serve(async (req) => {
         
         // Add Mboka series to hero section
         if (mbokaSeriesData) {
-          heroItems.push({ ...mbokaSeriesData, type: 'series' })
+          const mbokaWithCounts = {
+            ...mbokaSeriesData,
+            type: 'series',
+            seasons_count: mbokaSeriesData.seasons?.length || 0,
+            episodes_count: mbokaSeriesData.seasons?.reduce((total, season) => total + (season.episodes?.length || 0), 0) || 0
+          }
+          heroItems.push(mbokaWithCounts)
         }
         
         // Add other films/series to complete hero section (up to 5 total)
-        const additionalItems = [...(films || []).slice(0, 3), ...(series || []).slice(0, 2)]
+        const additionalItems = [...(films || []).slice(0, 3), ...seriesWithCounts.slice(0, 2)]
           .map(item => ({ 
             ...item, 
             type: films?.includes(item) ? 'film' : 'series' 
@@ -195,7 +214,7 @@ serve(async (req) => {
           hero_items: heroItems,
           featured_film: featuredFilm || null, 
           films: films || [], 
-          series: series || [],
+          series: seriesWithCounts || [],
           services: services || [],
           talent: talent || [], 
           gallery: gallery || [], 
@@ -253,12 +272,29 @@ serve(async (req) => {
         const paginateParam = url.searchParams.get('paginate') === 'true'
         const page = parseInt(url.searchParams.get('page') || '1')
         
-        const { data: series } = await supabase.from('series').select('*').order('sort_order')
+        const { data: series } = await supabase
+          .from('series')
+          .select(`
+            *,
+            seasons:seasons(
+              *,
+              episodes:episodes(*)
+            )
+          `)
+          .in('status', ['active', 'completed'])
+          .order('sort_order')
+        
+        // Calculate episode counts for each series
+        const seriesWithCounts = (series || []).map(s => ({
+          ...s,
+          seasons_count: s.seasons?.length || 0,
+          episodes_count: s.seasons?.reduce((total, season) => total + (season.episodes?.length || 0), 0) || 0
+        }))
         
         if (paginateParam) {
-          return new Response(JSON.stringify(paginate(series || [], page)), { headers: corsHeaders })
+          return new Response(JSON.stringify(paginate(seriesWithCounts || [], page)), { headers: corsHeaders })
         }
-        return new Response(JSON.stringify(series || []), { headers: corsHeaders })
+        return new Response(JSON.stringify(seriesWithCounts || []), { headers: corsHeaders })
       } catch (error) {
         return new Response(JSON.stringify({ data: [], message: 'No series available' }), { headers: corsHeaders })
       }
@@ -1074,6 +1110,68 @@ serve(async (req) => {
         return new Response(JSON.stringify({ message: 'Podcast deleted successfully' }), { headers: corsHeaders })
       } catch (error) {
         return new Response(JSON.stringify({ message: 'Failed to delete podcast' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    // Admin Podcast Episodes CRUD
+    if (path.startsWith('/admin/podcasts/') && path.includes('/episodes') && method === 'GET') {
+      try {
+        getAdminToken(req)
+        const podcastId = parseInt(path.split('/')[3]) // Extract podcast ID from /admin/podcasts/{id}/episodes
+        const { data: episodes } = await supabase
+          .from('podcast_episodes')
+          .select('*')
+          .eq('podcast_id', podcastId)
+          .order('episode_number', { ascending: true })
+        return new Response(JSON.stringify(episodes || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/podcasts/') && path.includes('/episodes') && method === 'POST') {
+      try {
+        getAdminToken(req)
+        const podcastId = parseInt(path.split('/')[3]) // Extract podcast ID from /admin/podcasts/{id}/episodes
+        const body = await req.json()
+        
+        // Add podcast_id to the episode data
+        const episodeData = { ...body, podcast_id: podcastId }
+        
+        const { error, data } = await supabase.from('podcast_episodes').insert([episodeData]).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        console.error('Podcast episode creation error:', error)
+        return new Response(JSON.stringify({ 
+          message: 'Failed to create podcast episode',
+          error: error.message 
+        }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/podcast-episodes/') && method === 'PUT') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/podcast-episodes/', ''))
+        const body = await req.json()
+        const { error, data } = await supabase.from('podcast_episodes').update(body).eq('id', id).select().single()
+        if (error) throw error
+        return new Response(JSON.stringify(data), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to update podcast episode' }), { status: 500, headers: corsHeaders })
+      }
+    }
+
+    if (path.startsWith('/admin/podcast-episodes/') && method === 'DELETE') {
+      try {
+        getAdminToken(req)
+        const id = parseInt(path.replace('/admin/podcast-episodes/', ''))
+        const { error } = await supabase.from('podcast_episodes').delete().eq('id', id)
+        if (error) throw error
+        return new Response(JSON.stringify({ message: 'Podcast episode deleted successfully' }), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Failed to delete podcast episode' }), { status: 500, headers: corsHeaders })
       }
     }
 
@@ -1956,6 +2054,7 @@ serve(async (req) => {
         'GET|POST /admin/series/{id}/seasons', 'PUT|DELETE /admin/seasons/{id}',
         'GET|POST /admin/seasons/{id}/episodes', 'PUT|DELETE /admin/episodes/{id}',
         'GET|POST|PUT|DELETE /admin/talent', 'GET|POST|PUT|DELETE /admin/podcasts',
+        'GET|POST /admin/podcasts/{id}/episodes', 'PUT|DELETE /admin/podcast-episodes/{id}',
         'GET|POST|PUT|DELETE /admin/services', 'GET|POST|PUT|DELETE /admin/news', 'GET|POST|PUT|DELETE /admin/testimonials',
         'GET|POST|PUT|DELETE /admin/gallery', 'GET /admin/contacts', 'GET /admin/reviews',
         'GET|POST|PUT|DELETE /admin/micmtaani/articles', 'GET|POST|PUT|DELETE /admin/micmtaani/categories',
