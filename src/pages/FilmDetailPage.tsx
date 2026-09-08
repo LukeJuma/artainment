@@ -18,7 +18,7 @@ export function FilmDetailPage() {
   const [error, setError] = useState(false)
   const [showTrailer, setShowTrailer] = useState(false)
   const [showFull, setShowFull] = useState(false)
-  const [useCustomPlayer, setUseCustomPlayer] = useState(false) // New state for player preference
+  const [useCustomPlayer, setUseCustomPlayer] = useState(true) // Default to Enhanced Player for better experience
 
   useEffect(() => {
     if (!slug) return

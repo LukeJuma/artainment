@@ -12,6 +12,7 @@ export function SeriesDetailPage() {
   const [series, setSeries] = useState<Series | null>(null)
   const [error, setError] = useState(false)
   const [playing, setPlaying] = useState<Episode | null>(null)
+  const [useCustomPlayer, setUseCustomPlayer] = useState(true) // Default to Enhanced Player for better experience
 
   useEffect(() => {
     if (!slug) return
@@ -46,6 +47,58 @@ export function SeriesDetailPage() {
         onStart={() => firstPlayable && setPlaying(firstPlayable)}
       />
 
+      {/* Player Preference Toggle */}
+      {Boolean(firstPlayable) && (
+        <div style={{
+          maxWidth: 1280, margin: '0 auto', padding: '24px 32px',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{
+              fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-secondary)',
+            }}>
+              💡 Enhanced player replaces YouTube controls with a custom cinematic UI
+            </span>
+          </div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 12,
+          }}>
+            <span style={{
+              fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-secondary)',
+            }}>
+              Player:
+            </span>
+            <div style={{
+              display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: 8,
+              border: '1px solid rgba(255,255,255,0.1)', overflow: 'hidden',
+            }}>
+              <button
+                onClick={() => setUseCustomPlayer(false)}
+                style={{
+                  padding: '8px 16px', background: !useCustomPlayer ? 'var(--red)' : 'transparent',
+                  border: 'none', color: !useCustomPlayer ? '#fff' : 'var(--text-secondary)',
+                  fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s ease',
+                  fontFamily: 'DM Sans, sans-serif',
+                }}
+              >
+                Standard
+              </button>
+              <button
+                onClick={() => setUseCustomPlayer(true)}
+                style={{
+                  padding: '8px 16px', background: useCustomPlayer ? 'var(--red)' : 'transparent',
+                  border: 'none', color: useCustomPlayer ? '#fff' : 'var(--text-secondary)',
+                  fontSize: 13, fontWeight: 500, cursor: 'pointer', transition: 'all 0.2s ease',
+                  fontFamily: 'DM Sans, sans-serif',
+                }}
+              >
+                Enhanced
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <AnimatePresence>
         {playing && playing.video_url && (
           <VideoModal
@@ -53,6 +106,7 @@ export function SeriesDetailPage() {
             title={`${series.title} — Episode ${playing.episode_number}: ${playing.title}`}
             poster={series.backdrop_url || series.poster_url}
             onClose={() => setPlaying(null)}
+            useCustomPlayer={useCustomPlayer}
           />
         )}
       </AnimatePresence>
