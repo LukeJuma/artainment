@@ -10,7 +10,7 @@ class Talent extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $table = 'talents';
+    protected $table = 'talent';
 
     protected $fillable = [
         'name', 'slug', 'role', 'bio', 'credits', 'image_url',
