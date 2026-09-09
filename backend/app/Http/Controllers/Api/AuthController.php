@@ -23,8 +23,6 @@ class AuthController extends Controller
         $this->jwtService = $jwtService;
     }
 
-class AuthController extends Controller
-{
     public function register(Request $request): JsonResponse
     {
         $validated = $request->validate([
