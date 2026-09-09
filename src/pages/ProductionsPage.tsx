@@ -11,7 +11,14 @@ const statusColor: Record<string, string> = { completed: '#22c55e', in_productio
 export function ProductionsPage() {
   const [productions, setProductions] = useState<Production[]>([])
   const { ref: headingRef, inView: headingInView } = useInView(0.3)
-  useEffect(() => { productionsAPI.list().then(setProductions).catch(() => {}) }, [])
+  useEffect(() => { 
+    productionsAPI.list()
+      .then(setProductions)
+      .catch(error => {
+        console.error('Failed to load productions:', error);
+        setProductions([]);
+      })
+  }, [])
 
   return (
     <div style={{ paddingTop: 80 }}>

@@ -12,13 +12,24 @@ class NewsController extends Controller
     public function index(Request $request): JsonResponse
     {
         $perPage = min((int) $request->input('per_page', 24), 50);
-        $news = NewsArticle::orderByDesc('published_at')->paginate($perPage);
+        
+        // Filter draft content: Only show published articles
+        $news = NewsArticle::whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->orderByDesc('published_at')
+            ->paginate($perPage);
+            
         return response()->json($news);
     }
 
     public function show(string $slug): JsonResponse
     {
-        $article = NewsArticle::where('slug', $slug)->firstOrFail();
+        // Filter draft content: Only show published articles
+        $article = NewsArticle::where('slug', $slug)
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->firstOrFail();
+            
         return response()->json($article);
     }
 

@@ -132,7 +132,7 @@ export function FilmDetailPage() {
         )}
         {showFull && Boolean(film.has_full_video ?? film.full_video_url) && (
           <VideoModal
-            src={film.youtube_url || fullFilmStreamUrl(film.slug)}
+            src={film.youtube_url || fullFilmStreamUrl(film.slug, token || undefined)}
             title={film.title}
             poster={film.backdrop_url || film.poster_url}
             authToken={film.youtube_url ? null : token}

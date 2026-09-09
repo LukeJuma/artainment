@@ -20,7 +20,10 @@ export function SeriesPage() {
   useEffect(() => {
     seriesAPI.listPaginated(1)
       .then(r => { setSeriesList(r.data); setHasMore(r.current_page < r.last_page) })
-      .catch(() => {})
+      .catch(error => {
+        console.error('Failed to load series:', error);
+        setSeriesList([]);
+      })
   }, [])
 
   const loadMore = useCallback(async () => {
@@ -32,7 +35,11 @@ export function SeriesPage() {
       setSeriesList(prev => [...prev, ...r.data])
       setPage(nextPage)
       setHasMore(r.current_page < r.last_page)
-    } catch {} finally { setLoadingMore(false) }
+    } catch (error) {
+      console.error('Failed to load more series:', error);
+    } finally { 
+      setLoadingMore(false) 
+    }
   }, [page, loadingMore, hasMore])
 
   const genres = ['All', ...Array.from(new Set(seriesList.map(s => s.genre).filter(Boolean)))]

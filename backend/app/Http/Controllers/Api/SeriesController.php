@@ -16,6 +16,11 @@ class SeriesController extends Controller
     {
         $query = Series::query()->withCount('seasons');
 
+        // Filter draft content: Only show published series for non-admin users  
+        if (!$request->user() || !$request->user()->is_admin) {
+            $query->where('status', 'published');
+        }
+
         if ($request->has('genre') && $request->genre !== 'All') {
             $query->where('genre', $request->genre);
         }
@@ -49,7 +54,15 @@ class SeriesController extends Controller
 
     public function show(string $slug): JsonResponse
     {
-        $series = Series::with(['seasons.episodes'])->where('slug', $slug)->firstOrFail();
+        $query = Series::with(['seasons.episodes'])->where('slug', $slug);
+        
+        // Filter draft content: Only show published series for non-admin users
+        $request = request();
+        if (!$request->user() || !$request->user()->is_admin) {
+            $query->where('status', 'published');
+        }
+        
+        $series = $query->firstOrFail();
         return response()->json($series);
     }
 

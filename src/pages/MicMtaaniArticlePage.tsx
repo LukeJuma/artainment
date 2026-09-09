@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import DOMPurify from 'dompurify'
 import { mmAPI, MMArticle } from '../lib/api'
 import { Loader } from '../components/ui/Loader'
 import { MMNavbar } from '../components/micmtaani/MMNavbar'
@@ -41,7 +42,10 @@ export function MicMtaaniArticlePage() {
       setCommentMsg('Comment submitted for review.')
       setCommentName('')
       setCommentBody('')
-    } catch { setCommentMsg('Failed to submit comment.') }
+    } catch (error) {
+      console.error('Failed to submit comment:', error);
+      setCommentMsg('Failed to submit comment. Please try again.');
+    }
   }
 
   if (error) return <div style={wrap}><MMNavbar /><p style={{ textAlign: 'center', padding: 80, color: 'var(--text-secondary)' }}>Article not found.</p></div>
@@ -96,7 +100,7 @@ export function MicMtaaniArticlePage() {
         {article.body && (
           <div
             style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(15px, 2.5vw, 17px)', lineHeight: 1.8, color: 'var(--text)' }}
-            dangerouslySetInnerHTML={{ __html: article.body }}
+            dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(article.body) }}
           />
         )}
 

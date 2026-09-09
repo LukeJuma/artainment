@@ -45,7 +45,7 @@ class MicMtaaniController extends Controller
             ->limit(5)
             ->get(['id', 'headline', 'slug', 'views', 'published_at', 'category_id']);
 
-        $events = MicMtaaniEvent::where('status', 'approved')
+        $events = MicMtaaniEvent::whereIn('status', ['Live', 'Upcoming'])
             ->where('starts_at', '>=', now())
             ->orderBy('starts_at')
             ->limit(6)
@@ -78,8 +78,10 @@ class MicMtaaniController extends Controller
             $query->whereJsonContains('tags', $request->tag);
         }
 
+        $perPage = min((int) $request->input('per_page', 12), 50);
+
         $articles = $query->latest('published_at')
-            ->paginate($request->per_page ?? 12)
+            ->paginate($perPage)
             ->through(fn ($a) => [
                 'id' => $a->id,
                 'headline' => $a->headline,
@@ -158,7 +160,7 @@ class MicMtaaniController extends Controller
 
     public function events(): JsonResponse
     {
-        $events = MicMtaaniEvent::where('status', 'approved')
+        $events = MicMtaaniEvent::whereIn('status', ['Live', 'Upcoming'])
             ->orderBy('starts_at')
             ->get();
 

@@ -1,5 +1,5 @@
 import {
-  LayoutDashboard, BarChart3, Film, Tv, Music, Calendar, Trophy,
+  LayoutDashboard, BarChart3, Film, Tv, Calendar, Trophy,
   Users, CreditCard, Ticket, Star, Shield, Megaphone,
   MessageSquare, Settings, Terminal, UserCog,
   DollarSign, Podcast, Bell,
@@ -25,7 +25,6 @@ export const NAV_SECTIONS: NavSection[] = [
       { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
       { id: 'movies', label: 'Movies', icon: Film },
       { id: 'series', label: 'Series', icon: Tv },
-      { id: 'music', label: 'Music', icon: Music },
       { id: 'podcasts', label: 'Podcasts', icon: Podcast },
       { id: 'actors', label: 'Actors', icon: Star },
       { id: 'events', label: 'Events', icon: Calendar, badge: 3 },
@@ -62,7 +61,6 @@ export const PAGE_TITLES: Record<string, string> = {
   analytics: 'Analytics',
   movies: 'Movies',
   series: 'TV Series',
-  music: 'Music',
   podcasts: 'Podcasts',
   actors: 'Actors',
   events: 'Events',

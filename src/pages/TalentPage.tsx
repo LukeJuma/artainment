@@ -17,7 +17,10 @@ export function TalentPage() {
   useEffect(() => {
     talentAPI.listPaginated(1)
       .then(r => { setTalent(r.data); setHasMore(r.current_page < r.last_page) })
-      .catch(() => {})
+      .catch(error => {
+        console.error('Failed to load talent:', error);
+        setTalent([]);
+      })
   }, [])
 
   const loadMore = useCallback(async () => {
@@ -29,7 +32,11 @@ export function TalentPage() {
       setTalent(prev => [...prev, ...r.data])
       setPage(nextPage)
       setHasMore(r.current_page < r.last_page)
-    } catch {} finally { setLoadingMore(false) }
+    } catch (error) {
+      console.error('Failed to load more talent:', error);
+    } finally { 
+      setLoadingMore(false) 
+    }
   }, [page, loadingMore, hasMore])
 
   return (

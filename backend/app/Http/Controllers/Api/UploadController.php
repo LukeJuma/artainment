@@ -11,6 +11,11 @@ class UploadController extends Controller
 {
     public function store(Request $request): JsonResponse
     {
+        // Increase PHP upload limits at runtime to support 2GB uploads
+        ini_set('upload_max_filesize', '2048M');
+        ini_set('post_max_size', '2048M');
+        ini_set('memory_limit', '2048M');
+        ini_set('max_execution_time', '600'); // 10 minutes for large uploads
         $request->validate([
             'file' => [
                 'required',
@@ -30,7 +35,10 @@ class UploadController extends Controller
             'folder' => 'nullable|string|max:100',
         ]);
 
-        $folder = $request->input('folder', 'uploads');
+        // Sanitize folder input to prevent directory traversal attacks
+        $rawFolder = $request->input('folder', 'uploads');
+        $folder = $this->sanitizeFolder($rawFolder);
+        
         $file = $request->file('file');
         $path = $file->store($folder, 'public');
         $url = Storage::disk('public')->url($path);
@@ -40,5 +48,31 @@ class UploadController extends Controller
             'path' => $path,
             'filename' => $file->getClientOriginalName(),
         ], 201);
+    }
+
+    /**
+     * Sanitize folder input to prevent directory traversal attacks
+     */
+    private function sanitizeFolder(string $folder): string
+    {
+        // Define allowed folder names
+        $allowedFolders = [
+            'uploads',
+            'films',
+            'series', 
+            'podcasts',
+            'news',
+            'talent',
+            'gallery',
+            'mic-mtaani',
+            'thumbnails',
+            'trailers'
+        ];
+
+        // Clean the folder name - remove dots, slashes, and limit to alphanumeric plus dash/underscore
+        $cleanFolder = preg_replace('/[^a-z0-9\-_]/', '', strtolower(trim($folder)));
+        
+        // If cleaned folder is in allowed list, use it; otherwise default to 'uploads'
+        return in_array($cleanFolder, $allowedFolders) ? $cleanFolder : 'uploads';
     }
 }

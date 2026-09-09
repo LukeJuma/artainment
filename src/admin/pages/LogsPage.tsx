@@ -1,9 +1,10 @@
-import { useMemo } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Terminal, AlertTriangle, Info, AlertCircle, RefreshCcw, Download } from 'lucide-react'
+import { Terminal, AlertTriangle, Info, AlertCircle, RefreshCcw, Download, Filter } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
 import { useApi } from '../hooks/useApi'
-import { filmsAPI, talentAPI, newsAPI } from '../../lib/api'
+import { useAuth } from '../../contexts/AuthContext'
+import { adminAPI } from '../../lib/api'
 
 const levelConfig: Record<string, { bg: string; color: string; icon: typeof Info }> = {
   INFO: { bg: 'var(--admin-info-glow)', color: 'var(--admin-info)', icon: Info },
@@ -12,72 +13,234 @@ const levelConfig: Record<string, { bg: string; color: string; icon: typeof Info
 }
 
 export function LogsPage() {
-  const { data: films } = useApi(() => filmsAPI.list(), [])
-  const { data: talent } = useApi(() => talentAPI.list(), [])
-  const { data: news } = useApi(() => newsAPI.list(), [])
+  const { token } = useAuth()
+  const [filter, setFilter] = useState<{ level?: string; action?: string }>({})
+  const [refreshKey, setRefreshKey] = useState(0)
+  
+  const { data: auditLogs, loading } = useApi(() => 
+    adminAPI.getAuditLogs(token!, { per_page: 100, ...filter }), 
+    [token, filter, refreshKey]
+  )
+  
+  const { data: stats } = useApi(() => 
+    adminAPI.getAuditStats(token!), 
+    [token, refreshKey]
+  )
 
-  const logs = useMemo(() => {
-    const entries: { id: number; level: 'INFO' | 'WARN' | 'ERROR'; message: string; source: string; time: string; ip: string }[] = []
-    let id = 1
-    if (films) {
-      films.forEach(f => {
-        entries.push({ id: id++, level: 'INFO', message: `Film "${f.title}" loaded successfully`, source: 'content-service', time: 'just now', ip: '—' })
-      })
-    }
-    if (talent) {
-      talent.forEach(t => {
-        entries.push({ id: id++, level: 'INFO', message: `Talent "${t.name}" loaded successfully`, source: 'content-service', time: 'just now', ip: '—' })
-      })
-    }
-    if (news) {
-      news.forEach(n => {
-        entries.push({ id: id++, level: 'INFO', message: `News "${n.title}" loaded successfully`, source: 'content-service', time: 'just now', ip: '—' })
-      })
-    }
-    return entries
-  }, [films, talent, news])
+  const handleRefresh = () => setRefreshKey(prev => prev + 1)
+
+  if (loading && !auditLogs) {
+    return (
+      <div className="admin-container">
+        <PageHeader title="System Logs" />
+        <div className="loading-spinner">Loading audit logs...</div>
+      </div>
+    )
+  }
+
+  const logs = auditLogs?.data || []
+  const logStats = stats?.stats || { total_logs: 0, logs_today: 0, error_logs_today: 0, unique_users_today: 0 }
 
   return (
-    <div>
-      <PageHeader title="System Logs" description="Monitor system activity and errors" actions={
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="admin-btn admin-btn-secondary"><RefreshCcw size={15} /> Refresh</button>
-          <button className="admin-btn admin-btn-secondary"><Download size={15} /> Export</button>
+    <div className="admin-container">
+      <PageHeader 
+        title="System Logs" 
+        description="Monitor system activity and security events"
+        actions={
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button 
+              className="admin-btn admin-btn-secondary" 
+              onClick={handleRefresh}
+            >
+              <RefreshCcw size={15} /> Refresh
+            </button>
+            <button className="admin-btn admin-btn-secondary">
+              <Download size={15} /> Export
+            </button>
+          </div>
+        } 
+      />
+      
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+        <div className="admin-card">
+          <div className="admin-card-body" style={{ textAlign: 'center' }}>
+            <h3 style={{ color: '#3B82F6', fontSize: 32, fontWeight: 700, margin: 0 }}>
+              {logStats.total_logs.toLocaleString()}
+            </h3>
+            <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>Total Logs</p>
+          </div>
         </div>
-      } />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
-        {[
-          { label: 'Total Logs', value: logs.length.toString(), color: '#3B82F6' },
-          { label: 'Warnings', value: logs.filter(l => l.level === 'WARN').length.toString(), color: '#FFB800' },
-          { label: 'Errors', value: logs.filter(l => l.level === 'ERROR').length.toString(), color: '#FF4B5C' },
-        ].map((item, idx) => (
-          <motion.div key={item.label} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: idx * 0.05 }} style={{ background: 'var(--admin-card)', border: '1px solid var(--admin-border)', borderRadius: 'var(--admin-radius-lg)', padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ width: 32, height: 32, borderRadius: 8, background: `${item.color}18`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: item.color }}><Terminal size={14} /></div>
-            <div><div style={{ fontSize: 20, fontWeight: 800, color: 'var(--admin-text)', fontFamily: "'Plus Jakarta Sans', sans-serif" }}>{item.value}</div><div style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{item.label}</div></div>
-          </motion.div>
-        ))}
+        
+        <div className="admin-card">
+          <div className="admin-card-body" style={{ textAlign: 'center' }}>
+            <h3 style={{ color: '#2DD36F', fontSize: 32, fontWeight: 700, margin: 0 }}>
+              {logStats.logs_today.toLocaleString()}
+            </h3>
+            <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>Today</p>
+          </div>
+        </div>
+        
+        <div className="admin-card">
+          <div className="admin-card-body" style={{ textAlign: 'center' }}>
+            <h3 style={{ color: '#FF4D2D', fontSize: 32, fontWeight: 700, margin: 0 }}>
+              {logStats.error_logs_today.toLocaleString()}
+            </h3>
+            <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>Errors Today</p>
+          </div>
+        </div>
+        
+        <div className="admin-card">
+          <div className="admin-card-body" style={{ textAlign: 'center' }}>
+            <h3 style={{ color: '#8B5CF6', fontSize: 32, fontWeight: 700, margin: 0 }}>
+              {logStats.unique_users_today.toLocaleString()}
+            </h3>
+            <p style={{ margin: 0, color: 'rgba(255,255,255,0.7)', fontSize: 14 }}>Active Users</p>
+          </div>
+        </div>
       </div>
-      <div className="admin-table-wrap">
-        <table className="admin-table">
-          <thead><tr><th>Level</th><th>Message</th><th>Source</th><th>IP</th><th>Time</th></tr></thead>
-          <tbody>
-            {logs.map((log, idx) => {
-              const lc = levelConfig[log.level]
-              const Icon = lc.icon
-              return (
-                <motion.tr key={log.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 + idx * 0.03 }}>
-                  <td><span className="badge" style={{ background: lc.bg, color: lc.color }}><Icon size={10} />{log.level}</span></td>
-                  <td style={{ maxWidth: 350, overflow: 'hidden', textOverflow: 'ellipsis' }} className="cell-primary">{log.message}</td>
-                  <td><span className="badge badge-neutral">{log.source}</span></td>
-                  <td style={{ fontFamily: "'Inter', monospace", fontSize: 12, color: 'var(--admin-text-muted)' }}>{log.ip}</td>
-                  <td style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>{log.time}</td>
-                </motion.tr>
-              )
-            })}
-          </tbody>
-        </table>
+
+      <div className="admin-card">
+        <div className="admin-card-header">
+          <div>
+            <h3 className="admin-card-title">Audit Trail</h3>
+            <p className="admin-card-subtitle">Real-time security and activity monitoring</p>
+          </div>
+          <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+            <select 
+              value={filter.level || ''} 
+              onChange={e => setFilter(prev => ({ ...prev, level: e.target.value || undefined }))}
+              className="admin-select-sm"
+            >
+              <option value="">All Levels</option>
+              <option value="INFO">Info</option>
+              <option value="WARN">Warning</option>
+              <option value="ERROR">Error</option>
+            </select>
+            <Filter size={16} />
+          </div>
+        </div>
+        
+        <div className="admin-card-body" style={{ padding: 0 }}>
+          {logs.length === 0 ? (
+            <div style={{ padding: 48, textAlign: 'center', color: 'rgba(255,255,255,0.6)' }}>
+              <Terminal size={48} style={{ marginBottom: 16, opacity: 0.4 }} />
+              <p>No audit logs found</p>
+            </div>
+          ) : (
+            <div style={{ maxHeight: 600, overflowY: 'auto' }}>
+              {logs.map(log => {
+                const config = levelConfig[log.level] || levelConfig.INFO
+                const Icon = config.icon
+                
+                return (
+                  <motion.div 
+                    key={log.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: 12,
+                      padding: '16px 20px',
+                      borderBottom: '1px solid rgba(255,255,255,0.1)',
+                    }}
+                  >
+                    <div style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: '50%',
+                      background: config.bg,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0,
+                      marginTop: 2,
+                    }}>
+                      <Icon size={16} style={{ color: config.color }} />
+                    </div>
+                    
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+                        <span style={{ 
+                          fontWeight: 600, 
+                          fontSize: 14,
+                          color: '#fff'
+                        }}>
+                          {log.message}
+                        </span>
+                        <span style={{
+                          padding: '2px 8px',
+                          background: config.bg,
+                          color: config.color,
+                          borderRadius: 12,
+                          fontSize: 11,
+                          fontWeight: 500,
+                          textTransform: 'uppercase',
+                        }}>
+                          {log.level}
+                        </span>
+                      </div>
+                      
+                      <div style={{ 
+                        fontSize: 12, 
+                        color: 'rgba(255,255,255,0.6)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 16,
+                      }}>
+                        <span>{log.time_ago}</span>
+                        {log.user && (
+                          <span>by {log.user.name}</span>
+                        )}
+                        {log.ip_address && (
+                          <span>from {log.ip_address}</span>
+                        )}
+                        {log.resource_type && (
+                          <span className="mono">{log.resource_type}#{log.resource_id}</span>
+                        )}
+                      </div>
+                    </div>
+                  </motion.div>
+                )
+              })}
+            </div>
+          )}
+        </div>
       </div>
-      <style>{`@media (max-width: 768px) { div[style*="grid-template-columns: repeat(3"] { grid-template-columns: 1fr !important; } }`}</style>
+
+      {stats?.recent_actions && stats.recent_actions.length > 0 && (
+        <div className="admin-card">
+          <div className="admin-card-header">
+            <h3 className="admin-card-title">Most Frequent Actions (Last 7 Days)</h3>
+          </div>
+          <div className="admin-card-body">
+            <div style={{ display: 'grid', gap: 8 }}>
+              {stats.recent_actions.map((action, idx) => (
+                <div key={idx} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '8px 12px',
+                  background: 'rgba(255,255,255,0.03)',
+                  borderRadius: 8,
+                }}>
+                  <span className="mono" style={{ fontSize: 13 }}>{action.action}</span>
+                  <span style={{ 
+                    background: 'var(--admin-info-glow)', 
+                    color: 'var(--admin-info)',
+                    padding: '2px 8px',
+                    borderRadius: 12,
+                    fontSize: 11,
+                    fontWeight: 500,
+                  }}>
+                    {action.count}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -15,6 +15,9 @@ class MicMtaaniEvent extends Model
         'website', 'is_featured', 'status',
     ];
 
+    // Define the valid status values for validation
+    public const VALID_STATUSES = ['Live', 'Upcoming', 'Sold Out', 'Cancelled'];
+
     protected function casts(): array
     {
         return [

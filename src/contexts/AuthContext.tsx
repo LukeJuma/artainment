@@ -66,7 +66,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     if (token) {
-      try { await authAPI.logout(token); } catch {}
+      try { 
+        await authAPI.logout(token); 
+      } catch (error) {
+        console.error('Logout API call failed:', error);
+        // Continue with local logout regardless of API failure
+      }
     }
     localStorage.removeItem('auth_token');
     setToken(null);

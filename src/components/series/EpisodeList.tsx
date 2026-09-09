@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Episode, Series } from '../../lib/api'
 import { IconPlay } from '../ui/Icons'
@@ -10,9 +10,15 @@ interface EpisodeListProps {
 
 export function EpisodeList({ series, onPlayEpisode }: EpisodeListProps) {
   const seasons = series.seasons || []
-  const [activeSeason, setActiveSeason] = useState<number>(
-    seasons.find(s => s.episodes?.some(e => e.video_url))?.season_number ?? seasons[0]?.season_number ?? 1
-  )
+  
+  // Fix stale state: Initialize with default value, then sync with props
+  const [activeSeason, setActiveSeason] = useState<number>(1)
+  
+  // Sync activeSeason with prop changes during navigation
+  useEffect(() => {
+    const defaultSeason = seasons.find(s => s.episodes?.some(e => e.video_url))?.season_number ?? seasons[0]?.season_number ?? 1
+    setActiveSeason(defaultSeason)
+  }, [series.id, seasons]) // Re-run when series changes or seasons change
 
   const current = seasons.find(s => s.season_number === activeSeason)
 

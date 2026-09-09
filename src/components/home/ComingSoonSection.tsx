@@ -59,10 +59,10 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
   ]
 
   const socials = [
-    { label: 'Facebook', icon: IconFacebook },
-    { label: 'Twitter', icon: IconTwitter },
-    { label: 'Instagram', icon: IconInstagram },
-    { label: 'YouTube', icon: IconYouTube },
+    { label: 'Facebook', icon: IconFacebook, url: 'https://facebook.com/theartainment' },
+    { label: 'Twitter', icon: IconTwitter, url: 'https://twitter.com/theartainment' },
+    { label: 'Instagram', icon: IconInstagram, url: 'https://instagram.com/theartainment' },
+    { label: 'YouTube', icon: IconYouTube, url: 'https://youtube.com/@theartainment' },
   ]
 
   const handleSubscribe = async (event: React.FormEvent) => {
@@ -146,8 +146,8 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
         )}
 
         <div className="cs-socials" aria-label="Social media links">
-          {socials.map(({ label, icon: Icon }) => (
-            <a key={label} href="#" aria-label={label} title={label}>
+          {socials.map(({ label, icon: Icon, url }) => (
+            <a key={label} href={url} target="_blank" rel="noopener noreferrer" aria-label={label} title={label}>
               <Icon size={14} color="#F4E5B6" />
             </a>
           ))}

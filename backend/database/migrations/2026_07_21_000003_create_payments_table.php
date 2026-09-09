@@ -16,7 +16,7 @@ return new class extends Migration
             $table->unsignedInteger('amount');
             $table->string('currency')->default('KES');
             $table->string('method');
-            $table->string('status')->default('success');
+            $table->string('status')->default('pending');
             $table->string('description')->nullable();
             $table->timestamp('paid_at')->nullable();
             $table->timestamps();

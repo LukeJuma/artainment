@@ -5,10 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Str;
 
 class MicMtaaniArticle extends Model
 {
+    use SoftDeletes;
     protected $table = 'mic_mtaani_articles';
 
     protected $fillable = [
@@ -57,7 +59,7 @@ class MicMtaaniArticle extends Model
 
     public function journalist(): BelongsTo
     {
-        return $this->belongsTo(MicMtaaniJournalist::class, 'author_id');
+        return $this->belongsTo(MicMtaaniJournalist::class, 'author_id', 'user_id');
     }
 
     public function comments(): HasMany

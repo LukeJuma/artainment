@@ -197,9 +197,14 @@ class MicMtaaniAdminController extends Controller
             'category' => 'nullable|string|max:50',
             'starts_at' => 'required|date',
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
+            'status' => 'nullable|in:Live,Upcoming,Sold Out,Cancelled',
         ]);
         $validated['slug'] = Str::slug($validated['title']);
-        $validated['status'] = 'approved';
+        
+        // Set default status if not provided
+        if (!isset($validated['status'])) {
+            $validated['status'] = 'Upcoming';
+        }
 
         $event = MicMtaaniEvent::create($validated);
         return response()->json($event, 201);

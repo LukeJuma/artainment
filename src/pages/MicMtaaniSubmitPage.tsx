@@ -19,8 +19,9 @@ export function MicMtaaniSubmitPage() {
       await mmAPI.submit(form)
       setMsg('Thank you! Your submission has been received and will be reviewed before publishing.')
       setForm({ type: 'news_tip', title: '', description: '', submitter_name: '', submitter_email: '', submitter_phone: '', media_url: '' })
-    } catch {
-      setMsg('Something went wrong. Please try again.')
+    } catch (error) {
+      console.error('Failed to submit story:', error);
+      setMsg('Something went wrong. Please try again.');
     }
     setLoading(false)
   }

@@ -10,7 +10,7 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        $adminPassword = env('SEED_ADMIN_PASSWORD');
+        $adminPassword = config('app_custom.seed_admin_password');
         if (!$adminPassword) {
             throw new \RuntimeException('SEED_ADMIN_PASSWORD env variable is required. Set it in .env before running the seeder.');
         }

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\AuditService;
+use App\Services\JwtService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -11,6 +13,15 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+
+class AuthController extends Controller
+{
+    protected JwtService $jwtService;
+
+    public function __construct(JwtService $jwtService)
+    {
+        $this->jwtService = $jwtService;
+    }
 
 class AuthController extends Controller
 {
@@ -28,11 +39,12 @@ class AuthController extends Controller
             'password' => Hash::make($validated['password']),
         ]);
 
-        $token = $user->createToken('auth-token')->plainTextToken;
+        $token = $this->jwtService->generateToken($user);
 
         return response()->json([
-            'user' => $user,
+            'user' => $user->makeHidden(['password']),
             'token' => $token,
+            'token_type' => 'Bearer'
         ], 201);
     }
 
@@ -51,35 +63,43 @@ class AuthController extends Controller
             ]);
         }
 
-        $token = $user->createToken('auth-token')->plainTextToken;
+        $token = $this->jwtService->generateToken($user);
+
+        // Log admin login for audit trail
+        if ($user->is_admin) {
+            app(AuditService::class)->logAdminLogin($user->id);
+        }
 
         return response()->json([
-            'user' => $user,
+            'user' => $user->makeHidden(['password']),
             'token' => $token,
+            'token_type' => 'Bearer'
         ]);
     }
 
     public function logout(Request $request): JsonResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        // For JWT, logout is handled client-side by deleting the token
+        // We could implement a token blacklist here if needed
         return response()->json(['message' => 'Logged out successfully']);
     }
 
     public function user(Request $request): JsonResponse
     {
-        return response()->json($request->user());
+        $user = $request->get('auth_user');
+        return response()->json($user->makeHidden(['password']));
     }
 
     public function updateProfile(Request $request): JsonResponse
     {
-        $user = $request->user();
+        $user = $request->get('auth_user');
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'email' => 'sometimes|required|email|unique:users,email,' . $user->id,
         ]);
 
         $user->update($validated);
-        return response()->json($user);
+        return response()->json($user->makeHidden(['password']));
     }
 
     public function forgotPassword(Request $request): JsonResponse
@@ -95,7 +115,7 @@ class AuthController extends Controller
                 ['token' => Hash::make($token), 'created_at' => now()]
             );
 
-            $resetUrl = (env('FRONTEND_URL', 'http://localhost:8443')) . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
+            $resetUrl = config('app_custom.frontend_url') . '/reset-password?token=' . $token . '&email=' . urlencode($user->email);
 
             Mail::raw("Click the link below to reset your password:\n\n{$resetUrl}\n\nThis link will expire in 60 minutes.", function ($message) use ($user) {
                 $message->to($user->email)->subject('Password Reset — The Artainment');
@@ -131,8 +151,14 @@ class AuthController extends Controller
         $user->save();
 
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
-        $user->tokens()->delete();
+        
+        // Generate new token for immediate login after password reset
+        $token = $this->jwtService->generateToken($user);
 
-        return response()->json(['message' => 'Password has been reset successfully.']);
+        return response()->json([
+            'message' => 'Password has been reset successfully.',
+            'token' => $token,
+            'token_type' => 'Bearer'
+        ]);
     }
 }

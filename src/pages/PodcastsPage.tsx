@@ -18,7 +18,10 @@ export function PodcastsPage() {
   useEffect(() => {
     podcastAPI.listPaginated(1)
       .then(r => { setPodcasts(r.data); setHasMore(r.current_page < r.last_page) })
-      .catch(() => {})
+      .catch(error => {
+        console.error('Failed to load podcasts:', error);
+        setPodcasts([]);
+      })
   }, [])
 
   const loadMore = useCallback(async () => {
@@ -30,7 +33,11 @@ export function PodcastsPage() {
       setPodcasts(prev => [...prev, ...r.data])
       setPage(nextPage)
       setHasMore(r.current_page < r.last_page)
-    } catch {} finally { setLoadingMore(false) }
+    } catch (error) {
+      console.error('Failed to load more podcasts:', error);
+    } finally { 
+      setLoadingMore(false) 
+    }
   }, [page, loadingMore, hasMore])
 
   return (

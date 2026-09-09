@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Film;
+use App\Services\AuditService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -12,6 +13,11 @@ class FilmController extends Controller
     public function index(Request $request): JsonResponse
     {
         $query = Film::query();
+
+        // Filter draft content: Only show published films for non-admin users
+        if (!$request->user() || !$request->user()->is_admin) {
+            $query->where('status', 'published');
+        }
 
         if ($request->has('genre') && $request->genre !== 'All') {
             $query->where('genre', $request->genre);
@@ -40,7 +46,15 @@ class FilmController extends Controller
 
     public function show(string $slug): JsonResponse
     {
-        $film = Film::where('slug', $slug)->firstOrFail();
+        $query = Film::where('slug', $slug);
+        
+        // Filter draft content: Only show published films for non-admin users
+        $request = request();
+        if (!$request->user() || !$request->user()->is_admin) {
+            $query->where('status', 'published');
+        }
+        
+        $film = $query->firstOrFail();
 
         // Hide full_video_url from public (unauthenticated) responses — expose a boolean instead.
         // youtube_url (e.g. a YouTube-hosted film) stays visible so it can play directly on the site.
@@ -77,6 +91,16 @@ class FilmController extends Controller
         ]);
 
         $film = Film::create($validated);
+        
+        // Log film creation for audit trail
+        if ($request->user()) {
+            app(AuditService::class)->logFilmCreated(
+                $request->user()->id,
+                $film->id,
+                $film->title
+            );
+        }
+        
         return response()->json($film, 201);
     }
 
@@ -105,12 +129,33 @@ class FilmController extends Controller
         ]);
 
         $film->update($validated);
+        
+        // Log film update for audit trail
+        if ($request->user()) {
+            app(AuditService::class)->logFilmUpdated(
+                $request->user()->id,
+                $film->id,
+                $film->title
+            );
+        }
+        
         return response()->json($film);
     }
 
-    public function destroy(string $id): JsonResponse
+    public function destroy(Request $request, string $id): JsonResponse
     {
-        Film::findOrFail($id)->delete();
+        $film = Film::findOrFail($id);
+        
+        // Log film deletion for audit trail
+        if ($request->user()) {
+            app(AuditService::class)->logFilmDeleted(
+                $request->user()->id,
+                $film->id,
+                $film->title
+            );
+        }
+        
+        $film->delete();
         return response()->json(['message' => 'Film deleted']);
     }
 }

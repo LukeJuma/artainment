@@ -30,7 +30,14 @@ function ServiceRow({ service: s, index: i }: { service: Service; index: number 
 export function ServicesPage() {
   const [services, setServices] = useState<Service[]>([])
   const { ref: headingRef, inView: headingInView } = useInView(0.3)
-  useEffect(() => { servicesAPI.list().then(setServices).catch(() => {}) }, [])
+  useEffect(() => { 
+    servicesAPI.list()
+      .then(setServices)
+      .catch(error => {
+        console.error('Failed to load services:', error);
+        setServices([]);
+      })
+  }, [])
 
   return (
     <div style={{ paddingTop: 80 }}>

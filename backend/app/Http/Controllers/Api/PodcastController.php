@@ -13,12 +13,20 @@ class PodcastController extends Controller
     public function index(Request $request): JsonResponse
     {
         $perPage = min((int) $request->input('per_page', 24), 50);
+        
+        // Fix N+1 query: Use eager loading with latestEpisode relationship
+        // OLD: 1 query for podcasts + N queries for latest episodes (N+1 problem)
+        // NEW: 2 queries total regardless of podcast count (podcasts + latest episodes)
         $podcasts = Podcast::where('active', true)
             ->withCount('episodes')
+            ->with(['latestEpisode' => function ($query) {
+                $query->select('id', 'podcast_id', 'title', 'published_at', 'duration');
+            }])
             ->orderBy('sort_order')
             ->paginate($perPage)
             ->through(function (Podcast $podcast) {
-                $podcast->latest_episode = $podcast->episodes()->orderByDesc('published_at')->first();
+                $podcast->latest_episode = $podcast->latestEpisode;
+                unset($podcast->latestEpisode);
                 return $podcast;
             });
 

@@ -24,7 +24,10 @@ export function FilmsPage() {
     setFilms([])
     filmsAPI.listPaginated(filter === 'All' ? undefined : filter, 1)
       .then(r => { setFilms(r.data); setHasMore(r.current_page < r.last_page) })
-      .catch(() => {})
+      .catch(error => {
+        console.error('Failed to load films:', error);
+        setFilms([]);
+      })
   }, [filter])
 
   const loadMore = useCallback(async () => {
@@ -36,7 +39,11 @@ export function FilmsPage() {
       setFilms(prev => [...prev, ...r.data])
       setPage(nextPage)
       setHasMore(r.current_page < r.last_page)
-    } catch {} finally { setLoadingMore(false) }
+    } catch (error) {
+      console.error('Failed to load more films:', error);
+    } finally { 
+      setLoadingMore(false) 
+    }
   }, [page, filter, loadingMore, hasMore])
 
   return (

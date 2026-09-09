@@ -30,12 +30,23 @@ class VideoStreamController extends Controller
 
     /**
      * Authenticated stream endpoint — serves a film's full video.
-     * Requires auth:sanctum + an active (non-expired) subscription.
+     * Supports both JWT middleware and token query parameter for HTML video elements.
      * The slug is looked up in the URL; the file path comes from the film record.
      */
     public function streamFilm(Request $request, string $slug): BinaryFileResponse|JsonResponse|RedirectResponse
     {
+        // Try to get user from JWT middleware first, then from token query parameter
         $user = $request->user();
+        
+        if (!$user && $request->has('token')) {
+            // Validate token from query parameter for HTML video element compatibility
+            $jwtService = app(\App\Services\JwtService::class);
+            $user = $jwtService->getUserFromToken($request->query('token'));
+        }
+        
+        if (!$user) {
+            return response()->json(['message' => 'Authentication required.'], 401);
+        }
 
         $film = Film::where('slug', $slug)->first();
         if (!$film || !$film->full_video_url) {
@@ -99,8 +110,9 @@ class VideoStreamController extends Controller
         $headers = [
             'Content-Type' => $mime,
             'Accept-Ranges' => 'bytes',
-            'Cache-Control' => 'no-cache',
+            'Cache-Control' => 'public, max-age=31536000', // Cache for 1 year for better streaming performance
             'Content-Length' => $fileSize,
+            'X-Content-Type-Options' => 'nosniff', // Security header
         ];
 
         $range = request()->header('Range');
@@ -118,7 +130,21 @@ class VideoStreamController extends Controller
             $response->setContent(function () use ($full, $start, $chunkSize) {
                 $fp = fopen($full, 'rb');
                 fseek($fp, $start);
-                echo fread($fp, $chunkSize);
+                
+                // Stream in 8MB chunks for better performance
+                $bufferSize = min(8 * 1024 * 1024, $chunkSize);
+                $remaining = $chunkSize;
+                
+                while ($remaining > 0 && !feof($fp)) {
+                    $readSize = min($bufferSize, $remaining);
+                    echo fread($fp, $readSize);
+                    $remaining -= $readSize;
+                    
+                    // Flush output to enable progressive streaming
+                    if (ob_get_level()) ob_flush();
+                    flush();
+                }
+                
                 fclose($fp);
             });
 

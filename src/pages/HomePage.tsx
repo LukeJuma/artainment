@@ -14,7 +14,14 @@ import { CTASection } from '../components/home/CTASection'
 
 export function HomePage() {
   const [data, setData] = useState<HomeData | null>(null)
-  useEffect(() => { homeAPI.get().then(setData).catch(() => {}) }, [])
+  useEffect(() => { 
+    homeAPI.get()
+      .then(setData)
+      .catch(error => {
+        console.error('Failed to load homepage data:', error);
+        setData(null);
+      })
+  }, [])
 
   const films = data?.films ?? []
   const talent = data?.talent ?? []

@@ -8,7 +8,6 @@ import { Dashboard } from '../pages/Dashboard'
 import { AnalyticsPage } from '../pages/AnalyticsPage'
 import { MoviesPage } from '../pages/MoviesPage'
 import { SeriesPage } from '../pages/SeriesPage'
-import { MusicPage } from '../pages/MusicPage'
 import { PodcastsPage } from '../pages/PodcastsPage'
 import { EventsPage } from '../pages/EventsPage'
 import { TicketingPage } from '../pages/TicketingPage'
@@ -33,7 +32,6 @@ const PAGES: Record<string, React.FC> = {
   analytics: AnalyticsPage,
   movies: MoviesPage,
   series: SeriesPage,
-  music: MusicPage,
   podcasts: PodcastsPage,
   events: EventsPage,
   ticketing: TicketingPage,

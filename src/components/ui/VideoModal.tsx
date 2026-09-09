@@ -20,41 +20,25 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
   const closeRef = useRef<HTMLButtonElement>(null)
   const [failed, setFailed] = useState(false)
   const [videoSrc, setVideoSrc] = useState(src)
-  const [loadingVideo, setLoadingVideo] = useState(false)
   const youTubeId = parseYouTubeId(src)
   const shouldUseEnhancedForYouTube = useCustomPlayer && youTubeId
 
   useEffect(() => {
     setFailed(false)
-    setVideoSrc(src)
+    
+    if (youTubeId) {
+      setVideoSrc(src)
+      return
+    }
 
-    if (youTubeId || !authToken) return
-
-    const controller = new AbortController()
-    let objectUrl: string | null = null
-    setLoadingVideo(true)
-
-    fetch(src, {
-      headers: { Authorization: `Bearer ${authToken}` },
-      credentials: 'include',
-      signal: controller.signal,
-    })
-      .then(async res => {
-        if (!res.ok) throw new Error(`Video request failed with status ${res.status}`)
-        const blob = await res.blob()
-        objectUrl = URL.createObjectURL(blob)
-        setVideoSrc(objectUrl)
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setFailed(true)
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoadingVideo(false)
-      })
-
-    return () => {
-      controller.abort()
-      if (objectUrl) URL.revokeObjectURL(objectUrl)
+    // For authenticated streaming, append token to URL for HTML video compatibility
+    if (authToken && src.includes('/stream/')) {
+      const urlWithToken = src.includes('?') 
+        ? `${src}&token=${encodeURIComponent(authToken)}`
+        : `${src}?token=${encodeURIComponent(authToken)}`;
+      setVideoSrc(urlWithToken);
+    } else {
+      setVideoSrc(src);
     }
   }, [src, authToken, youTubeId])
 
@@ -133,20 +117,6 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
                 </button>
               </div>
             </div>
-          ) : loadingVideo ? (
-            <div style={{
-              width: '100%', height: '100%', display: 'flex', flexDirection: 'column',
-              alignItems: 'center', justifyContent: 'center', gap: 16,
-              background: 'linear-gradient(135deg, rgba(20,20,24,0.95) 0%, rgba(10,10,12,0.95) 100%)',
-              color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Sans, sans-serif',
-            }}>
-              <div style={{
-                width: 48, height: 48, border: '3px solid rgba(255,255,255,0.2)',
-                borderTop: '3px solid var(--red)', borderRadius: '50%',
-                animation: 'spin 1s linear infinite',
-              }} />
-              <p style={{ fontSize: 16, fontWeight: 500, margin: 0 }}>Loading video...</p>
-            </div>
           ) : youTubeId && !shouldUseEnhancedForYouTube ? (
             <YouTubePlayer videoId={youTubeId} />
           ) : shouldUseEnhancedForYouTube ? (
@@ -169,7 +139,7 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
           )}
         </div>
 
-        {(youTubeId && !shouldUseEnhancedForYouTube) || failed || loadingVideo ? (
+        {(youTubeId && !shouldUseEnhancedForYouTube) || failed ? (
           <button
             ref={closeRef}
             onClick={onClose}
@@ -195,7 +165,7 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
         ) : null}
       </motion.div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }

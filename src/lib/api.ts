@@ -1,30 +1,6 @@
-// Get API URL from environment or use hardcoded fallback
-const getApiUrl = () => {
-  // Always use environment variable in production
-  if ((import.meta as any).env?.VITE_API_URL) {
-    return (import.meta as any).env.VITE_API_URL;
-  }
-  
-  // Check if we're on any Vercel deployment domain
-  if (typeof window !== 'undefined' && window.location.hostname.includes('vercel.app')) {
-    return 'https://etjkivwwnqafyphqamgh.supabase.co/functions/v1/api';
-  }
-  
-  // Default for local development
-  return 'http://localhost:8000/api';
-};
+import { env } from './env';
 
-const API_BASE = getApiUrl();
-
-// Debug: Always log API configuration for troubleshooting (updated for CORS fix)
-if (typeof window !== 'undefined') {
-  console.log('🔧 API Configuration (CORS Fixed):');
-  console.log('- Hostname:', window.location.hostname);
-  console.log('- API_BASE:', API_BASE);
-  console.log('- Environment VITE_API_URL:', (import.meta as any).env?.VITE_API_URL);
-  console.log('- Is Vercel:', window.location.hostname.includes('vercel.app'));
-  console.log('- CORS Status: Fixed with new Edge Function');
-}
+const API_BASE = env.apiUrl;
 
 export const API_ORIGIN = API_BASE.replace(/\/api\/?$/, '');
 
@@ -35,8 +11,12 @@ export function videoStreamUrl(path?: string | null): string | null {
   return `${API_ORIGIN}/api/stream?file=${encodeURIComponent(path)}`;
 }
 
-export function fullFilmStreamUrl(filmSlug: string): string {
-  return `${API_BASE}/stream/${encodeURIComponent(filmSlug)}`;
+export function fullFilmStreamUrl(filmSlug: string, authToken?: string): string {
+  const baseUrl = `${API_BASE}/stream/${encodeURIComponent(filmSlug)}`;
+  if (authToken) {
+    return `${baseUrl}?token=${encodeURIComponent(authToken)}`;
+  }
+  return baseUrl;
 }
 
 interface ApiOptions {
@@ -173,6 +153,38 @@ export interface DashboardStats {
     time: string;
   }[];
   top_films: Film[];
+}
+
+export interface AuditLog {
+  id: number
+  action: string
+  message: string
+  level: 'INFO' | 'WARN' | 'ERROR'
+  user?: {
+    id: number
+    name: string
+    email: string
+  }
+  resource_type?: string
+  resource_id?: string
+  details?: any
+  ip_address?: string
+  user_agent?: string
+  created_at: string
+  time_ago: string
+}
+
+export interface AuditStats {
+  stats: {
+    total_logs: number
+    logs_today: number
+    error_logs_today: number
+    unique_users_today: number
+  }
+  recent_actions: Array<{
+    action: string
+    count: number
+  }>
 }
 
 export interface CastPerson {
@@ -766,11 +778,11 @@ export const adminAPI = {
 
   // Talent
   createTalent: (token: string, data: Partial<Talent>) =>
-    api<Talent>('/admin/talent', { method: 'POST', token, body: data }),
+    api<Talent>('/admin/talents', { method: 'POST', token, body: data }),
   updateTalent: (token: string, id: number, data: Partial<Talent>) =>
-    api<Talent>(`/admin/talent/${id}`, { method: 'PUT', token, body: data }),
+    api<Talent>(`/admin/talents/${id}`, { method: 'PUT', token, body: data }),
   deleteTalent: (token: string, id: number) =>
-    api(`/admin/talent/${id}`, { method: 'DELETE', token }),
+    api(`/admin/talents/${id}`, { method: 'DELETE', token }),
 
   // Productions
   createProduction: (token: string, data: Partial<Production>) =>
@@ -865,6 +877,11 @@ export const adminAPI = {
 
   // Dashboard stats
   dashboardStats: (token: string) => api<DashboardStats>('/admin/dashboard/stats', { token }),
+
+  // Audit logs
+  getAuditLogs: (token: string, params?: { page?: number; per_page?: number; level?: string; action?: string }) =>
+    api<PaginatedResponse<AuditLog>>(`/admin/audit-logs${params ? '?' + new URLSearchParams(params as any).toString() : ''}`, { token }),
+  getAuditStats: (token: string) => api<AuditStats>('/admin/audit-logs/stats', { token }),
 
   // Upload
   upload: (token: string, file: File, folder?: string) => {

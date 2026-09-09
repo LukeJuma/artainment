@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\{AuthController, ContactController, DashboardController, FilmController, GalleryController, HomeController, MicMtaaniAdminController, MicMtaaniController, NewsController, NotificationController, PaymentController, PodcastController, ProductionController, ReviewController, ServiceController, SettingController, SeriesController, SubscriptionController, SubscriptionPlanController, TalentController, TestimonialController, TicketController, UploadController, UserController, VideoStreamController};
+use App\Http\Controllers\Api\{AuthController, AuditLogController, ContactController, DashboardController, FilmController, GalleryController, HomeController, MicMtaaniAdminController, MicMtaaniController, NewsController, NotificationController, PaymentController, PodcastController, ProductionController, ReviewController, ServiceController, SettingController, SeriesController, SubscriptionController, SubscriptionPlanController, TalentController, TestimonialController, TicketController, UploadController, UserController, VideoStreamController};
 use Illuminate\Support\Facades\Route;
 
 // Public API routes
@@ -24,8 +24,8 @@ Route::get('/stream', [VideoStreamController::class, 'stream']); // Public — t
 
 Route::get('/services', [ServiceController::class, 'index']);
 
-Route::get('/talent', [TalentController::class, 'index']);
-Route::get('/talent/{slug}', [TalentController::class, 'show']);
+Route::get('/talents', [TalentController::class, 'index']);
+Route::get('/talents/{slug}', [TalentController::class, 'show']);
 
 // Actors alias — the frontend refers to talent as actors.
 Route::get('/actors', [TalentController::class, 'index']);
@@ -62,8 +62,8 @@ Route::prefix('micmtaani')->group(function () {
     Route::post('/subscribe', [MicMtaaniController::class, 'subscribe'])->middleware('throttle:subscribe');
 });
 
-// Protected routes (auth required)
-Route::middleware('auth:sanctum')->group(function () {
+// Protected routes (JWT auth required)
+Route::middleware('jwt')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/auth/user', [AuthController::class, 'user']);
     Route::put('/auth/profile', [AuthController::class, 'updateProfile']);
@@ -72,7 +72,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/stream/{slug}', [VideoStreamController::class, 'streamFilm']);
 
     // ─── Admin API (admin-only) ───────────────────────────────────
-    Route::middleware('admin')->group(function () {
+    Route::middleware('jwt:admin')->group(function () {
         Route::post('/upload', [UploadController::class, 'store']);
 
         Route::get('/admin/contacts', [ContactController::class, 'index']);
@@ -96,7 +96,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/admin/episodes/{id}', [SeriesController::class, 'updateEpisode']);
         Route::delete('/admin/episodes/{id}', [SeriesController::class, 'destroyEpisode']);
         Route::apiResource('/admin/services', ServiceController::class)->except(['index']);
-        Route::apiResource('/admin/talent', TalentController::class)->except(['index', 'show']);
+        Route::apiResource('/admin/talents', TalentController::class)->except(['index', 'show']);
         Route::apiResource('/admin/productions', ProductionController::class)->except(['index']);
         Route::apiResource('/admin/news', NewsController::class)->except(['index', 'show']);
         Route::apiResource('/admin/testimonials', TestimonialController::class)->except(['index']);
@@ -132,6 +132,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/admin/settings', [SettingController::class, 'index']);
         Route::put('/admin/settings', [SettingController::class, 'update']);
+        Route::get('/admin/settings/allowed-keys', [SettingController::class, 'allowedKeys']);
+
+        // ─── Audit Logs Admin API ─────────────────────────────────────
+        Route::get('/admin/audit-logs', [AuditLogController::class, 'index']);
+        Route::get('/admin/audit-logs/stats', [AuditLogController::class, 'stats']);
 
         // ─── Mic Mtaani Admin API ─────────────────────────────────────
         Route::prefix('admin/micmtaani')->group(function () {

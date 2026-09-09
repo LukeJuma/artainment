@@ -361,7 +361,10 @@ serve(async (req) => {
         const paginateParam = url.searchParams.get('paginate') === 'true'
         const page = parseInt(url.searchParams.get('page') || '1')
         
-        const { data: podcasts } = await supabase.from('podcasts').select('*').eq('active', true).order('sort_order')
+        const { data: podcasts } = await supabase.from('podcasts').select(`
+          *,
+          podcast_episodes(*)
+        `).eq('active', true).order('sort_order')
         
         if (paginateParam) {
           return new Response(JSON.stringify(paginate(podcasts || [], page)), { headers: corsHeaders })
@@ -375,7 +378,10 @@ serve(async (req) => {
     if (path.startsWith('/podcasts/')) {
       const slug = path.replace('/podcasts/', '')
       try {
-        const { data: podcast } = await supabase.from('podcasts').select('*').eq('slug', slug).single()
+        const { data: podcast } = await supabase.from('podcasts').select(`
+          *,
+          podcast_episodes(*)
+        `).eq('slug', slug).single()
         if (!podcast) return new Response(JSON.stringify({ message: 'Podcast not found' }), { status: 404, headers: corsHeaders })
         return new Response(JSON.stringify(podcast), { headers: corsHeaders })
       } catch (error) {
@@ -1629,7 +1635,7 @@ serve(async (req) => {
         
         // Determine file type and appropriate size limit
         if (file.type.startsWith('video/') || file.name.toLowerCase().match(/\.(mp4|mov|avi|mkv|webm|m4v)$/)) {
-          maxSize = 500 * 1024 * 1024 // 500MB for videos
+          maxSize = 2 * 1024 * 1024 * 1024 // 2GB for videos (matches frontend UI and Laravel backend)
           fileTypeCategory = 'video'
         } else if (file.type.startsWith('audio/') || file.name.toLowerCase().match(/\.(mp3|wav|aac|m4a|ogg)$/)) {
           maxSize = 100 * 1024 * 1024 // 100MB for audio

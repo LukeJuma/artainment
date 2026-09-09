@@ -11,7 +11,12 @@ class ProductionController extends Controller
 {
     public function index(): JsonResponse
     {
-        $productions = Production::orderBy('sort_order')->orderByDesc('created_at')->get();
+        // Filter draft content: Only show completed productions
+        $productions = Production::where('status', 'completed')
+            ->orderBy('sort_order')
+            ->orderByDesc('created_at')
+            ->get();
+            
         return response()->json($productions);
     }
 
