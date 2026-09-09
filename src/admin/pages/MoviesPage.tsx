@@ -7,7 +7,7 @@ import {
 import { PageHeader } from '../components/PageHeader'
 import { useApi } from '../hooks/useApi'
 import { useAuth } from '../../contexts/AuthContext'
-import { filmsAPI, adminAPI, type Film, type FilmCast } from '../../lib/api'
+import { adminAPI, type Film, type FilmCast } from '../../lib/api'
 import { FileUpload } from '../components/FileUpload'
 
 const genres = ['All', 'Drama', 'Thriller', 'Documentary', 'Action', 'Comedy', 'Romance', 'Sci-Fi', 'Horror', 'Adventure']

@@ -7,7 +7,7 @@ import {
 import { PageHeader } from '../components/PageHeader'
 import { useApi } from '../hooks/useApi'
 import { useAuth } from '../../contexts/AuthContext'
-import { seriesAPI, adminAPI, type Series, type Season, type Episode } from '../../lib/api'
+import { adminAPI, type Series, type Season, type Episode } from '../../lib/api'
 import { FileUpload } from '../components/FileUpload'
 
 const genres = ['Drama', 'Crime Drama', 'Thriller', 'Documentary', 'Music', 'Romance', 'Sci-Fi', 'Comedy']
@@ -123,7 +123,7 @@ export function SeriesPage() {
       poster_url: s.poster_url || '',
       backdrop_url: s.backdrop_url || '',
       tag: s.tag || '',
-      status: s.status,
+      status: s.status as "upcoming" | "in_production" | "completed",
       featured: s.featured,
     })
     setFormError('')
