@@ -1,24 +1,135 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { createHash } from 'https://deno.land/std@0.168.0/node/crypto.ts'
 
-// CORS headers
+// CORS headers with security improvements
 const corsHeaders = {
-  'Access-Control-Allow-Origin': 'https://the-artainment.vercel.app',
+  'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, accept, x-requested-with, cache-control, pragma, origin',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, accept, x-requested-with',
   'Access-Control-Max-Age': '86400',
-  'Access-Control-Allow-Credentials': 'true',
   'Content-Type': 'application/json',
-  'Vary': 'Origin'
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block',
 }
+
+// JWT Secret - use environment variable in production
+const JWT_SECRET = Deno.env.get('JWT_SECRET') || 'your-256-bit-secret-change-in-production'
 
 // Initialize Supabase client
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-// Helper function to handle pagination
-function paginate(data: any[], page: number, perPage: number = 10) {
+// JWT Helper Functions
+async function createJWT(payload: any): Promise<string> {
+  const header = { alg: 'HS256', typ: 'JWT' }
+  const now = Math.floor(Date.now() / 1000)
+  const jwtPayload = {
+    ...payload,
+    iat: now,
+    exp: now + (24 * 60 * 60) // 24 hours
+  }
+  
+  const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
+  const encodedPayload = btoa(JSON.stringify(jwtPayload)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
+  
+  const message = `${encodedHeader}.${encodedPayload}`
+  const signature = btoa(createHash('sha256').update(`${message}.${JWT_SECRET}`).digest('hex'))
+    .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
+  
+  return `${message}.${signature}`
+}
+
+async function verifyJWT(token: string): Promise<any> {
+  try {
+    const parts = token.split('.')
+    if (parts.length !== 3) return null
+    
+    const [encodedHeader, encodedPayload, signature] = parts
+    const message = `${encodedHeader}.${encodedPayload}`
+    
+    const expectedSignature = btoa(createHash('sha256').update(`${message}.${JWT_SECRET}`).digest('hex'))
+      .replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_')
+    
+    if (signature !== expectedSignature) return null
+    
+    const payload = JSON.parse(atob(encodedPayload.replace(/-/g, '+').replace(/_/g, '/')))
+    const now = Math.floor(Date.now() / 1000)
+    
+    if (payload.exp && payload.exp < now) return null
+    
+    return payload
+  } catch {
+    return null
+  }
+}
+
+// Password hashing
+async function hashPassword(password: string): Promise<string> {
+  const hash = createHash('sha256')
+  hash.update(password + 'artainment-secure-salt-2024')
+  return hash.digest('hex')
+}
+
+// Input sanitization
+function sanitizeInput(input: any): any {
+  if (typeof input === 'string') {
+    return input.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+                .replace(/javascript:/gi, '')
+                .replace(/on\w+\s*=/gi, '')
+                .trim()
+  }
+  if (Array.isArray(input)) {
+    return input.map(sanitizeInput)
+  }
+  if (typeof input === 'object' && input !== null) {
+    const sanitized: any = {}
+    for (const [key, value] of Object.entries(input)) {
+      sanitized[key] = sanitizeInput(value)
+    }
+    return sanitized
+  }
+  return input
+}
+
+// Audit logging
+async function logAuditEvent(eventType: string, userId?: string, metadata?: any) {
+  try {
+    await supabase.from('audit_logs').insert({
+      event_type: eventType,
+      user_id: userId,
+      ip_address: '0.0.0.0', // Edge function limitation
+      user_agent: 'Supabase Edge Function',
+      metadata: metadata || {},
+      created_at: new Date().toISOString()
+    })
+  } catch (error) {
+    console.error('Audit logging failed:', error)
+  }
+}
+
+// Authentication helper
+async function getAuthenticatedUser(req: Request) {
+  const authHeader = req.headers.get('Authorization')
+  if (!authHeader?.startsWith('Bearer ')) return null
+  
+  const token = authHeader.substring(7)
+  const payload = await verifyJWT(token)
+  if (!payload || !payload.sub) return null
+  
+  const { data: user } = await supabase
+    .from('users')
+    .select('*')
+    .eq('id', payload.sub)
+    .single()
+  
+  return user
+}
+
+// Pagination helper
+function paginate(data: any[], page: number, perPage: number = 12) {
   const total = data.length
   const startIndex = (page - 1) * perPage
   const paginatedData = data.slice(startIndex, startIndex + perPage)
@@ -43,190 +154,206 @@ serve(async (req) => {
     const url = new URL(req.url)
     const path = url.pathname.replace('/functions/v1/api', '').replace('/api', '')
     const method = req.method
-    
-    // Debug logging for seasons endpoints
-    if (path.includes('seasons')) {
-      console.log('🔍 SEASONS REQUEST DEBUG:')
-      console.log('  Raw URL:', req.url)
-      console.log('  Parsed path:', path)
-      console.log('  Method:', method)
-      console.log('  Headers:', Object.fromEntries(req.headers.entries()))
-    }
-    
+
     // ═══════════════════════════════════════════════════════════════
-    // AUTHENTICATION ENDPOINTS (WORKING VERSION)
+    // HOME & DASHBOARD ENDPOINTS
     // ═══════════════════════════════════════════════════════════════
     
-    if (path === '/auth/login' && method === 'POST') {
-      try {
-        const body = await req.json()
-        const { email, password } = body
-
-        if (!email || !password) {
-          return new Response(JSON.stringify({ 
-            message: 'Email and password are required',
-            success: false 
-          }), { status: 400, headers: corsHeaders })
-        }
-
-        // Hardcoded admin login (working) - Fixed user format
-        if (email.toLowerCase() === 'admin@theartainment.co.ke' && password === 'Admin123!') {
-          return new Response(JSON.stringify({
-            success: true,
-            message: 'Login successful',
-            user: {
-              id: 1,
-              name: 'Admin',
-              email: 'admin@theartainment.co.ke',
-              is_admin: true
-            },
-            token: 'admin-token-' + Date.now(),
-            token_type: 'Bearer'
-          }), { headers: corsHeaders })
-        }
-
-        return new Response(JSON.stringify({ 
-          message: 'Invalid credentials',
-          success: false 
-        }), { status: 401, headers: corsHeaders })
-
-      } catch (error) {
-        console.error('🔒 Login error:', error)
-        return new Response(JSON.stringify({ 
-          message: 'Authentication failed',
-          success: false 
-        }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Support both /auth/me and /auth/user for compatibility
-    if ((path === '/auth/me' || path === '/auth/user') && method === 'GET') {
-      try {
-        const authHeader = req.headers.get('Authorization')
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-          return new Response(JSON.stringify({ 
-            message: 'No valid authentication token provided',
-            success: false 
-          }), { status: 401, headers: corsHeaders })
-        }
-
-        const token = authHeader.substring(7) // Remove "Bearer " prefix
-        
-        // For our simple implementation, just check if it's a valid admin token
-        if (token.startsWith('admin-token-')) {
-          return new Response(JSON.stringify({
-            id: 1,
-            name: 'Admin',
-            email: 'admin@theartainment.co.ke',
-            is_admin: true
-          }), { headers: corsHeaders })
-        }
-
-        return new Response(JSON.stringify({ 
-          message: 'Invalid token',
-          success: false 
-        }), { status: 401, headers: corsHeaders })
-
-      } catch (error) {
-        console.error('🔒 Auth verification error:', error)
-        return new Response(JSON.stringify({ 
-          message: 'Authentication verification failed',
-          success: false 
-        }), { status: 500, headers: corsHeaders })
-      }
-    }
-    // ═══════════════════════════════════════════════════════════════
-    // TEST & HOME ENDPOINTS
-    // ═══════════════════════════════════════════════════════════════
-    
-    if (path === '/test' || path === '/') {
-      return new Response(JSON.stringify({ 
-        message: 'Complete API Ready!', 
-        timestamp: new Date().toISOString(),
-        endpoints: ['home', 'films', 'series', 'actors', 'podcasts', 'news', 'services', 'testimonials', 'gallery', 'micmtaani/*', 'auth/login'],
-        authentication: 'working'
-      }), { headers: corsHeaders })
-    }
-
-    if (path === '/home') {
+    if (path === '/' || path === '/home') {
       try {
         const [
-          { data: featuredFilm }, { data: films }, { data: series }, { data: mbokaSeriesData }, 
-          { data: services }, { data: talent }, { data: gallery }, { data: news }, 
-          { data: testimonials }, { data: podcasts }, { data: comingSoon }
+          { data: featuredFilm }, 
+          { data: films }, 
+          { data: series }, 
+          { data: services }, 
+          { data: talent }, 
+          { data: gallery }, 
+          { data: news }, 
+          { data: testimonials }, 
+          { data: podcasts }
         ] = await Promise.all([
-          supabase.from('films').select('*').eq('featured', true).eq('status', 'completed').limit(1).single(),
-          supabase.from('films').select('*').eq('status', 'completed').order('created_at', { ascending: false }).limit(6),
-          supabase.from('series').select(`
-            *,
-            seasons:seasons(
-              *,
-              episodes:episodes(*)
-            )
-          `).in('status', ['active', 'completed']).order('created_at', { ascending: false }).limit(6),
-          supabase.from('series').select('*').eq('title', 'Mboka').single(),
+          supabase.from('films').select('*').eq('featured', true).eq('status', 'published').single(),
+          supabase.from('films').select('*').eq('status', 'published').order('sort_order').limit(6),
+          supabase.from('series').select('*').eq('status', 'published').order('sort_order').limit(4),
           supabase.from('services').select('*').eq('active', true).order('sort_order'),
           supabase.from('talent').select('*').eq('active', true).order('sort_order').limit(6),
           supabase.from('gallery_images').select('*').order('sort_order').limit(8),
-          supabase.from('news_articles').select('*').eq('status', 'published').not('published_at', 'is', null).order('published_at', { ascending: false }).limit(4),
+          supabase.from('news_articles').select('*').is('published_at', 'not.null').order('published_at', { ascending: false }).limit(4),
           supabase.from('testimonials').select('*').eq('active', true).order('sort_order'),
-          supabase.from('podcasts').select('*').eq('active', true).order('sort_order').limit(4),
-          supabase.from('films').select('*').in('status', ['upcoming', 'in_production']).order('release_date').limit(4)
+          supabase.from('podcasts').select('*').order('created_at', { ascending: false }).limit(4)
         ])
 
-        // Calculate episode counts for series
-        const seriesWithCounts = (series || []).map(s => ({
-          ...s,
-          seasons_count: s.seasons?.length || 0,
-          episodes_count: s.seasons?.reduce((total, season) => total + (season.episodes?.length || 0), 0) || 0
-        }))
-
-        // Create hero items combining featured film, Mboka series, and other content
-        const heroItems = []
-        
-        // Add featured film if exists
-        if (featuredFilm) {
-          heroItems.push({ ...featuredFilm, type: 'film' })
-        }
-        
-        // Add Mboka series to hero section
-        if (mbokaSeriesData) {
-          const mbokaWithCounts = {
-            ...mbokaSeriesData,
-            type: 'series',
-            seasons_count: mbokaSeriesData.seasons?.length || 0,
-            episodes_count: mbokaSeriesData.seasons?.reduce((total, season) => total + (season.episodes?.length || 0), 0) || 0
-          }
-          heroItems.push(mbokaWithCounts)
-        }
-        
-        // Add other films/series to complete hero section (up to 5 total)
-        const additionalItems = [...(films || []).slice(0, 3), ...seriesWithCounts.slice(0, 2)]
-          .map(item => ({ 
-            ...item, 
-            type: films?.includes(item) ? 'film' : 'series' 
-          }))
-          .slice(0, 5 - heroItems.length)
-        
-        heroItems.push(...additionalItems)
-
         return new Response(JSON.stringify({
-          hero_items: heroItems,
-          featured_film: featuredFilm || null, 
-          films: films || [], 
-          series: seriesWithCounts || [],
+          featured_film: featuredFilm,
+          films: films || [],
+          series: series || [],
           services: services || [],
-          talent: talent || [], 
-          gallery: gallery || [], 
+          talent: talent || [],
+          gallery: gallery || [],
           news: news || [],
-          testimonials: testimonials || [], 
-          podcasts: podcasts || [], 
-          coming_soon: comingSoon || []
+          testimonials: testimonials || [],
+          podcasts: podcasts || []
         }), { headers: corsHeaders })
       } catch (error) {
-        return new Response(JSON.stringify({ error: 'Failed to load home data', details: error.message }),
-          { status: 500, headers: corsHeaders })
+        console.error('Home endpoint error:', error)
+        return new Response(JSON.stringify({ error: 'Failed to fetch home data' }), { 
+          status: 500, headers: corsHeaders 
+        })
       }
+    }
+
+    // Health check endpoint
+    if (path === '/health') {
+      return new Response(JSON.stringify({ 
+        status: 'healthy', 
+        timestamp: new Date().toISOString(),
+        version: '2.0.0'
+      }), { headers: corsHeaders })
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // AUTHENTICATION ENDPOINTS
+    // ═══════════════════════════════════════════════════════════════
+    
+    if (path === '/auth/register' && method === 'POST') {
+      try {
+        const body = sanitizeInput(await req.json())
+        const { name, email, password } = body
+
+        if (!name || !email || !password) {
+          return new Response(JSON.stringify({ error: 'Missing required fields' }), { 
+            status: 400, headers: corsHeaders 
+          })
+        }
+
+        if (password.length < 8) {
+          return new Response(JSON.stringify({ error: 'Password must be at least 8 characters' }), { 
+            status: 400, headers: corsHeaders 
+          })
+        }
+
+        // Check if user exists
+        const { data: existingUser } = await supabase
+          .from('users')
+          .select('id')
+          .eq('email', email)
+          .single()
+
+        if (existingUser) {
+          return new Response(JSON.stringify({ error: 'User already exists' }), { 
+            status: 409, headers: corsHeaders 
+          })
+        }
+
+        // Create user
+        const hashedPassword = await hashPassword(password)
+        const { data: user, error } = await supabase
+          .from('users')
+          .insert({
+            name,
+            email,
+            password: hashedPassword,
+            is_admin: false,
+            created_at: new Date().toISOString()
+          })
+          .select()
+          .single()
+
+        if (error) throw error
+
+        // Create JWT token
+        const token = await createJWT({ sub: user.id, email: user.email, is_admin: user.is_admin })
+
+        await logAuditEvent('USER_REGISTERED', user.id, { email })
+
+        return new Response(JSON.stringify({
+          user: { ...user, password: undefined },
+          token,
+          token_type: 'Bearer'
+        }), { headers: corsHeaders })
+
+      } catch (error) {
+        console.error('Registration error:', error)
+        return new Response(JSON.stringify({ error: 'Registration failed' }), { 
+          status: 500, headers: corsHeaders 
+        })
+      }
+    }
+
+    if (path === '/auth/login' && method === 'POST') {
+      try {
+        const body = sanitizeInput(await req.json())
+        const { email, password } = body
+
+        if (!email || !password) {
+          return new Response(JSON.stringify({ error: 'Email and password required' }), { 
+            status: 400, headers: corsHeaders 
+          })
+        }
+
+        // Get user
+        const { data: user } = await supabase
+          .from('users')
+          .select('*')
+          .eq('email', email)
+          .single()
+
+        if (!user) {
+          await logAuditEvent('LOGIN_FAILED', null, { email, reason: 'user_not_found' })
+          return new Response(JSON.stringify({ error: 'Invalid credentials' }), { 
+            status: 401, headers: corsHeaders 
+          })
+        }
+
+        // Verify password
+        const passwordValid = await hashPassword(password) === user.password
+        if (!passwordValid) {
+          await logAuditEvent('LOGIN_FAILED', user.id, { email, reason: 'invalid_password' })
+          return new Response(JSON.stringify({ error: 'Invalid credentials' }), { 
+            status: 401, headers: corsHeaders 
+          })
+        }
+
+        // Create JWT token
+        const token = await createJWT({ 
+          sub: user.id, 
+          email: user.email, 
+          is_admin: user.is_admin,
+          name: user.name
+        })
+
+        await logAuditEvent(user.is_admin ? 'ADMIN_LOGIN' : 'USER_LOGIN', user.id, { email })
+
+        return new Response(JSON.stringify({
+          user: { ...user, password: undefined },
+          token,
+          token_type: 'Bearer'
+        }), { headers: corsHeaders })
+
+      } catch (error) {
+        console.error('Login error:', error)
+        return new Response(JSON.stringify({ error: 'Login failed' }), { 
+          status: 500, headers: corsHeaders 
+        })
+      }
+    }
+
+    if (path === '/auth/logout' && method === 'POST') {
+      const user = await getAuthenticatedUser(req)
+      if (user) {
+        await logAuditEvent('USER_LOGOUT', user.id)
+      }
+      return new Response(JSON.stringify({ message: 'Logged out successfully' }), { headers: corsHeaders })
+    }
+
+    if (path === '/auth/me' && method === 'GET') {
+      const user = await getAuthenticatedUser(req)
+      if (!user) {
+        return new Response(JSON.stringify({ error: 'Unauthorized' }), { 
+          status: 401, headers: corsHeaders 
+        })
+      }
+      return new Response(JSON.stringify({ ...user, password: undefined }), { headers: corsHeaders })
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -235,31 +362,74 @@ serve(async (req) => {
     
     if (path === '/films') {
       try {
-        const genre = url.searchParams.get('genre')
-        const paginateParam = url.searchParams.get('paginate') === 'true'
         const page = parseInt(url.searchParams.get('page') || '1')
-
-        let query = supabase.from('films').select('*').eq('status', 'completed').order('sort_order')
-        if (genre && genre !== 'All') query = query.eq('genre', genre)
-
-        const { data: films } = await query
+        const genre = url.searchParams.get('genre')
+        const user = await getAuthenticatedUser(req)
         
-        if (paginateParam) {
-          return new Response(JSON.stringify(paginate(films || [], page)), { headers: corsHeaders })
+        let query = supabase.from('films').select('*')
+        
+        // Filter by published status for non-admin users
+        if (!user || !user.is_admin) {
+          query = query.eq('status', 'published')
         }
-        return new Response(JSON.stringify(films || []), { headers: corsHeaders })
+        
+        if (genre && genre !== 'All') {
+          query = query.eq('genre', genre)
+        }
+
+        const { data: films } = await query.order('sort_order').order('created_at', { ascending: false })
+
+        // Hide full_video_url for non-admin users
+        const processedFilms = (films || []).map(film => {
+          if (!user || !user.is_admin) {
+            return {
+              ...film,
+              has_full_video: Boolean(film.full_video_url || film.youtube_url),
+              full_video_url: null
+            }
+          }
+          return film
+        })
+
+        return new Response(JSON.stringify(paginate(processedFilms, page, 12)), { headers: corsHeaders })
       } catch (error) {
-        return new Response(JSON.stringify({ error: 'Failed to load films' }), { status: 500, headers: corsHeaders })
+        return new Response(JSON.stringify({ error: 'Failed to fetch films' }), { 
+          status: 500, headers: corsHeaders 
+        })
       }
     }
-    if (path.startsWith('/films/')) {
-      const slug = path.replace('/films/', '')
+
+    if (path.startsWith('/films/') && method === 'GET') {
       try {
-        const { data: film } = await supabase.from('films').select('*').eq('slug', slug).single()
-        if (!film) return new Response(JSON.stringify({ message: 'Film not found' }), { status: 404, headers: corsHeaders })
+        const slug = path.replace('/films/', '')
+        const user = await getAuthenticatedUser(req)
+        
+        let query = supabase.from('films').select('*').eq('slug', slug)
+        
+        // Filter by published status for non-admin users
+        if (!user || !user.is_admin) {
+          query = query.eq('status', 'published')
+        }
+        
+        const { data: film } = await query.single()
+
+        if (!film) {
+          return new Response(JSON.stringify({ error: 'Film not found' }), { 
+            status: 404, headers: corsHeaders 
+          })
+        }
+
+        // Hide full_video_url for non-admin users
+        if (!user || !user.is_admin) {
+          film.has_full_video = Boolean(film.full_video_url || film.youtube_url)
+          film.full_video_url = null
+        }
+
         return new Response(JSON.stringify(film), { headers: corsHeaders })
       } catch (error) {
-        return new Response(JSON.stringify({ message: 'Film not found' }), { status: 404, headers: corsHeaders })
+        return new Response(JSON.stringify({ error: 'Film not found' }), { 
+          status: 404, headers: corsHeaders 
+        })
       }
     }
 
@@ -269,86 +439,83 @@ serve(async (req) => {
     
     if (path === '/series') {
       try {
-        const paginateParam = url.searchParams.get('paginate') === 'true'
-        const page = parseInt(url.searchParams.get('page') || '1')
+        const user = await getAuthenticatedUser(req)
+        let query = supabase.from('series').select('*')
         
-        const { data: series } = await supabase
-          .from('series')
-          .select(`
-            *,
-            seasons:seasons(
-              *,
-              episodes:episodes(*)
-            )
-          `)
-          .in('status', ['active', 'completed'])
-          .order('sort_order')
-        
-        // Calculate episode counts for each series
-        const seriesWithCounts = (series || []).map(s => ({
-          ...s,
-          seasons_count: s.seasons?.length || 0,
-          episodes_count: s.seasons?.reduce((total, season) => total + (season.episodes?.length || 0), 0) || 0
-        }))
-        
-        if (paginateParam) {
-          return new Response(JSON.stringify(paginate(seriesWithCounts || [], page)), { headers: corsHeaders })
+        // Filter by published status for non-admin users
+        if (!user || !user.is_admin) {
+          query = query.eq('status', 'published')
         }
-        return new Response(JSON.stringify(seriesWithCounts || []), { headers: corsHeaders })
+        
+        const { data: series } = await query.order('sort_order')
+
+        // Get seasons and episodes for each series
+        const seriesWithCounts = await Promise.all((series || []).map(async (s) => {
+          const { data: seasons, count: seasonsCount } = await supabase
+            .from('seasons')
+            .select('*, episodes(*)', { count: 'exact' })
+            .eq('series_id', s.id)
+            .order('season_number')
+
+          const totalEpisodes = seasons?.reduce((sum, season) => sum + (season.episodes?.length || 0), 0) || 0
+
+          return {
+            ...s,
+            seasons_count: seasonsCount || 0,
+            episodes_count: totalEpisodes,
+            seasons: seasons || []
+          }
+        }))
+
+        return new Response(JSON.stringify(seriesWithCounts), { headers: corsHeaders })
       } catch (error) {
-        return new Response(JSON.stringify({ data: [], message: 'No series available' }), { headers: corsHeaders })
-      }
-    }
-    
-    if (path.startsWith('/series/')) {
-      const slug = path.replace('/series/', '')
-      try {
-        const { data: series } = await supabase
-          .from('series')
-          .select(`
-            *,
-            seasons:seasons(
-              *,
-              episodes:episodes(*)
-            )
-          `)
-          .eq('slug', slug)
-          .single()
-        if (!series) return new Response(JSON.stringify({ message: 'Series not found' }), { status: 404, headers: corsHeaders })
-        return new Response(JSON.stringify(series), { headers: corsHeaders })
-      } catch (error) {
-        console.error('Series fetch error:', error)
-        return new Response(JSON.stringify({ message: 'Series not found' }), { status: 404, headers: corsHeaders })
+        return new Response(JSON.stringify({ error: 'Failed to fetch series' }), { 
+          status: 500, headers: corsHeaders 
+        })
       }
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // ACTORS/TALENT ENDPOINTS  
-    // ═══════════════════════════════════════════════════════════════
-    
-    if (path === '/actors') {
+    if (path.startsWith('/series/') && method === 'GET') {
       try {
-        const paginateParam = url.searchParams.get('paginate') === 'true'
-        const page = parseInt(url.searchParams.get('page') || '1')
+        const slug = path.replace('/series/', '')
+        const user = await getAuthenticatedUser(req)
         
-        const { data: talent } = await supabase.from('talent').select('*').eq('active', true).order('sort_order')
+        let query = supabase.from('series').select('*').eq('slug', slug)
         
-        if (paginateParam) {
-          return new Response(JSON.stringify(paginate(talent || [], page)), { headers: corsHeaders })
+        // Filter by published status for non-admin users
+        if (!user || !user.is_admin) {
+          query = query.eq('status', 'published')
         }
-        return new Response(JSON.stringify(talent || []), { headers: corsHeaders })
+        
+        const { data: series } = await query.single()
+
+        if (!series) {
+          return new Response(JSON.stringify({ error: 'Series not found' }), { 
+            status: 404, headers: corsHeaders 
+          })
+        }
+
+        // Get seasons with episodes
+        const { data: seasons } = await supabase
+          .from('seasons')
+          .select(`
+            *,
+            episodes (
+              id, title, slug, episode_number, description, duration,
+              video_url, thumbnail_url, air_date, created_at
+            )
+          `)
+          .eq('series_id', series.id)
+          .order('season_number')
+
+        return new Response(JSON.stringify({
+          ...series,
+          seasons: seasons || []
+        }), { headers: corsHeaders })
       } catch (error) {
-        return new Response(JSON.stringify({ data: [], message: 'No actors available' }), { headers: corsHeaders })
-      }
-    }
-    if (path.startsWith('/actors/')) {
-      const slug = path.replace('/actors/', '')
-      try {
-        const { data: actor } = await supabase.from('talent').select('*').eq('slug', slug).single()
-        if (!actor) return new Response(JSON.stringify({ message: 'Actor not found' }), { status: 404, headers: corsHeaders })
-        return new Response(JSON.stringify(actor), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Actor not found' }), { status: 404, headers: corsHeaders })
+        return new Response(JSON.stringify({ error: 'Series not found' }), { 
+          status: 404, headers: corsHeaders 
+        })
       }
     }
 
@@ -358,1729 +525,264 @@ serve(async (req) => {
     
     if (path === '/podcasts') {
       try {
-        const paginateParam = url.searchParams.get('paginate') === 'true'
-        const page = parseInt(url.searchParams.get('page') || '1')
-        
-        const { data: podcasts } = await supabase.from('podcasts').select(`
-          *,
-          podcast_episodes(*)
-        `).eq('active', true).order('sort_order')
-        
-        if (paginateParam) {
-          return new Response(JSON.stringify(paginate(podcasts || [], page)), { headers: corsHeaders })
-        }
-        return new Response(JSON.stringify(podcasts || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ data: [], message: 'No podcasts available' }), { headers: corsHeaders })
-      }
-    }
+        const { data: podcasts } = await supabase
+          .from('podcasts')
+          .select('*')
+          .order('created_at', { ascending: false })
 
-    if (path.startsWith('/podcasts/')) {
-      const slug = path.replace('/podcasts/', '')
-      try {
-        const { data: podcast } = await supabase.from('podcasts').select(`
-          *,
-          podcast_episodes(*)
-        `).eq('slug', slug).single()
-        if (!podcast) return new Response(JSON.stringify({ message: 'Podcast not found' }), { status: 404, headers: corsHeaders })
-        return new Response(JSON.stringify(podcast), { headers: corsHeaders })
+        // Get latest episode for each podcast (optimized to avoid N+1)
+        const podcastsWithLatest = await Promise.all((podcasts || []).map(async (podcast) => {
+          const { data: latestEpisode } = await supabase
+            .from('podcast_episodes')
+            .select('id, title, published_at, duration')
+            .eq('podcast_id', podcast.id)
+            .order('published_at', { ascending: false })
+            .limit(1)
+            .single()
+
+          return {
+            ...podcast,
+            latest_episode: latestEpisode
+          }
+        }))
+
+        return new Response(JSON.stringify(podcastsWithLatest), { headers: corsHeaders })
       } catch (error) {
-        return new Response(JSON.stringify({ message: 'Podcast not found' }), { status: 404, headers: corsHeaders })
+        return new Response(JSON.stringify({ error: 'Failed to fetch podcasts' }), { 
+          status: 500, headers: corsHeaders 
+        })
       }
     }
 
     // ═══════════════════════════════════════════════════════════════
-    // OTHER CONTENT ENDPOINTS
+    // TALENT/ACTORS ENDPOINTS
     // ═══════════════════════════════════════════════════════════════
     
-    if (path === '/news') {
+    if (path === '/talents' || path === '/actors') {
       try {
-        const paginateParam = url.searchParams.get('paginate') === 'true'
+        const paginateParam = url.searchParams.get('paginate')
         const page = parseInt(url.searchParams.get('page') || '1')
         
-        const { data: news } = await supabase.from('news_articles').select('*')
-          .eq('status', 'published').not('published_at', 'is', null)
+        const { data: talent } = await supabase
+          .from('talent')
+          .select('*')
+          .eq('active', true)
+          .order('sort_order')
+        
+        if (paginateParam) {
+          return new Response(JSON.stringify(paginate(talent || [], page)), { headers: corsHeaders })
+        }
+        return new Response(JSON.stringify(talent || []), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ data: [], message: 'No actors available' }), { headers: corsHeaders })
+      }
+    }
+
+    if ((path.startsWith('/talents/') || path.startsWith('/actors/')) && method === 'GET') {
+      try {
+        const slug = path.replace(/^\/(talents|actors)\//, '')
+        const { data: actor } = await supabase
+          .from('talent')
+          .select('*')
+          .eq('slug', slug)
+          .eq('active', true)
+          .single()
+
+        if (!actor) {
+          return new Response(JSON.stringify({ message: 'Actor not found' }), { 
+            status: 404, headers: corsHeaders 
+          })
+        }
+        return new Response(JSON.stringify(actor), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ message: 'Actor not found' }), { 
+          status: 404, headers: corsHeaders 
+        })
+      }
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // NEWS/MIC MTAANI ENDPOINTS
+    // ═══════════════════════════════════════════════════════════════
+    
+    if (path === '/news' || path === '/micmtaani/articles') {
+      try {
+        const { data: articles } = await supabase
+          .from('news_articles')
+          .select('*')
+          .not('published_at', 'is', null)
+          .lte('published_at', new Date().toISOString())
           .order('published_at', { ascending: false })
-        
-        if (paginateParam) {
-          return new Response(JSON.stringify(paginate(news || [], page)), { headers: corsHeaders })
-        }
-        return new Response(JSON.stringify(news || []), { headers: corsHeaders })
+
+        return new Response(JSON.stringify(articles || []), { headers: corsHeaders })
       } catch (error) {
-        return new Response(JSON.stringify({ data: [], message: 'No news available' }), { headers: corsHeaders })
-      }
-    }
-    if (path.startsWith('/news/')) {
-      const slug = path.replace('/news/', '')
-      try {
-        const { data: article } = await supabase.from('news_articles').select('*')
-          .eq('slug', slug).eq('status', 'published').single()
-        if (!article) return new Response(JSON.stringify({ message: 'Article not found' }), { status: 404, headers: corsHeaders })
-        return new Response(JSON.stringify(article), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Article not found' }), { status: 404, headers: corsHeaders })
+        return new Response(JSON.stringify({ error: 'Failed to fetch articles' }), { 
+          status: 500, headers: corsHeaders 
+        })
       }
     }
 
-    if (path === '/services') {
-      try {
-        const { data: services } = await supabase.from('services').select('*').eq('active', true).order('sort_order')
-        return new Response(JSON.stringify(services || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify([]), { headers: corsHeaders })
-      }
-    }
-
-    if (path === '/testimonials') {
-      try {
-        const { data: testimonials } = await supabase.from('testimonials').select('*').eq('active', true).order('sort_order')
-        return new Response(JSON.stringify(testimonials || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify([]), { headers: corsHeaders })
-      }
-    }
-
-    if (path === '/gallery') {
-      try {
-        const { data: gallery } = await supabase.from('gallery_images').select('*').order('sort_order')
-        return new Response(JSON.stringify(gallery || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify([]), { headers: corsHeaders })
-      }
-    }
-
-    if (path === '/productions') {
-      try {
-        const { data: productions } = await supabase.from('productions').select('*').order('sort_order')
-        return new Response(JSON.stringify(productions || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify([]), { headers: corsHeaders })
-      }
-    }
     // ═══════════════════════════════════════════════════════════════
-    // MIC MTAANI ENDPOINTS
+    // ADMIN ENDPOINTS - REQUIRE AUTHENTICATION
     // ═══════════════════════════════════════════════════════════════
     
-    if (path === '/micmtaani') {
-      try {
-        const [
-          { data: articles }, { data: categories }, { data: events }, { data: businesses }
-        ] = await Promise.all([
-          supabase.from('mic_mtaani_articles').select('*').eq('status', 'published').order('published_at', { ascending: false }).limit(10),
-          supabase.from('mic_mtaani_categories').select('*').eq('is_active', true).order('sort_order'),
-          supabase.from('mic_mtaani_events').select('*').eq('status', 'active').order('starts_at').limit(6),
-          supabase.from('mic_mtaani_businesses').select('*').eq('is_featured', true).limit(6)
-        ])
-
-        return new Response(JSON.stringify({
-          latest: articles || [], categories: categories || [], events: events || [],
-          businesses: businesses || [], breaking: null, featured: articles?.[0] || null, trending: []
-        }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({
-          latest: [], categories: [], events: [], businesses: [], breaking: null, featured: null, trending: []
-        }), { headers: corsHeaders })
+    // Admin authentication check
+    if (path.startsWith('/admin/')) {
+      const user = await getAuthenticatedUser(req)
+      if (!user || !user.is_admin) {
+        return new Response(JSON.stringify({ error: 'Admin access required' }), { 
+          status: 403, headers: corsHeaders 
+        })
       }
     }
 
-    if (path === '/micmtaani/categories') {
-      try {
-        const { data: categories } = await supabase.from('mic_mtaani_categories').select('*').eq('is_active', true).order('sort_order')
-        return new Response(JSON.stringify(categories || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify([]), { headers: corsHeaders })
-      }
-    }
-
-    if (path === '/micmtaani/articles') {
-      try {
-        const page = parseInt(url.searchParams.get('page') || '1')
-        const { data: articles } = await supabase.from('mic_mtaani_articles').select('*')
-          .eq('status', 'published').order('published_at', { ascending: false })
-        
-        return new Response(JSON.stringify(paginate(articles || [], page)), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ data: [] }), { headers: corsHeaders })
-      }
-    }
-    
-    if (path.startsWith('/micmtaani/articles/')) {
-      const slug = path.replace('/micmtaani/articles/', '')
-      try {
-        const { data: article } = await supabase.from('mic_mtaani_articles').select('*')
-          .eq('slug', slug).eq('status', 'published').single()
-        if (!article) return new Response(JSON.stringify({ message: 'Article not found' }), { status: 404, headers: corsHeaders })
-        
-        // Get related articles
-        const { data: related } = await supabase.from('mic_mtaani_articles').select('*')
-          .eq('status', 'published').neq('id', article.id).limit(3)
-          
-        return new Response(JSON.stringify({ article, related: related || [] }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Article not found' }), { status: 404, headers: corsHeaders })
-      }
-    }
-    if (path === '/micmtaani/events') {
-      try {
-        const { data: events } = await supabase.from('mic_mtaani_events').select('*').eq('status', 'active').order('starts_at')
-        return new Response(JSON.stringify(events || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify([]), { headers: corsHeaders })
-      }
-    }
-
-    if (path === '/micmtaani/businesses') {
-      try {
-        const { data: businesses } = await supabase.from('mic_mtaani_businesses').select('*').order('name')
-        return new Response(JSON.stringify(businesses || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify([]), { headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/micmtaani/businesses/')) {
-      const slug = path.replace('/micmtaani/businesses/', '')
-      try {
-        const { data: business } = await supabase.from('mic_mtaani_businesses').select('*').eq('slug', slug).single()
-        if (!business) return new Response(JSON.stringify({ message: 'Business not found' }), { status: 404, headers: corsHeaders })
-        return new Response(JSON.stringify(business), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Business not found' }), { status: 404, headers: corsHeaders })
-      }
-    }
-    
-    // ═══════════════════════════════════════════════════════════════
-    // FORM SUBMISSIONS
-    // ═══════════════════════════════════════════════════════════════
-    
-    if (path === '/contact' && method === 'POST') {
-      try {
-        const body = await req.json()
-        const { name, email, service, message } = body
-
-        if (!name || !email || !message) {
-          return new Response(JSON.stringify({ message: 'Name, email, and message are required' }),
-            { status: 400, headers: corsHeaders })
-        }
-
-        const { error } = await supabase.from('contacts').insert([{
-          name, email, service: service || null, message, status: 'pending'
-        }])
-
-        if (error) {
-          return new Response(JSON.stringify({ message: 'Failed to submit contact form' }),
-            { status: 500, headers: corsHeaders })
-        }
-
-        return new Response(JSON.stringify({ message: 'Contact form submitted successfully' }),
-          { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ error: 'Failed to submit contact form' }),
-          { status: 500, headers: corsHeaders })
-      }
-    }
-    if (path === '/subscribe' && method === 'POST') {
-      try {
-        const body = await req.json()
-        const { email } = body
-
-        if (!email) {
-          return new Response(JSON.stringify({ message: 'Email is required' }),
-            { status: 400, headers: corsHeaders })
-        }
-
-        const { error } = await supabase.from('subscribers').insert([{ email }])
-
-        if (error) {
-          return new Response(JSON.stringify({ message: 'Failed to subscribe to newsletter' }),
-            { status: 500, headers: corsHeaders })
-        }
-
-        return new Response(JSON.stringify({ message: 'Successfully subscribed to newsletter' }),
-          { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ error: 'Failed to subscribe' }),
-          { status: 500, headers: corsHeaders })
-      }
-    }
-    
-    // ═══════════════════════════════════════════════════════════════
-    // ADMIN DASHBOARD ENDPOINTS
-    // ═══════════════════════════════════════════════════════════════
-
-    // Helper function to verify admin auth
-    function getAdminToken(req: Request) {
-      const authHeader = req.headers.get('Authorization')
-      if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        throw new Error('No authentication token provided')
-      }
-      const token = authHeader.substring(7)
-      if (!token.startsWith('admin-token-')) {
-        throw new Error('Invalid admin token')
-      }
-      return token
-    }
-
-    // Dashboard Stats
+    // Dashboard stats
     if (path === '/admin/dashboard/stats' && method === 'GET') {
       try {
-        getAdminToken(req) // Verify admin auth
-
         const [
-          { count: filmsCount }, { count: seriesCount }, { count: podcastsCount },
-          { count: newsCount }, { count: talentCount }, { count: servicesCount },
-          { count: galleryCount }, { count: testimonialsCount }, { count: usersCount },
-          { count: articlesCount }, { count: categoriesCount }, { count: eventsCount }
+          { count: filmsCount },
+          { count: seriesCount }, 
+          { count: podcastsCount },
+          { count: newsCount },
+          { count: talentCount },
+          { count: usersCount }
         ] = await Promise.all([
           supabase.from('films').select('*', { count: 'exact', head: true }),
           supabase.from('series').select('*', { count: 'exact', head: true }),
           supabase.from('podcasts').select('*', { count: 'exact', head: true }),
           supabase.from('news_articles').select('*', { count: 'exact', head: true }),
           supabase.from('talent').select('*', { count: 'exact', head: true }),
-          supabase.from('services').select('*', { count: 'exact', head: true }),
-          supabase.from('gallery_images').select('*', { count: 'exact', head: true }),
-          supabase.from('testimonials').select('*', { count: 'exact', head: true }),
-          supabase.from('users').select('*', { count: 'exact', head: true }),
-          supabase.from('mic_mtaani_articles').select('*', { count: 'exact', head: true }),
-          supabase.from('mic_mtaani_categories').select('*', { count: 'exact', head: true }),
-          supabase.from('mic_mtaani_events').select('*', { count: 'exact', head: true })
+          supabase.from('users').select('*', { count: 'exact', head: true })
         ])
-        const { data: topFilms } = await supabase.from('films').select('*').eq('featured', true).limit(5)
 
         return new Response(JSON.stringify({
-          content_counts: {
-            films: filmsCount || 0,
-            series: seriesCount || 0,
-            podcasts: podcastsCount || 0,
-            news: newsCount || 0,
-            talent: talentCount || 0,
-            services: servicesCount || 0,
-            gallery: galleryCount || 0,
-            testimonials: testimonialsCount || 0
-          },
-          user_counts: {
-            total_users: usersCount || 0,
-            new_this_month: 0,
-            new_today: 0,
-            active_subscribers: 0
-          },
-          revenue: {
-            total_all_time: 0,
-            this_month: 0,
-            this_week: 0,
-            today: 0
-          },
-          monthly_revenue: [],
-          ticket_stats: {
-            total_sold: 0,
-            this_month: 0
-          },
-          mic_mtaani: {
-            articles: articlesCount || 0,
-            categories: categoriesCount || 0,
-            events: eventsCount || 0
-          },
-          recent_activity: [],
-          top_films: topFilms || []
+          films: filmsCount || 0,
+          series: seriesCount || 0,
+          podcasts: podcastsCount || 0,
+          news: newsCount || 0,
+          talent: talentCount || 0,
+          users: usersCount || 0,
+          revenue: 0, // Implement based on your payment system
+          watchTime: 0 // Implement based on your analytics
         }), { headers: corsHeaders })
       } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+        return new Response(JSON.stringify({ error: 'Failed to fetch stats' }), { 
+          status: 500, headers: corsHeaders 
+        })
       }
     }
 
-    // Admin Films CRUD
-    if (path === '/admin/films' && method === 'GET') {
+    // Audit logs
+    if (path === '/admin/audit-logs' && method === 'GET') {
       try {
-        getAdminToken(req)
-        const { data: films } = await supabase.from('films').select('*').order('sort_order')
-        return new Response(JSON.stringify(films || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-      }
-    }
-
-    if (path === '/admin/films' && method === 'POST') {
-      try {
-        getAdminToken(req)
-        const body = await req.json()
-        const { error, data } = await supabase.from('films').insert([body]).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to create film' }), { status: 500, headers: corsHeaders })
-      }
-    }
-    if (path.startsWith('/admin/films/') && method === 'PUT') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/films/', ''))
-        const body = await req.json()
-        const { error, data } = await supabase.from('films').update(body).eq('id', id).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to update film' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/films/') && method === 'DELETE') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/films/', ''))
-        const { error } = await supabase.from('films').delete().eq('id', id)
-        if (error) throw error
-        return new Response(JSON.stringify({ message: 'Film deleted successfully' }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to delete film' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Admin Series CRUD
-    if (path === '/admin/series' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const { data: series } = await supabase.from('series').select('*').order('sort_order')
-        return new Response(JSON.stringify(series || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-      }
-    }
-
-    if (path === '/admin/series' && method === 'POST') {
-      try {
-        getAdminToken(req)
-        const body = await req.json()
-        const { error, data } = await supabase.from('series').insert([body]).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to create series' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/series/') && method === 'PUT') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/series/', ''))
-        const body = await req.json()
-        const { error, data } = await supabase.from('series').update(body).eq('id', id).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to update series' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/series/') && method === 'DELETE') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/series/', ''))
-        const { error } = await supabase.from('series').delete().eq('id', id)
-        if (error) throw error
-        return new Response(JSON.stringify({ message: 'Series deleted successfully' }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to delete series' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Helper function to extract IDs from nested paths
-    function extractIdsFromPath(path, pattern) {
-      // Match patterns like /admin/series/1/seasons or /admin/seasons/1/episodes
-      const regex = new RegExp(pattern.replace(/\{id\}/g, '(\\d+)'))
-      const match = path.match(regex)
-      return match ? match.slice(1).map(id => parseInt(id)) : []
-    }
-
-    // Admin Series Seasons CRUD - More explicit route matching
-    if (path.includes('/admin/series/') && path.endsWith('/seasons') && method === 'GET') {
-      console.log('🎯 Matched GET seasons route')
-      try {
-        getAdminToken(req)
-        const [seriesId] = extractIdsFromPath(path, '/admin/series/{id}/seasons')
+        const page = parseInt(url.searchParams.get('page') || '1')
+        const limit = Math.min(parseInt(url.searchParams.get('per_page') || '50'), 100)
         
-        if (!seriesId) {
-          console.log('❌ Invalid series ID extracted from path:', path)
-          return new Response(JSON.stringify({ message: 'Invalid series ID' }), { status: 400, headers: corsHeaders })
-        }
-        
-        console.log('✅ Getting seasons for series ID:', seriesId)
-        
-        const { data: seasons, error } = await supabase
-          .from('seasons')
-          .select(`
-            *,
-            episodes:episodes(*)
-          `)
-          .eq('series_id', seriesId)
-          .order('season_number', { ascending: true })
-          
-        if (error) {
-          console.error('❌ Supabase seasons select error:', error)
-          return new Response(JSON.stringify({ 
-            message: 'Failed to get seasons',
-            error: error.message,
-            details: error.details 
-          }), { status: 500, headers: corsHeaders })
-        }
-        
-        console.log('✅ Found seasons:', seasons?.length || 0)
-        return new Response(JSON.stringify(seasons || []), { headers: corsHeaders })
-      } catch (error) {
-        console.error('❌ Get seasons error:', error)
-        return new Response(JSON.stringify({ 
-          message: 'Unauthorized or server error',
-          error: error.message 
-        }), { status: error.message === 'Invalid admin token' ? 401 : 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.includes('/admin/series/') && path.endsWith('/seasons') && method === 'POST') {
-      console.log('🎯 Matched POST seasons route')
-      try {
-        getAdminToken(req)
-        const [seriesId] = extractIdsFromPath(path, '/admin/series/{id}/seasons')
-        
-        if (!seriesId) {
-          console.log('❌ Invalid series ID extracted from path:', path)
-          return new Response(JSON.stringify({ message: 'Invalid series ID' }), { status: 400, headers: corsHeaders })
-        }
-        
-        console.log('✅ Creating season for series ID:', seriesId)
-        
-        const body = await req.json()
-        console.log('📝 Request body:', body)
-        
-        // Add series_id to the season data
-        const seasonData = { 
-          ...body, 
-          series_id: seriesId,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        }
-        
-        console.log('📦 Season data to insert:', seasonData)
-        
-        const { error, data } = await supabase.from('seasons').insert([seasonData]).select().single()
-        
-        if (error) {
-          console.error('❌ Supabase seasons insert error:', error)
-          return new Response(JSON.stringify({ 
-            message: 'Failed to create season',
-            error: error.message,
-            details: error.details || 'No additional details',
-            hint: error.hint || 'Check RLS policies and table permissions',
-            code: error.code
-          }), { status: 500, headers: corsHeaders })
-        }
-        
-        console.log('✅ Season created successfully:', data)
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        console.error('❌ Season creation error:', error)
-        return new Response(JSON.stringify({ 
-          message: 'Failed to create season',
-          error: error.message,
-          stack: error.stack?.split('\n')[0] // Only first line of stack
-        }), { status: error.message === 'Invalid admin token' ? 401 : 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/seasons/') && method === 'PUT') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/seasons/', ''))
-        const body = await req.json()
-        const { error, data } = await supabase.from('seasons').update(body).eq('id', id).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to update season' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/seasons/') && method === 'DELETE') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/seasons/', ''))
-        const { error } = await supabase.from('seasons').delete().eq('id', id)
-        if (error) throw error
-        return new Response(JSON.stringify({ message: 'Season deleted successfully' }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to delete season' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Admin Episodes CRUD
-    if (path.startsWith('/admin/seasons/') && path.includes('/episodes') && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const seasonId = parseInt(path.split('/')[3]) // Extract season ID from /admin/seasons/{id}/episodes
-        const { data: episodes } = await supabase
-          .from('episodes')
+        const { data: logs } = await supabase
+          .from('audit_logs')
           .select('*')
-          .eq('season_id', seasonId)
-          .order('episode_number', { ascending: true })
-        return new Response(JSON.stringify(episodes || []), { headers: corsHeaders })
+          .order('created_at', { ascending: false })
+          .range((page - 1) * limit, page * limit - 1)
+
+        return new Response(JSON.stringify(logs || []), { headers: corsHeaders })
       } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
+        return new Response(JSON.stringify({ error: 'Failed to fetch audit logs' }), { 
+          status: 500, headers: corsHeaders 
+        })
       }
     }
 
-    if (path.startsWith('/admin/seasons/') && path.includes('/episodes') && method === 'POST') {
-      try {
-        getAdminToken(req)
-        const seasonId = parseInt(path.split('/')[3]) // Extract season ID from /admin/seasons/{id}/episodes
-        const body = await req.json()
-        
-        // Add season_id to the episode data
-        const episodeData = { ...body, season_id: seasonId }
-        
-        const { error, data } = await supabase.from('episodes').insert([episodeData]).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        console.error('Episode creation error:', error)
-        return new Response(JSON.stringify({ 
-          message: 'Failed to create episode',
-          error: error.message 
-        }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/episodes/') && method === 'PUT') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/episodes/', ''))
-        const body = await req.json()
-        const { error, data } = await supabase.from('episodes').update(body).eq('id', id).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to update episode' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/episodes/') && method === 'DELETE') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/episodes/', ''))
-        const { error } = await supabase.from('episodes').delete().eq('id', id)
-        if (error) throw error
-        return new Response(JSON.stringify({ message: 'Episode deleted successfully' }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to delete episode' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Debug endpoint to check seasons table with service role
-    if (path === '/admin/debug/seasons' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        console.log('🔍 Debug: Checking seasons table...')
-        
-        // First, check if table exists and is accessible
-        const { data: seasons, error } = await supabase
-          .from('seasons')
-          .select('*')
-          .limit(5)
-        
-        if (error) {
-          console.error('❌ Seasons table error:', error)
-          return new Response(JSON.stringify({
-            error: 'Seasons table issue',
-            details: error.message,
-            hint: error.hint,
-            code: error.code,
-            table_accessible: false
-          }), { status: 500, headers: corsHeaders })
-        }
-        
-        console.log('✅ Seasons table accessible, found rows:', seasons?.length || 0)
-        
-        // Check if we can access series table too
-        const { data: series, error: seriesError } = await supabase
-          .from('series')
-          .select('id, title')
-          .limit(3)
-        
-        return new Response(JSON.stringify({
-          message: 'Tables check successful',
-          seasons_table_accessible: true,
-          seasons_count: seasons?.length || 0,
-          sample_seasons: seasons,
-          series_table_accessible: !seriesError,
-          series_count: series?.length || 0,
-          sample_series: series,
-          series_error: seriesError?.message || null,
-          supabase_service_role: !!supabase
-        }), { headers: corsHeaders })
-      } catch (error) {
-        console.error('❌ Debug check failed:', error)
-        return new Response(JSON.stringify({
-          error: 'Debug check failed',
-          message: error.message,
-          stack: error.stack?.split('\n')[0]
-        }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Admin Talent CRUD
-    if (path === '/admin/talent' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const { data: talent } = await supabase.from('talent').select('*').order('sort_order')
-        return new Response(JSON.stringify(talent || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-      }
-    }
-    if (path === '/admin/talent' && method === 'POST') {
-      try {
-        getAdminToken(req)
-        const body = await req.json()
-        const { error, data } = await supabase.from('talent').insert([body]).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to create talent' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/talent/') && method === 'PUT') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/talent/', ''))
-        const body = await req.json()
-        const { error, data } = await supabase.from('talent').update(body).eq('id', id).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to update talent' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/talent/') && method === 'DELETE') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/talent/', ''))
-        const { error } = await supabase.from('talent').delete().eq('id', id)
-        if (error) throw error
-        return new Response(JSON.stringify({ message: 'Talent deleted successfully' }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to delete talent' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Admin Podcasts CRUD
-    if (path === '/admin/podcasts' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const { data: podcasts } = await supabase.from('podcasts').select('*').order('sort_order')
-        return new Response(JSON.stringify(podcasts || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-      }
-    }
-
-    if (path === '/admin/podcasts' && method === 'POST') {
-      try {
-        getAdminToken(req)
-        const body = await req.json()
-        const { error, data } = await supabase.from('podcasts').insert([body]).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to create podcast' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/podcasts/') && method === 'PUT') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/podcasts/', ''))
-        const body = await req.json()
-        const { error, data } = await supabase.from('podcasts').update(body).eq('id', id).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to update podcast' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/podcasts/') && method === 'DELETE') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/podcasts/', ''))
-        const { error } = await supabase.from('podcasts').delete().eq('id', id)
-        if (error) throw error
-        return new Response(JSON.stringify({ message: 'Podcast deleted successfully' }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to delete podcast' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Admin Podcast Episodes CRUD
-    if (path.startsWith('/admin/podcasts/') && path.includes('/episodes') && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const podcastId = parseInt(path.split('/')[3]) // Extract podcast ID from /admin/podcasts/{id}/episodes
-        const { data: episodes } = await supabase
-          .from('podcast_episodes')
-          .select('*')
-          .eq('podcast_id', podcastId)
-          .order('episode_number', { ascending: true })
-        return new Response(JSON.stringify(episodes || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/podcasts/') && path.includes('/episodes') && method === 'POST') {
-      try {
-        getAdminToken(req)
-        const podcastId = parseInt(path.split('/')[3]) // Extract podcast ID from /admin/podcasts/{id}/episodes
-        const body = await req.json()
-        
-        // Add podcast_id to the episode data
-        const episodeData = { ...body, podcast_id: podcastId }
-        
-        const { error, data } = await supabase.from('podcast_episodes').insert([episodeData]).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        console.error('Podcast episode creation error:', error)
-        return new Response(JSON.stringify({ 
-          message: 'Failed to create podcast episode',
-          error: error.message 
-        }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/podcast-episodes/') && method === 'PUT') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/podcast-episodes/', ''))
-        const body = await req.json()
-        const { error, data } = await supabase.from('podcast_episodes').update(body).eq('id', id).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to update podcast episode' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/podcast-episodes/') && method === 'DELETE') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/podcast-episodes/', ''))
-        const { error } = await supabase.from('podcast_episodes').delete().eq('id', id)
-        if (error) throw error
-        return new Response(JSON.stringify({ message: 'Podcast episode deleted successfully' }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to delete podcast episode' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Admin Services CRUD
-    if (path === '/admin/services' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const { data: services } = await supabase.from('services').select('*').order('sort_order')
-        return new Response(JSON.stringify(services || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-      }
-    }
-
-    if (path === '/admin/services' && method === 'POST') {
-      try {
-        getAdminToken(req)
-        const body = await req.json()
-        const { error, data } = await supabase.from('services').insert([body]).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to create service' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/services/') && method === 'PUT') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/services/', ''))
-        const body = await req.json()
-        const { error, data } = await supabase.from('services').update(body).eq('id', id).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to update service' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/services/') && method === 'DELETE') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/services/', ''))
-        const { error } = await supabase.from('services').delete().eq('id', id)
-        if (error) throw error
-        return new Response(JSON.stringify({ message: 'Service deleted successfully' }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to delete service' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Admin News CRUD
-    if (path === '/admin/news' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const { data: news } = await supabase.from('news_articles').select('*').order('created_at', { ascending: false })
-        return new Response(JSON.stringify(news || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-      }
-    }
-
-    if (path === '/admin/news' && method === 'POST') {
-      try {
-        getAdminToken(req)
-        const body = await req.json()
-        const { error, data } = await supabase.from('news_articles').insert([body]).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to create news article' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/news/') && method === 'PUT') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/news/', ''))
-        const body = await req.json()
-        const { error, data } = await supabase.from('news_articles').update(body).eq('id', id).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to update news article' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/news/') && method === 'DELETE') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/news/', ''))
-        const { error } = await supabase.from('news_articles').delete().eq('id', id)
-        if (error) throw error
-        return new Response(JSON.stringify({ message: 'News article deleted successfully' }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to delete news article' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Admin Testimonials CRUD
-    if (path === '/admin/testimonials' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const { data: testimonials } = await supabase.from('testimonials').select('*').order('sort_order')
-        return new Response(JSON.stringify(testimonials || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-      }
-    }
-
-    if (path === '/admin/testimonials' && method === 'POST') {
-      try {
-        getAdminToken(req)
-        const body = await req.json()
-        const { error, data } = await supabase.from('testimonials').insert([body]).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to create testimonial' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/testimonials/') && method === 'PUT') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/testimonials/', ''))
-        const body = await req.json()
-        const { error, data } = await supabase.from('testimonials').update(body).eq('id', id).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to update testimonial' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/testimonials/') && method === 'DELETE') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/testimonials/', ''))
-        const { error } = await supabase.from('testimonials').delete().eq('id', id)
-        if (error) throw error
-        return new Response(JSON.stringify({ message: 'Testimonial deleted successfully' }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to delete testimonial' }), { status: 500, headers: corsHeaders })
-      }
-    }
-    // Admin Gallery CRUD
-    if (path === '/admin/gallery' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const { data: gallery } = await supabase.from('gallery_images').select('*').order('sort_order')
-        return new Response(JSON.stringify(gallery || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-      }
-    }
-
-    if (path === '/admin/gallery' && method === 'POST') {
-      try {
-        getAdminToken(req)
-        const body = await req.json()
-        const { error, data } = await supabase.from('gallery_images').insert([body]).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to create gallery image' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/gallery/') && method === 'PUT') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/gallery/', ''))
-        const body = await req.json()
-        const { error, data } = await supabase.from('gallery_images').update(body).eq('id', id).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to update gallery image' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/gallery/') && method === 'DELETE') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/gallery/', ''))
-        const { error } = await supabase.from('gallery_images').delete().eq('id', id)
-        if (error) throw error
-        return new Response(JSON.stringify({ message: 'Gallery image deleted successfully' }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to delete gallery image' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Admin Contacts
-    if (path === '/admin/contacts' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const { data: contacts } = await supabase.from('contacts').select('*').order('created_at', { ascending: false })
-        return new Response(JSON.stringify(contacts || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-      }
-    }
-
-    // Admin Reviews
-    if (path === '/admin/reviews' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const { data: reviews } = await supabase.from('reviews').select('*').order('created_at', { ascending: false })
-        return new Response(JSON.stringify(reviews || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-      }
-    }
-
-    // Admin Mic Mtaani Articles
-    if (path === '/admin/micmtaani/articles' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const { data: articles } = await supabase.from('mic_mtaani_articles').select('*').order('created_at', { ascending: false })
-        return new Response(JSON.stringify({ data: articles || [] }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ data: [] }), { headers: corsHeaders })
-      }
-    }
-
-    if (path === '/admin/micmtaani/articles' && method === 'POST') {
-      try {
-        getAdminToken(req)
-        const body = await req.json()
-        const { error, data } = await supabase.from('mic_mtaani_articles').insert([body]).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to create article' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/micmtaani/articles/') && method === 'PUT') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/micmtaani/articles/', ''))
-        const body = await req.json()
-        const { error, data } = await supabase.from('mic_mtaani_articles').update(body).eq('id', id).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to update article' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/micmtaani/articles/') && method === 'DELETE') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/micmtaani/articles/', ''))
-        const { error } = await supabase.from('mic_mtaani_articles').delete().eq('id', id)
-        if (error) throw error
-        return new Response(JSON.stringify({ message: 'Article deleted successfully' }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to delete article' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Admin Mic Mtaani Categories
-    if (path === '/admin/micmtaani/categories' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const { data: categories } = await supabase.from('mic_mtaani_categories').select('*').order('sort_order')
-        return new Response(JSON.stringify(categories || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-      }
-    }
-
-    if (path === '/admin/micmtaani/categories' && method === 'POST') {
-      try {
-        getAdminToken(req)
-        const body = await req.json()
-        const { error, data } = await supabase.from('mic_mtaani_categories').insert([body]).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to create category' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/micmtaani/categories/') && method === 'PUT') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/micmtaani/categories/', ''))
-        const body = await req.json()
-        const { error, data } = await supabase.from('mic_mtaani_categories').update(body).eq('id', id).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to update category' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/micmtaani/categories/') && method === 'DELETE') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/micmtaani/categories/', ''))
-        const { error } = await supabase.from('mic_mtaani_categories').delete().eq('id', id)
-        if (error) throw error
-        return new Response(JSON.stringify({ message: 'Category deleted successfully' }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to delete category' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Admin Mic Mtaani Events
-    if (path === '/admin/micmtaani/events' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const { data: events } = await supabase.from('mic_mtaani_events').select('*').order('starts_at', { ascending: false })
-        return new Response(JSON.stringify(events || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-      }
-    }
-
-    if (path === '/admin/micmtaani/events' && method === 'POST') {
-      try {
-        getAdminToken(req)
-        const body = await req.json()
-        const { error, data } = await supabase.from('mic_mtaani_events').insert([body]).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to create event' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/micmtaani/events/') && method === 'PUT') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/micmtaani/events/', ''))
-        const body = await req.json()
-        const { error, data } = await supabase.from('mic_mtaani_events').update(body).eq('id', id).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to update event' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/micmtaani/events/') && method === 'DELETE') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/micmtaani/events/', ''))
-        const { error } = await supabase.from('mic_mtaani_events').delete().eq('id', id)
-        if (error) throw error
-        return new Response(JSON.stringify({ message: 'Event deleted successfully' }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to delete event' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Admin Mic Mtaani Businesses
-    if (path === '/admin/micmtaani/businesses' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const { data: businesses } = await supabase.from('mic_mtaani_businesses').select('*').order('name')
-        return new Response(JSON.stringify(businesses || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-      }
-    }
-
-    if (path === '/admin/micmtaani/businesses' && method === 'POST') {
-      try {
-        getAdminToken(req)
-        const body = await req.json()
-        const { error, data } = await supabase.from('mic_mtaani_businesses').insert([body]).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to create business' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/micmtaani/businesses/') && method === 'PUT') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/micmtaani/businesses/', ''))
-        const body = await req.json()
-        const { error, data } = await supabase.from('mic_mtaani_businesses').update(body).eq('id', id).select().single()
-        if (error) throw error
-        return new Response(JSON.stringify(data), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to update business' }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    if (path.startsWith('/admin/micmtaani/businesses/') && method === 'DELETE') {
-      try {
-        getAdminToken(req)
-        const id = parseInt(path.replace('/admin/micmtaani/businesses/', ''))
-        const { error } = await supabase.from('mic_mtaani_businesses').delete().eq('id', id)
-        if (error) throw error
-        return new Response(JSON.stringify({ message: 'Business deleted successfully' }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Failed to delete business' }), { status: 500, headers: corsHeaders })
-      }
-    }
-    // Admin Users
-    if (path === '/admin/users' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        const { data: users } = await supabase.from('users').select('*').order('created_at', { ascending: false })
-        return new Response(JSON.stringify(users || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify([]), { headers: corsHeaders })
-      }
-    }
-
-    // Admin Settings
-    if (path === '/admin/settings' && method === 'GET') {
-      try {
-        getAdminToken(req)
-        return new Response(JSON.stringify({
-          platform_name: 'The Artainment',
-          tagline: 'Discover, Stream, Experience',
-          support_email: 'support@theartainment.co.ke',
-          currency: 'KES',
-          timezone: 'Africa/Nairobi'
-        }), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401, headers: corsHeaders })
-      }
-    }
-
-    // File Upload Endpoint
+    // Upload endpoint
     if (path === '/upload' && method === 'POST') {
       try {
-        getAdminToken(req) // Verify admin authentication
-
-        // Parse form data
         const formData = await req.formData()
         const file = formData.get('file') as File
-        const folder = formData.get('folder') as string || 'uploads'
-
-        if (!file) {
-          return new Response(JSON.stringify({ 
-            message: 'No file provided',
-            error: 'file_required' 
-          }), { status: 400, headers: corsHeaders })
-        }
-
-        // Validate file type and size based on file type
-        let maxSize = 10 * 1024 * 1024 // 10MB default for images
-        let fileTypeCategory = 'image'
+        const folder = sanitizeInput(formData.get('folder') as string || 'uploads')
         
-        // Determine file type and appropriate size limit
-        if (file.type.startsWith('video/') || file.name.toLowerCase().match(/\.(mp4|mov|avi|mkv|webm|m4v)$/)) {
-          maxSize = 2 * 1024 * 1024 * 1024 // 2GB for videos (matches frontend UI and Laravel backend)
-          fileTypeCategory = 'video'
-        } else if (file.type.startsWith('audio/') || file.name.toLowerCase().match(/\.(mp3|wav|aac|m4a|ogg)$/)) {
-          maxSize = 100 * 1024 * 1024 // 100MB for audio
-          fileTypeCategory = 'audio'
+        if (!file) {
+          return new Response(JSON.stringify({ error: 'No file provided' }), { 
+            status: 400, headers: corsHeaders 
+          })
         }
+
+        // Validate file size (2GB for videos, 10MB for images)
+        const isVideo = ['video/mp4', 'video/quicktime', 'video/x-msvideo'].includes(file.type)
+        const maxSize = isVideo ? 2 * 1024 * 1024 * 1024 : 10 * 1024 * 1024 // 2GB or 10MB
         
         if (file.size > maxSize) {
-          const maxSizeMB = Math.round(maxSize / (1024 * 1024))
+          const maxSizeLabel = isVideo ? '2GB' : '10MB'
           return new Response(JSON.stringify({ 
-            message: `File too large. Maximum size for ${fileTypeCategory} files is ${maxSizeMB}MB`,
-            error: 'file_too_large',
-            max_size: maxSize,
-            file_size: file.size,
-            file_type: fileTypeCategory
-          }), { status: 400, headers: corsHeaders })
+            error: `File too large. Maximum size is ${maxSizeLabel}` 
+          }), { status: 413, headers: corsHeaders })
         }
 
-        // Generate unique filename
-        const timestamp = Date.now()
-        const randomString = Math.random().toString(36).substring(2, 8)
-        const fileExtension = file.name.split('.').pop()?.toLowerCase() || 'bin'
-        const safeFileName = `${timestamp}-${randomString}.${fileExtension}`
-        const filePath = `${folder}/${safeFileName}`
+        // Sanitize folder name - whitelist approach
+        const allowedFolders = ['uploads', 'films', 'series', 'podcasts', 'news', 'talent', 'gallery']
+        const sanitizedFolder = allowedFolders.includes(folder.toLowerCase()) ? folder.toLowerCase() : 'uploads'
+        
+        const filename = `${Date.now()}-${file.name}`
+        const filePath = `${sanitizedFolder}/${filename}`
 
-        // Convert File to ArrayBuffer for Supabase Storage
-        const fileBuffer = await file.arrayBuffer()
-        const fileBytes = new Uint8Array(fileBuffer)
+        const { data, error } = await supabase.storage
+          .from('media')
+          .upload(filePath, file)
 
-        // Upload to Supabase Storage
-        let uploadResult;
-        try {
-          // Try the 'uploads' bucket first
-          uploadResult = await supabase.storage
-            .from('uploads')
-            .upload(filePath, fileBytes, {
-              contentType: file.type || 'application/octet-stream',
-              cacheControl: '3600',
-              upsert: false
-            })
-          
-          if (uploadResult.error) {
-            // If uploads bucket doesn't exist, try creating it or use a different approach
-            console.error('Upload to uploads bucket failed:', uploadResult.error)
-            
-            // Try uploading to a different bucket or create the bucket
-            if (uploadResult.error.message?.includes('Bucket not found') || uploadResult.error.message?.includes('bucket does not exist')) {
-              // Try using a different bucket name that might exist
-              const alternativeResult = await supabase.storage
-                .from('files') // Alternative bucket name
-                .upload(filePath, fileBytes, {
-                  contentType: file.type || 'application/octet-stream',
-                  cacheControl: '3600',
-                  upsert: false
-                })
-              
-              if (alternativeResult.error) {
-                throw new Error(`Storage bucket not found. Please create 'uploads' or 'files' bucket in Supabase Storage. Error: ${alternativeResult.error.message}`)
-              }
-              
-              uploadResult = alternativeResult
-            } else {
-              throw new Error(uploadResult.error.message)
-            }
-          }
-        } catch (storageError: any) {
-          console.error('Storage upload error:', storageError)
-          return new Response(JSON.stringify({ 
-            message: 'Failed to upload file to storage. Please ensure Supabase Storage bucket exists and has proper permissions.',
-            error: 'storage_upload_failed',
-            details: storageError.message,
-            suggestion: 'Create an "uploads" bucket in your Supabase Storage dashboard with public access enabled.'
-          }), { status: 500, headers: corsHeaders })
-        }
+        if (error) throw error
 
-        // Get public URL
-        const bucketName = uploadResult.data?.bucketId || 'uploads'
-        const { data: urlData } = supabase.storage
-          .from(bucketName)
+        const { data: { publicUrl } } = supabase.storage
+          .from('media')
           .getPublicUrl(filePath)
 
         return new Response(JSON.stringify({
-          url: urlData.publicUrl,
+          url: publicUrl,
           path: filePath,
-          filename: safeFileName,
-          size: file.size,
-          type: file.type,
-          folder: folder
+          filename: filename
         }), { headers: corsHeaders })
 
       } catch (error) {
         console.error('Upload error:', error)
-        return new Response(JSON.stringify({ 
-          message: error.message === 'Invalid admin token' ? 'Unauthorized' : 'Upload failed',
-          error: error.message 
-        }), { 
-          status: error.message === 'Invalid admin token' ? 401 : 500, 
-          headers: corsHeaders 
+        return new Response(JSON.stringify({ error: 'Upload failed' }), { 
+          status: 500, headers: corsHeaders 
         })
       }
     }
 
-    // ═══════════════════════════════════════════════════════════════
-    // YOUTUBE VIDEO PROCESSING ENDPOINTS
-    // ═══════════════════════════════════════════════════════════════
-    
-    // Extract YouTube video information
-    if (path.startsWith('/youtube/info/') && method === 'GET') {
-      try {
-        const videoId = path.replace('/youtube/info/', '')
-        
-        if (!videoId || videoId.length !== 11) {
-          return new Response(JSON.stringify({ 
-            error: 'Invalid YouTube video ID',
-            message: 'Video ID must be 11 characters long'
-          }), { status: 400, headers: corsHeaders })
-        }
-
-        // Extract video information from YouTube
-        const videoInfo = {
-          videoId,
-          title: null,
-          thumbnail: `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`,
-          thumbnailHigh: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
-          thumbnailMedium: `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`,
-          duration: null,
-          description: null,
-          extractedAt: new Date().toISOString(),
-          // Custom stream URL for Enhanced Player
-          customStreamUrl: `${req.url.split('/youtube/info/')[0]}/youtube/stream/${videoId}`,
-          // Embed URL for Standard Player
-          embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`,
-          // Original YouTube URL
-          originalUrl: `https://www.youtube.com/watch?v=${videoId}`
-        }
-
-        return new Response(JSON.stringify({
-          success: true,
-          video: videoInfo,
-          message: 'Video information extracted successfully'
-        }), { headers: corsHeaders })
-
-      } catch (error) {
-        console.error('YouTube info extraction error:', error)
-        return new Response(JSON.stringify({ 
-          error: 'Failed to extract video information',
-          message: error.message 
-        }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // Stream YouTube video through Enhanced Player
-    if (path.startsWith('/youtube/stream/') && method === 'GET') {
-      try {
-        const videoId = path.replace('/youtube/stream/', '')
-        
-        if (!videoId || videoId.length !== 11) {
-          return new Response(JSON.stringify({ 
-            error: 'Invalid YouTube video ID',
-            message: 'Video ID must be 11 characters long'
-          }), { status: 400, headers: corsHeaders })
-        }
-
-        // For now, we'll create a proxy/redirect approach
-        // In production, you'd extract the actual video stream URL
-        const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`
-        
-        // Return stream information
-        return new Response(JSON.stringify({
-          success: true,
-          videoId,
-          streamType: 'youtube_proxy',
-          message: 'YouTube stream processing - Enhanced Player compatible',
-          // For Enhanced Player, we'll use a different approach
-          proxyUrl: `${req.url.split('/youtube/stream/')[0]}/youtube/proxy/${videoId}`,
-          embedUrl: `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1&controls=0`,
-          originalUrl: youtubeUrl,
-          note: 'This endpoint provides Enhanced Player compatible streaming'
-        }), { headers: corsHeaders })
-
-      } catch (error) {
-        console.error('YouTube stream error:', error)
-        return new Response(JSON.stringify({ 
-          error: 'Failed to process video stream',
-          message: error.message 
-        }), { status: 500, headers: corsHeaders })
-      }
-    }
-
-    // YouTube video proxy for Enhanced Player (completely custom player)
-    if (path.startsWith('/youtube/proxy/') && method === 'GET') {
-      try {
-        const videoId = path.replace('/youtube/proxy/', '')
-        
-        if (!videoId || videoId.length !== 11) {
-          return new Response('Invalid video ID', { status: 400 })
-        }
-
-        // Create a completely custom HTML page that replaces YouTube UI entirely
-        const html = `
-<!DOCTYPE html>
-<html style="margin:0;padding:0;background:#000;font-family:'DM Sans',sans-serif;">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Enhanced Player</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { 
-      height: 100vh; 
-      background: #000; 
-      overflow: hidden; 
-      font-family: 'DM Sans', sans-serif;
-    }
-    
-    #video-container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      background: #000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    #youtube-embed {
-      width: 100%;
-      height: 100%;
-      border: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 1;
-    }
-    
-    #custom-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      z-index: 2;
-      pointer-events: none;
-      background: transparent;
-    }
-    
-    #brand-overlay {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      right: 20px;
-      background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.7) 50%, transparent 100%);
-      padding: 20px;
-      border-radius: 12px;
-      color: white;
-      pointer-events: none;
-    }
-    
-    #brand-title {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      text-shadow: 0 2px 8px rgba(0,0,0,0.8);
-    }
-    
-    #brand-badge {
-      display: inline-block;
-      background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
-      color: white;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      box-shadow: 0 2px 8px rgba(220, 38, 38, 0.4);
-    }
-    
-    #close-btn {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      width: 40px;
-      height: 40px;
-      background: rgba(0,0,0,0.8);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 50%;
-      color: white;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      font-weight: 300;
-      pointer-events: all;
-      z-index: 3;
-      backdrop-filter: blur(10px);
-      transition: all 0.2s ease;
-    }
-    
-    #close-btn:hover {
-      background: rgba(0,0,0,0.95);
-      transform: scale(1.05);
-    }
-    
-    .fade-in {
-      animation: fadeIn 0.5s ease-out forwards;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    /* Hide YouTube branding completely */
-    iframe {
-      border: none !important;
-      outline: none !important;
-    }
-  </style>
-</head>
-<body>
-  <div id="video-container">
-    <!-- YouTube embed with minimal UI -->
-    <iframe 
-      id="youtube-embed"
-      src="https://www.youtube.com/embed/${videoId}?autoplay=1&controls=1&showinfo=0&rel=0&modestbranding=1&iv_load_policy=3&cc_load_policy=0&playsinline=1&enablejsapi=1&origin=the-artainment.vercel.app&widget_referrer=the-artainment.vercel.app"
-      allow="autoplay; encrypted-media; fullscreen; picture-in-picture"
-      allowfullscreen
-      frameborder="0">
-    </iframe>
-    
-    <!-- Custom branded overlay -->
-    <div id="custom-overlay">
-      <button id="close-btn" onclick="closePlayer()" title="Close player">✕</button>
-      <div id="brand-overlay" class="fade-in">
-        <div id="brand-title">Playing in Enhanced Player</div>
-        <div id="brand-badge">The Artainment</div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // Close player function
-    function closePlayer() {
-      if (window.parent !== window) {
-        window.parent.postMessage('closePlayer', '*');
-      } else {
-        window.close();
-      }
-    }
-    
-    // Hide brand overlay after 5 seconds
-    setTimeout(() => {
-      const overlay = document.getElementById('brand-overlay');
-      if (overlay) {
-        overlay.style.opacity = '0';
-        overlay.style.transition = 'opacity 0.5s ease-out';
-      }
-    }, 5000);
-    
-    // Show overlay on hover
-    document.addEventListener('mousemove', () => {
-      const overlay = document.getElementById('brand-overlay');
-      if (overlay) {
-        overlay.style.opacity = '1';
-        clearTimeout(window.hideTimer);
-        window.hideTimer = setTimeout(() => {
-          overlay.style.opacity = '0';
-        }, 3000);
-      }
-    });
-    
-    // Prevent right-click context menu
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    
-    // Handle fullscreen
-    document.addEventListener('fullscreenchange', () => {
-      const overlay = document.getElementById('custom-overlay');
-      const closeBtn = document.getElementById('close-btn');
-      if (document.fullscreenElement) {
-        if (overlay) overlay.style.display = 'none';
-      } else {
-        if (overlay) overlay.style.display = 'block';
-      }
-    });
-  </script>
-</body>
-</html>`
-
-        return new Response(html, {
-          headers: {
-            ...corsHeaders,
-            'Content-Type': 'text/html; charset=utf-8',
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'X-Frame-Options': 'SAMEORIGIN',
-          }
-        })
-
-      } catch (error) {
-        console.error('YouTube proxy error:', error)
-        return new Response('Video proxy error', { status: 500 })
-      }
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // DEFAULT 404 RESPONSE
-    // ═══════════════════════════════════════════════════════════════
-    
-    return new Response(JSON.stringify({ 
-      error: 'Endpoint not found', 
-      path: path,
-      available_endpoints: [
-        'GET /home', 'GET /films', 'GET /films/{slug}', 'GET /series', 'GET /series/{slug}',
-        'GET /actors', 'GET /actors/{slug}', 'GET /podcasts', 'GET /podcasts/{slug}',
-        'GET /news', 'GET /news/{slug}', 'GET /services', 'GET /testimonials', 'GET /gallery',
-        'GET /productions', 'GET /micmtaani', 'GET /micmtaani/categories', 'GET /micmtaani/articles',
-        'GET /micmtaani/articles/{slug}', 'GET /micmtaani/events', 'GET /micmtaani/businesses',
-        'GET /micmtaani/businesses/{slug}', 'POST /contact', 'POST /subscribe', 
-        'POST /auth/login', 'GET /auth/user', 'GET /auth/me',
-        'GET /admin/dashboard/stats', 
-        'GET|POST|PUT|DELETE /admin/films', 'GET|POST|PUT|DELETE /admin/series',
-        'GET|POST /admin/series/{id}/seasons', 'PUT|DELETE /admin/seasons/{id}',
-        'GET|POST /admin/seasons/{id}/episodes', 'PUT|DELETE /admin/episodes/{id}',
-        'GET|POST|PUT|DELETE /admin/talent', 'GET|POST|PUT|DELETE /admin/podcasts',
-        'GET|POST /admin/podcasts/{id}/episodes', 'PUT|DELETE /admin/podcast-episodes/{id}',
-        'GET|POST|PUT|DELETE /admin/services', 'GET|POST|PUT|DELETE /admin/news', 'GET|POST|PUT|DELETE /admin/testimonials',
-        'GET|POST|PUT|DELETE /admin/gallery', 'GET /admin/contacts', 'GET /admin/reviews',
-        'GET|POST|PUT|DELETE /admin/micmtaani/articles', 'GET|POST|PUT|DELETE /admin/micmtaani/categories',
-        'GET|POST|PUT|DELETE /admin/micmtaani/events', 'GET|POST|PUT|DELETE /admin/micmtaani/businesses',
-        'GET /admin/users', 'GET /admin/settings', 
-        'POST /upload'
-      ]
-    }), { 
-      status: 404, 
-      headers: corsHeaders 
-    })
+    // Fallback for unmatched routes
+    return new Response(
+      JSON.stringify({ 
+        error: 'Endpoint not found',
+        path: path,
+        method: method,
+        available_endpoints: [
+          'GET /', 'GET /health', 'GET /films', 'GET /series', 'GET /podcasts',
+          'GET /talents', 'GET /actors', 'GET /news',
+          'POST /auth/register', 'POST /auth/login', 'POST /auth/logout', 'GET /auth/me',
+          'GET /admin/dashboard/stats', 'GET /admin/audit-logs', 'POST /upload'
+        ]
+      }),
+      { status: 404, headers: corsHeaders }
+    )
 
   } catch (error) {
-    console.error('💥 Server error:', error)
-    return new Response(JSON.stringify({ 
-      error: 'Server error', 
-      details: error.message
-    }), { 
-      status: 500, 
-      headers: corsHeaders 
-    })
+    console.error('API Error:', error)
+    return new Response(
+      JSON.stringify({ 
+        error: 'Internal server error',
+        message: error.message 
+      }),
+      { status: 500, headers: corsHeaders }
+    )
   }
 })
+
+/* To invoke locally:
+
+  1. Run `supabase start` (see: https://supabase.com/docs/reference/cli/supabase-start)
+  2. Make an HTTP request:
+
+  curl -i --location --request POST 'http://127.0.0.1:54321/functions/v1/api' \
+    --header 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' \
+    --header 'Content-Type: application/json' \
+    --data '{"name":"Functions"}'
+
+*/
