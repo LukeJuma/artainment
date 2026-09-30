@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { type Film, type Series } from '../../lib/api'
-import { IconPlay } from '../ui/Icons'
+import { Button } from '../ui/Button'
+import { Badge } from '../ui/Badge'
+import { IconPlay, IconStar } from '../ui/Icons'
 
 export interface HeroItem {
   kind: 'film' | 'series'
@@ -43,6 +44,17 @@ function toHeroItem(kind: 'film' | 'series', f: Film | Series): HeroItem {
   }
 }
 
+function Stars({ rating }: { rating: number }) {
+  const filled = Math.round(Math.min(Math.max(rating, 0), 10) / 2)
+  return (
+    <span style={{ display: 'inline-flex', gap: 2 }} aria-label={`Rated ${rating} out of 10`}>
+      {[1, 2, 3, 4, 5].map(i => (
+        <IconStar key={i} size={13} color={i <= filled ? 'var(--ds-gold)' : 'rgba(255,255,255,0.25)'} filled={i <= filled} />
+      ))}
+    </span>
+  )
+}
+
 export function HeroSection({ films, series = [], featured, featuredKind = 'film' }: HeroSectionProps) {
   const [current, setCurrent] = useState(0)
   const [paused, setPaused] = useState(false)
@@ -60,131 +72,145 @@ export function HeroSection({ films, series = [], featured, featuredKind = 'film
   }, [pool.length])
 
   useEffect(() => {
+    setCurrent(0)
+  }, [pool.length])
+
+  useEffect(() => {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduced || paused) return
-    const t = setInterval(next, 6000)
+    const t = setInterval(next, 7000)
     return () => clearInterval(t)
   }, [next, paused])
 
   const film = pool[current]
-  if (!film) return <section style={{ height: '100vh', background: '#0d0d0f' }} />
+  if (!film) return <section style={{ height: '100vh', background: 'var(--ds-ink-950)' }} />
 
   const isUpcoming = film?.status === 'upcoming'
-  const hasArtwork = !!(film.backdrop_url || film.poster_url)
+  const art = film?.backdrop_url || film?.poster_url || ''
+  const detailPath = `/${film?.kind === 'series' ? 'series' : 'films'}/${film?.slug || ''}`
+  const numeral = String(current + 1).padStart(2, '0')
 
   return (
     <section
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      style={{ position: 'relative', height: '100vh', minHeight: 500, overflow: 'hidden', background: '#0d0d0f' }}>
+      style={{ position: 'relative', height: '100vh', minHeight: 560, overflow: 'hidden', background: 'var(--ds-ink-950)' }}
+    >
+      {/* Backdrop */}
       <AnimatePresence mode="wait">
         <motion.div
           key={current}
           initial={{ opacity: 0, scale: 1.05 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
           style={{ position: 'absolute', inset: 0 }}
         >
-          {hasArtwork ? (
-            <>
-              {film?.poster_url && (
-                <img
-                  className="hero-art-poster"
-                  src={film.poster_url}
-                  alt={film?.title}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }}
-                />
-              )}
-              <img
-                className="hero-art-backdrop"
-                src={film?.backdrop_url || film?.poster_url || ''}
-                alt={film?.title}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-            </>
+          {art ? (
+            <img src={art} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
           ) : (
-            <div style={{
-              position: 'absolute', inset: 0,
-              background: 'radial-gradient(1100px 600px at 82% -10%, rgba(255,45,45,0.22), transparent 62%), radial-gradient(900px 520px at 8% 115%, rgba(255,45,45,0.14), transparent 60%), linear-gradient(160deg, #17151b 0%, #0d0d0f 55%, #0a0a0c 100%)',
-            }} />
+            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(1100px 600px at 82% -10%, rgba(225,29,72,0.22), transparent 62%), linear-gradient(160deg, #17151b 0%, #0d0d0f 55%, #0a0a0c 100%)' }} />
           )}
-          <div style={{
-            position: 'absolute', inset: 0,
-            background: 'linear-gradient(to right, rgba(8,8,10,0.94) 0%, rgba(8,8,10,0.72) 40%, rgba(8,8,10,0.25) 100%)',
-          }} />
-          <div className="hero-mobile-overlay" style={{
-            position: 'absolute', inset: 0,
-            background: 'linear-gradient(to top, rgba(8,8,10,0.85) 0%, rgba(8,8,10,0.35) 45%, transparent 70%)',
-          }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'var(--ds-scrim-left)' }} />
+          <div style={{ position: 'absolute', inset: 0, background: 'var(--ds-scrim-bottom)', opacity: 0.85 }} />
         </motion.div>
       </AnimatePresence>
 
-      <div className="hero-content" style={{
+      {/* Content */}
+      <div style={{
         position: 'relative', zIndex: 2, height: '100%',
         display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-        padding: '0 clamp(16px, 5vw, 80px)', paddingBottom: 'clamp(60px, 9vh, 96px)', paddingTop: 140,
-        maxWidth: 700,
+        padding: '0 clamp(20px, 5vw, 80px)', paddingBottom: 'clamp(120px, 18vh, 170px)', paddingTop: 140,
+        maxWidth: 760,
       }}>
         <AnimatePresence mode="wait">
           <motion.div key={current} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }}>
-            {(film?.tag || film?.kind === 'series') && (
-              <span style={{
-                display: 'inline-block', padding: '4px 14px', borderRadius: 4,
-                fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase',
-                background: isUpcoming ? '#F59E0B' : 'var(--red)', color: '#fff', marginBottom: 12,
-              }}>{isUpcoming ? 'Coming Soon' : (film?.kind === 'series' ? 'Series' : film?.tag)}</span>
-            )}
-            <h1 className="section-heading" style={{
-              color: '#fff', margin: '0 0 12px', fontFamily: 'Chonburi', fontWeight: 400,
-              fontSize: 'clamp(36px, 8vw, 88px)', lineHeight: 0.95,
+            {/* Oversized index numeral */}
+            <div style={{
+              fontFamily: "'Chonburi', cursive",
+              fontSize: 'clamp(56px, 9vw, 110px)',
+              lineHeight: 1,
+              color: 'transparent',
+              WebkitTextStroke: '1.5px rgba(255,255,255,0.28)',
+              marginBottom: 4,
+              userSelect: 'none',
+            }}>
+              {numeral}
+            </div>
+            <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+              {film?.kind === 'series' ? <Badge variant="brand">Series</Badge> : <Badge variant="brand">Film</Badge>}
+              {isUpcoming ? <Badge variant="upcoming">Coming Soon</Badge> : (film?.tag ? <Badge variant="muted">{film.tag}</Badge> : null)}
+            </div>
+            <h1 style={{
+              color: '#fff', margin: '0 0 12px', fontFamily: "'Chonburi', cursive", fontWeight: 400,
+              fontSize: 'clamp(38px, 7vw, 84px)', lineHeight: 0.98, letterSpacing: '-0.01em',
             }}>{film?.title || ''}</h1>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12, flexWrap: 'wrap' }}>
-              {film?.genre && <span style={{ fontFamily: 'DM Sans', fontSize: 12, color: 'rgba(255,255,255,0.75)', textTransform: 'uppercase', letterSpacing: 1 }}>{film.genre}</span>}
-              {film?.year && <span style={{ fontFamily: 'DM Sans', fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>{film.year}</span>}
-              {film?.duration && <span style={{ fontFamily: 'DM Sans', fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>{film.duration}</span>}
-              {film?.rating ? <span style={{ fontFamily: 'DM Sans', fontSize: 12, color: 'var(--red)', fontWeight: 600 }}>{film.rating}</span> : null}
+              {typeof film?.rating === 'number' && <Stars rating={film.rating} />}
+              {typeof film?.rating === 'number' && (
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'var(--ds-gold)', fontWeight: 700 }}>
+                  {film.rating.toFixed(1)}
+                </span>
+              )}
+              {film?.year && <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)', textTransform: 'uppercase', letterSpacing: 1 }}>{film.year}</span>}
+              {film?.genre && (
+                <span style={{
+                  fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: 'rgba(255,255,255,0.85)',
+                  border: '1px solid rgba(255,255,255,0.3)', borderRadius: 'var(--ds-radius-pill)',
+                  padding: '3px 12px', letterSpacing: 0.5,
+                }}>{film.genre}</span>
+              )}
+              {film?.duration && <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>{film.duration}</span>}
             </div>
             {film?.synopsis && (
-              <p style={{ fontFamily: 'DM Sans', fontSize: 14, lineHeight: 1.7, color: 'rgba(255,255,255,0.85)', marginBottom: 24, maxWidth: 480 }}>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, lineHeight: 1.7, color: 'rgba(255,255,255,0.85)', margin: '0 0 24px', maxWidth: 480 }}>
                 {film.synopsis.length > 150 ? film.synopsis.slice(0, 150) + '...' : film.synopsis}
               </p>
             )}
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              <Link to={`/${film?.kind === 'series' ? 'series' : 'films'}/${film?.slug || ''}`} className="btn-red">
+              <Button to={detailPath} variant="primary">
                 <IconPlay size={14} color="#fff" /> {isUpcoming ? 'Watch Trailer' : 'Watch Now'}
-              </Link>
-              <Link to={film?.kind === 'series' ? '/series' : '/films'} className="btn-outline-light">
-                {film?.kind === 'series' ? 'Browse Series' : 'Browse Movies'}
-              </Link>
+              </Button>
+              <Button to={detailPath} variant="light">Details</Button>
             </div>
           </motion.div>
         </AnimatePresence>
-
-        {pool.length > 1 && (
-          <div style={{ display: 'flex', gap: 6, marginTop: 40 }}>
-            {pool.map((_, i) => (
-              <button
-                key={i}
-                onClick={() => setCurrent(i)}
-                aria-label={`Go to film ${i + 1}`}
-                style={{
-                  width: i === current ? 28 : 8, height: 8, borderRadius: 4, border: 'none', cursor: 'pointer',
-                  background: i === current ? 'var(--red)' : 'rgba(255,255,255,0.35)',
-                  transition: 'all 0.3s', minHeight: 8,
-                }}
-              />
-            ))}
-          </div>
-        )}
       </div>
 
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 2 }}
-        style={{ position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-        <span style={{ fontFamily: 'DM Sans', fontSize: 9, letterSpacing: 3, color: 'rgba(255,255,255,0.6)', textTransform: 'uppercase' }}>Scroll</span>
-        <motion.div animate={{ y: [0, 6, 0] }} transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}
-          style={{ width: 1, height: 24, background: 'linear-gradient(to bottom, rgba(255,255,255,0.6), transparent)' }} />
-      </motion.div>
+      {/* Thumbnail strip selector */}
+      {pool.length > 1 && (
+        <div style={{
+          position: 'absolute', zIndex: 3, left: 0, right: 0, bottom: 0,
+          padding: '0 clamp(20px, 5vw, 80px) 26px',
+          display: 'flex', gap: 10, overflowX: 'auto', scrollbarWidth: 'none',
+        }}>
+          {pool.map((item, i) => {
+            const thumb = item.poster_url || item.backdrop_url
+            const active = i === current
+            return (
+              <button
+                key={`${item.kind}-${item.slug}`}
+                onClick={() => setCurrent(i)}
+                aria-label={`Show ${item.title}`}
+                style={{
+                  flexShrink: 0, width: 92, height: 56, borderRadius: 'var(--ds-radius-sm)', overflow: 'hidden',
+                  border: active ? '2px solid var(--ds-brand)' : '1px solid rgba(255,255,255,0.2)',
+                  boxShadow: active ? 'var(--ds-shadow-glow-brand)' : 'none',
+                  opacity: active ? 1 : 0.55,
+                  cursor: 'pointer', padding: 0, background: 'var(--ds-ink-800)',
+                  transition: 'all var(--ds-dur-fast) var(--ds-ease-out)',
+                }}
+              >
+                {thumb ? (
+                  <img src={thumb} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                ) : (
+                  <span style={{ fontSize: 10, color: 'var(--ds-fog-500)', padding: 4, display: 'block' }}>{item.title}</span>
+                )}
+              </button>
+            )
+          })}
+        </div>
+      )}
     </section>
   )
 }

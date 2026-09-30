@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom'
 import { type Film, type Series } from '../../lib/api'
 import { useInView } from '../../lib/animations'
 import { Section } from '../ui/Section'
-import { SectionLabel } from '../ui/SectionLabel'
+import { Button } from '../ui/Button'
+import { Badge } from '../ui/Badge'
 import { MediaArt } from '../ui/MediaArt'
 import { IconPlay, IconStar } from '../ui/Icons'
 
@@ -14,23 +14,52 @@ export function FeaturedProduction({ film, kind = 'film' }: { film: Film | Serie
   const detailPath = `/${isSeries ? 'series' : 'films'}/${film.slug}`
 
   return (
-    <Section style={{ padding: 0, marginBottom: 'clamp(48px, 6vw, 88px)', overflow: 'hidden', background: 'var(--bg-muted)' }}>
-      <div ref={ref} className="featured" style={{ position: 'relative', minHeight: 500 }}>
-        <div style={{ position: 'absolute', inset: 0, height: 500 }}>
+    <Section style={{ padding: 0, marginBottom: 'clamp(48px, 6vw, 88px)', overflow: 'hidden', background: 'var(--ds-ink-950)' }}>
+      <div ref={ref} className="featured" style={{ position: 'relative', minHeight: 520 }}>
+        <div style={{ position: 'absolute', inset: 0, height: 520 }}>
           <MediaArt type={isSeries ? 'series' : 'film'} title={film.title} src={film.backdrop_url || film.poster_url} alt={film.title} />
         </div>
-        <div className="featured-content" style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, var(--bg) 30%, transparent 70%)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 clamp(16px, 5vw, 80px)' }}>
-          <SectionLabel text="Featured Production" />
-          <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
-            {isSeries && <span style={{ fontFamily: 'DM Sans', fontSize: 10, fontWeight: 600, background: 'var(--red)', color: '#fff', padding: '3px 10px', borderRadius: 4, textTransform: 'uppercase', letterSpacing: 1 }}>Series</span>}
-            {film.tag && <span style={{ fontFamily: 'DM Sans', fontSize: 10, fontWeight: 600, background: 'var(--red)', color: '#fff', padding: '3px 10px', borderRadius: 4, textTransform: 'uppercase', letterSpacing: 1 }}>{film.tag}</span>}
-            <span style={{ fontFamily: 'DM Sans', fontSize: 10, border: '1px solid var(--border)', color: 'var(--text-secondary)', padding: '3px 10px', borderRadius: 4, textTransform: 'uppercase' }}>{film.genre}</span>
+        <div className="featured-content" style={{ position: 'absolute', inset: 0, background: 'var(--ds-scrim-left)', display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '0 clamp(20px, 5vw, 80px)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+            <span style={{ width: 28, height: 2, background: 'var(--ds-gold)' }} />
+            <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, letterSpacing: 3, color: 'var(--ds-gold)', textTransform: 'uppercase', fontWeight: 700 }}>
+              Featured {isSeries ? 'Series' : 'Production'}
+            </span>
           </div>
-          <h2 className="section-heading" style={{ color: 'var(--text)', margin: '0 0 12px', fontFamily: 'Chonburi', fontWeight: 400, fontSize: 'clamp(28px, 5vw, 72px)' }}>{film.title}</h2>
-          {film.synopsis && <p style={{ fontFamily: 'DM Sans', fontSize: 14, lineHeight: 1.75, color: 'var(--text-secondary)', maxWidth: 440, margin: '0 0 24px' }}>{film.synopsis.slice(0, 150)}...</p>}
+          <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+            {isSeries && <Badge variant="brand">Series</Badge>}
+            {film.tag && <Badge variant="muted">{film.tag}</Badge>}
+            {film.genre && (
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 1.5 }}>
+                {film.genre}
+              </span>
+            )}
+            {film.year && (
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: 'rgba(255,255,255,0.7)', letterSpacing: 1.5 }}>
+                {film.year}
+              </span>
+            )}
+            {typeof film.rating === 'number' && (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'var(--ds-gold)', fontWeight: 700 }}>
+                <IconStar size={13} color="var(--ds-gold)" filled /> {film.rating.toFixed(1)}
+              </span>
+            )}
+          </div>
+          <h2 className="section-heading" style={{ color: '#fff', margin: '0 0 14px', fontFamily: "'Chonburi', cursive", fontWeight: 400, fontSize: 'clamp(30px, 5vw, 72px)', lineHeight: 1 }}>
+            {film.title}
+          </h2>
+          {film.synopsis && (
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.75, color: 'rgba(255,255,255,0.8)', maxWidth: 460, margin: '0 0 28px' }}>
+              {film.synopsis.length > 160 ? film.synopsis.slice(0, 160) + '...' : film.synopsis}
+            </p>
+          )}
           <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
-            <Link to={detailPath} className="btn-red"><IconPlay size={14} color="#fff" /> Watch Now</Link>
-            <span style={{ display: 'flex', alignItems: 'center', gap: 4, fontFamily: 'DM Sans', fontSize: 14, color: 'var(--red)', fontWeight: 700 }}><IconStar size={14} color="var(--red)" /> {film.rating}</span>
+            <Button to={detailPath} variant="primary">
+              <IconPlay size={14} color="#fff" /> Watch Now
+            </Button>
+            <Button to={isSeries ? '/series' : '/films'} variant="light">
+              {isSeries ? 'More Series' : 'More Films'}
+            </Button>
           </div>
         </div>
       </div>

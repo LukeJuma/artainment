@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { type Film } from '../../lib/api'
 import { contactAPI } from '../../lib/api'
-import { Logo } from '../ui/Logo'
+import { Badge } from '../ui/Badge'
 import { IconFacebook, IconInstagram, IconTwitter, IconYouTube } from '../ui/Icons'
 
 const FALLBACK_TARGET = Date.now() + (61 * 24 * 60 * 60 * 1000) + (10 * 60 * 60 * 1000) + (27 * 60 * 1000) + 4000
@@ -82,73 +82,115 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
   }
 
   return (
-    <section className="cs-section" aria-label="Coming soon">
-      <div className="cs-bg" aria-hidden="true">
-        {art ? <img src={art} alt="" /> : <div className="cs-bg-fallback" />}
-        <div className="cs-overlay" />
+    <section aria-label="Coming soon" style={{ position: 'relative', overflow: 'hidden', background: 'var(--ds-ink-950)' }}>
+      {/* Backdrop */}
+      <div aria-hidden="true" style={{ position: 'absolute', inset: 0 }}>
+        {art ? (
+          <img src={art} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        ) : (
+          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(160deg, #1a0f14 0%, #0d0d0f 60%)' }} />
+        )}
+        <div style={{ position: 'absolute', inset: 0, background: 'var(--ds-scrim-left)' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'var(--ds-scrim-bottom)', opacity: 0.7 }} />
       </div>
 
-      <div className="cs-content">
-        <div className="cs-brand" aria-label="Branding">
-          <Logo type="artainment" light height={46} />
-          <div className="cs-brand-text">THE ARTAINMENT</div>
+      <div style={{
+        position: 'relative', zIndex: 1, maxWidth: 1200, margin: '0 auto',
+        padding: 'clamp(72px, 10vw, 140px) clamp(20px, 5vw, 80px)',
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
+          <span style={{ width: 28, height: 2, background: 'var(--ds-gold)' }} />
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, letterSpacing: 3, color: 'var(--ds-gold)', textTransform: 'uppercase', fontWeight: 700 }}>
+            Coming Soon
+          </span>
         </div>
 
-        <h2 className="cs-title">COMING SOON</h2>
+        <h2 style={{
+          fontFamily: "'Chonburi', cursive", fontWeight: 400, color: '#fff',
+          fontSize: 'clamp(40px, 7vw, 88px)', lineHeight: 1, margin: '0 0 12px',
+          textTransform: 'uppercase', letterSpacing: '0.01em', maxWidth: 800,
+        }}>
+          {film.title}
+        </h2>
 
-        <div className="cs-film">
-          <div className="cs-film-kicker">Up Next</div>
-          <div className="cs-film-title">{film.title}</div>
-          <div className="cs-film-meta">
-            {film.tag && <span>{film.tag}</span>}
-            {film.tag && (film.genre || film.year) && <span className="cs-film-sep">·</span>}
-            {film.genre && <span>{film.genre}</span>}
-            {film.genre && film.year && <span className="cs-film-sep">·</span>}
-            {film.year && <span>{film.year}</span>}
-          </div>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
+          <Badge variant="upcoming">Up Next</Badge>
+          {film.tag && <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>{film.tag}</span>}
+          {film.genre && <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>· {film.genre}</span>}
+          {film.year && <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>· {film.year}</span>}
         </div>
 
-        <div className="cs-countdown" aria-label="Countdown timer">
-          {countdown.map((item) => (
-            <div key={item.label} className="cs-countdown-card">
-              <div className="cs-countdown-number">{item.value}</div>
-              <div className="cs-countdown-label">{item.label}</div>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.7, color: 'rgba(255,255,255,0.8)', maxWidth: 460, margin: '0 0 32px' }}>
+          {film.synopsis ? (film.synopsis.length > 140 ? film.synopsis.slice(0, 140) + '...' : film.synopsis) : 'A new story is on its way to your screen.'}
+        </p>
+
+        {/* Countdown */}
+        <div aria-label="Countdown timer" style={{ display: 'flex', gap: 12, marginBottom: 32, flexWrap: 'wrap' }}>
+          {countdown.map(item => (
+            <div key={item.label} style={{
+              minWidth: 84, textAlign: 'center', padding: '14px 12px',
+              background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+              borderRadius: 'var(--ds-radius-md)', backdropFilter: 'blur(8px)',
+            }}>
+              <div style={{ fontFamily: "'Chonburi', cursive", fontSize: 30, color: '#fff', lineHeight: 1 }}>{item.value}</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--ds-gold)', marginTop: 6 }}>{item.label}</div>
             </div>
           ))}
         </div>
 
-        <form className="cs-signup" onSubmit={handleSubscribe}>
+        {/* Notify form */}
+        <form onSubmit={handleSubscribe} style={{ display: 'flex', gap: 10, maxWidth: 460, flexWrap: 'wrap' }}>
           <input
             type="email"
             aria-label="Email address"
-            placeholder="ENTER YOUR EMAIL HERE"
+            placeholder="Email for premiere alerts"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={e => setEmail(e.target.value)}
             required
-          />
-          <button type="submit" disabled={subStatus === 'loading'}>
-            {subStatus === 'loading' ? 'SUBSCRIBING...' : 'NOTIFY ME'}
-          </button>
-        </form>
-
-        {subMessage && (
-          <div
             style={{
-              fontFamily: 'DM Sans',
-              fontSize: 13,
-              letterSpacing: 0.5,
-              marginTop: 14,
-              color: subStatus === 'error' ? '#ff8f8f' : 'var(--text-secondary, #c8c8c8)',
+              flex: '1 1 220px', padding: '13px 20px', borderRadius: 'var(--ds-radius-pill)',
+              border: '1px solid rgba(255,255,255,0.25)', background: 'rgba(0,0,0,0.45)',
+              color: '#fff', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
+              minHeight: 48,
+            }}
+          />
+          <button
+            type="submit"
+            disabled={subStatus === 'loading'}
+            style={{
+              padding: '13px 28px', borderRadius: 'var(--ds-radius-pill)', border: 'none', cursor: 'pointer',
+              background: 'var(--ds-gold)', color: '#1a1206',
+              fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase',
+              minHeight: 48, boxShadow: 'var(--ds-shadow-glow-gold)',
+              opacity: subStatus === 'loading' ? 0.6 : 1,
             }}
           >
+            {subStatus === 'loading' ? 'Joining...' : 'Notify Me'}
+          </button>
+        </form>
+        {subMessage && (
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, marginTop: 12, color: subStatus === 'error' ? '#ff8f8f' : 'rgba(255,255,255,0.75)' }}>
             {subMessage}
-          </div>
+          </p>
         )}
 
-        <div className="cs-socials" aria-label="Social media links">
+        {/* Socials */}
+        <div aria-label="Social media links" style={{ display: 'flex', gap: 10, marginTop: 28 }}>
           {socials.map(({ label, icon: Icon, url }) => (
-            <a key={label} href={url} target="_blank" rel="noopener noreferrer" aria-label={label} title={label}>
-              <Icon size={14} color="#F4E5B6" />
+            <a
+              key={label}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={label}
+              title={label}
+              style={{
+                width: 38, height: 38, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: '1px solid rgba(255,255,255,0.2)', color: 'var(--ds-gold)',
+                transition: 'all var(--ds-dur-fast) var(--ds-ease-out)',
+              }}
+            >
+              <Icon size={15} color="currentColor" />
             </a>
           ))}
         </div>
