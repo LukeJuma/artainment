@@ -633,16 +633,11 @@ serve(async (req) => {
           })
         }
 
-        // Get seasons with episodes
+        // Get seasons with episodes (select * : column sets differ
+        // across environments, and one missing column voids the join)
         const { data: seasons } = await supabase
           .from('seasons')
-          .select(`
-            *,
-            episodes (
-              id, title, slug, episode_number, description, duration,
-              video_url, thumbnail_url, air_date, created_at
-            )
-          `)
+          .select('*, episodes(*)')
           .eq('series_id', series.id)
           .order('season_number')
 
