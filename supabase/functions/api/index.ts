@@ -599,6 +599,12 @@ serve(async (req) => {
           }
         }))
 
+        // Honor ?paginate=true (the frontend's list() helpers expect { data })
+        if (url.searchParams.get('paginate')) {
+          const page = Math.max(parseInt(url.searchParams.get('page') || '1'), 1)
+          return new Response(JSON.stringify(paginate(seriesWithCounts, page, 12)), { headers: corsHeaders })
+        }
+
         return new Response(JSON.stringify(seriesWithCounts), { headers: corsHeaders })
       } catch (error) {
         return new Response(JSON.stringify({ error: 'Failed to fetch series' }), { 
@@ -657,10 +663,18 @@ serve(async (req) => {
     
     if (path === '/podcasts') {
       try {
+        const paginateParam = url.searchParams.get('paginate')
+        const page = Math.max(parseInt(url.searchParams.get('page') || '1'), 1)
+
         const { data: podcasts } = await supabase
           .from('podcasts')
           .select('*')
           .order('created_at', { ascending: false })
+
+        // Honor ?paginate=true (the frontend's list() helpers expect { data })
+        if (paginateParam) {
+          return new Response(JSON.stringify(paginate(podcasts || [], page, 12)), { headers: corsHeaders })
+        }
 
         // Get latest episode for each podcast (optimized to avoid N+1)
         const podcastsWithLatest = await Promise.all((podcasts || []).map(async (podcast) => {
@@ -854,12 +868,20 @@ serve(async (req) => {
     
     if (path === '/news') {
       try {
+        const paginateParam = url.searchParams.get('paginate')
+        const page = Math.max(parseInt(url.searchParams.get('page') || '1'), 1)
+
         const { data: articles } = await supabase
           .from('news')
           .select('*')
           .not('published_at', 'is', null)
           .lte('published_at', new Date().toISOString())
           .order('published_at', { ascending: false })
+
+        // Honor ?paginate=true (the frontend's list() helpers expect { data })
+        if (paginateParam) {
+          return new Response(JSON.stringify(paginate(articles || [], page, 12)), { headers: corsHeaders })
+        }
 
         return new Response(JSON.stringify(articles || []), { headers: corsHeaders })
       } catch (error) {

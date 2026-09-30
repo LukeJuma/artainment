@@ -1,14 +1,14 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { type Film } from '../../lib/api'
+import { type Film, type Series } from '../../lib/api'
 import { useInView } from '../../lib/animations'
 import { Section } from '../ui/Section'
 import { SectionLabel } from '../ui/SectionLabel'
 import { MediaArt } from '../ui/MediaArt'
 import { IconChevronLeft, IconChevronRight, IconStar } from '../ui/Icons'
 
-export function FilmsCarousel({ films }: { films: Film[] }) {
+export function FilmsCarousel({ films, series = [] }: { films: Film[]; series?: Series[] }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const { ref, inView } = useInView()
   const [vw, setVw] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 1200))
@@ -19,7 +19,7 @@ export function FilmsCarousel({ films }: { films: Film[] }) {
     return () => window.removeEventListener('resize', onResize)
   }, [])
 
-  if (!films.length) return null
+  if (!films.length && !series.length) return null
 
   const scroll = (dir: 'left' | 'right') => {
     if (!scrollRef.current) return
@@ -60,6 +60,24 @@ export function FilmsCarousel({ films }: { films: Film[] }) {
                 <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--border)', display: 'inline-block' }} />
                 <span style={{ fontFamily: 'DM Sans', fontSize: 11, color: 'var(--text-muted)' }}>{film.genre}</span>
                 <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 3, color: 'var(--red)', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans' }}><IconStar size={10} color="var(--red)" /> {film.rating}</span>
+              </div>
+            </Link>
+          </motion.div>
+        ))}
+        {series.map((s, i) => (
+          <motion.div key={`series-${s.id}`} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: (films.length + i) * 0.06, duration: 0.5 }}
+            style={{ flexShrink: 0, width: cardW, scrollSnapAlign: 'start' }}>
+            <Link to={`/series/${s.slug}`} style={{ textDecoration: 'none' }}>
+              <div style={{ position: 'relative', height: cardH, borderRadius: 8, overflow: 'hidden', marginBottom: 10, background: 'var(--bg-muted)' }}>
+                <MediaArt type="series" title={s.title} src={s.poster_url} alt={s.title} />
+                <span style={{ position: 'absolute', top: 8, left: 8, zIndex: 2, fontFamily: 'DM Sans', fontSize: 9, fontWeight: 700, background: 'var(--red)', color: '#fff', padding: '2px 8px', borderRadius: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>Series</span>
+              </div>
+              <h3 style={{ fontFamily: 'Chonburi', fontSize: 14, color: 'var(--text)', margin: '0 0 4px' }}>{s.title}</h3>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                <span style={{ fontFamily: 'DM Sans', fontSize: 11, color: 'var(--text-muted)' }}>{s.year}</span>
+                <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--border)', display: 'inline-block' }} />
+                <span style={{ fontFamily: 'DM Sans', fontSize: 11, color: 'var(--text-muted)' }}>{s.genre}</span>
+                <span style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 3, color: 'var(--red)', fontSize: 11, fontWeight: 600, fontFamily: 'DM Sans' }}><IconStar size={10} color="var(--red)" /> {s.rating}</span>
               </div>
             </Link>
           </motion.div>

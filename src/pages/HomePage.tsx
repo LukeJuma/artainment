@@ -24,6 +24,7 @@ export function HomePage() {
   }, [])
 
   const films = data?.films ?? []
+  const series = data?.series ?? []
   const talent = data?.talent ?? []
   const gallery = data?.gallery ?? []
   const news = data?.news ?? []
@@ -32,13 +33,22 @@ export function HomePage() {
   const comingSoon = data?.coming_soon ?? []
 
   const featured = data?.featured_film ?? null
-  const featuredProduction = featured ?? (films.find(f => f.backdrop_url || f.poster_url) ?? films[0] ?? null)
+  // A series flagged `featured` (e.g. Mboka) takes the featured slot so it
+  // appears in the hero rotation, the carousel and the featured banner.
+  // Unflag it in the database to restore the film-first order.
+  const featuredSeries = series.find(s => s.featured) ?? null
+  const featuredProduction = featuredSeries ?? featured ?? series[0] ?? films[0] ?? null
+  // Reference equality avoids film/series id collisions across tables
+  const featuredKind: 'film' | 'series' =
+    featuredProduction !== null && (featuredProduction === featuredSeries || (!featured && featuredProduction === series[0]))
+      ? 'series'
+      : 'film'
 
   return (
     <>
-      <HeroSection films={films} featured={featured} />
-      <FilmsCarousel films={films} />
-      <FeaturedProduction film={featuredProduction} />
+      <HeroSection films={films} series={series} featured={featuredProduction} featuredKind={featuredKind} />
+      <FilmsCarousel films={films} series={series} />
+      <FeaturedProduction film={featuredProduction} kind={featuredKind} />
       <ComingSoonSection films={comingSoon} />
       <WhoWeAre />
       <TalentSection talent={talent} />

@@ -464,6 +464,7 @@ export interface AppNotification {
 export interface HomeData {
   featured_film: Film | null;
   films: Film[];
+  series: Series[];
   services: Service[];
   talent: Talent[];
   gallery: GalleryImage[];

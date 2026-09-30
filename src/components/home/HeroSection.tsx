@@ -1,19 +1,59 @@
 import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { type Film } from '../../lib/api'
+import { type Film, type Series } from '../../lib/api'
 import { IconPlay } from '../ui/Icons'
+
+export interface HeroItem {
+  kind: 'film' | 'series'
+  slug: string
+  title: string
+  genre?: string | null
+  year?: string | null
+  duration?: string | null
+  rating?: number | null
+  synopsis?: string | null
+  tag?: string | null
+  status?: string | null
+  poster_url?: string | null
+  backdrop_url?: string | null
+}
 
 interface HeroSectionProps {
   films: Film[]
-  featured: Film | null
+  series?: Series[]
+  featured: Film | Series | null
+  featuredKind?: 'film' | 'series'
 }
 
-export function HeroSection({ films, featured }: HeroSectionProps) {
+function toHeroItem(kind: 'film' | 'series', f: Film | Series): HeroItem {
+  return {
+    kind,
+    slug: f.slug,
+    title: f.title,
+    genre: f.genre,
+    year: f.year,
+    duration: (f as Film).duration ?? null,
+    rating: f.rating,
+    synopsis: f.synopsis,
+    tag: f.tag,
+    status: f.status,
+    poster_url: f.poster_url,
+    backdrop_url: f.backdrop_url,
+  }
+}
+
+export function HeroSection({ films, series = [], featured, featuredKind = 'film' }: HeroSectionProps) {
   const [current, setCurrent] = useState(0)
   const [paused, setPaused] = useState(false)
 
-  const pool = films.length ? films : (featured ? [featured] : [])
+  const items: HeroItem[] = [
+    ...series.map(s => toHeroItem('series', s)),
+    ...films.map(f => toHeroItem('film', f)),
+  ]
+  const pool: HeroItem[] = items.length
+    ? items
+    : (featured ? [toHeroItem(featuredKind, featured)] : [])
 
   const next = useCallback(() => {
     if (pool.length) setCurrent(i => (i + 1) % pool.length)
@@ -88,12 +128,12 @@ export function HeroSection({ films, featured }: HeroSectionProps) {
       }}>
         <AnimatePresence mode="wait">
           <motion.div key={current} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }}>
-            {film?.tag && (
+            {(film?.tag || film?.kind === 'series') && (
               <span style={{
                 display: 'inline-block', padding: '4px 14px', borderRadius: 4,
                 fontSize: 11, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase',
                 background: isUpcoming ? '#F59E0B' : 'var(--red)', color: '#fff', marginBottom: 12,
-              }}>{isUpcoming ? 'Coming Soon' : film.tag}</span>
+              }}>{isUpcoming ? 'Coming Soon' : (film?.kind === 'series' ? 'Series' : film?.tag)}</span>
             )}
             <h1 className="section-heading" style={{
               color: '#fff', margin: '0 0 12px', fontFamily: 'Chonburi', fontWeight: 400,
@@ -111,10 +151,12 @@ export function HeroSection({ films, featured }: HeroSectionProps) {
               </p>
             )}
             <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-              <Link to={`/films/${film?.slug || ''}`} className="btn-red">
+              <Link to={`/${film?.kind === 'series' ? 'series' : 'films'}/${film?.slug || ''}`} className="btn-red">
                 <IconPlay size={14} color="#fff" /> {isUpcoming ? 'Watch Trailer' : 'Watch Now'}
               </Link>
-              <Link to="/films" className="btn-outline-light">Browse Movies</Link>
+              <Link to={film?.kind === 'series' ? '/series' : '/films'} className="btn-outline-light">
+                {film?.kind === 'series' ? 'Browse Series' : 'Browse Movies'}
+              </Link>
             </div>
           </motion.div>
         </AnimatePresence>
