@@ -228,10 +228,10 @@ serve(async (req) => {
 
     // Health check endpoint
     if (path === '/health') {
-      return new Response(JSON.stringify({ 
-        status: 'healthy', 
+      return new Response(JSON.stringify({
+        status: 'healthy',
         timestamp: new Date().toISOString(),
-        version: '2.0.0'
+        version: '2.1.0'
       }), { headers: corsHeaders })
     }
 
