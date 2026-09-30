@@ -136,10 +136,10 @@ export function FilmsCarousel({ films, series = [] }: { films: Film[]; series?: 
           const isSeries = item._kind === 'series'
           const link = `/${isSeries ? 'series' : 'films'}/${item.slug}`
           return (
-            <motion.div key={`${isSeries ? 's' : 'f'}-${item.id}`} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: Math.min(i * 0.06, 0.6), duration: 0.5 }}
+            <motion.div key={`${isSeries ? 's' : 'f'}-${item.id}`} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} whileHover={{ y: -6 }} transition={{ delay: Math.min(i * 0.06, 0.6), duration: 0.5 }}
               style={{ flexShrink: 0, width: cardW, scrollSnapAlign: 'start' }}>
               <Link to={link} style={{ textDecoration: 'none' }}>
-                <div style={{ position: 'relative', height: cardH, borderRadius: 8, overflow: 'hidden', marginBottom: 10, background: 'var(--bg-muted)' }}>
+                <div className="zoom-hover" style={{ position: 'relative', height: cardH, borderRadius: 8, overflow: 'hidden', marginBottom: 10, background: 'var(--bg-muted)' }}>
                   <MediaArt type={isSeries ? 'series' : 'film'} title={item.title} src={item.poster_url} alt={item.title} />
                   {isSeries ? (
                     <span style={{ position: 'absolute', top: 8, left: 8, zIndex: 2 }}><Badge variant="brand">Series</Badge></span>

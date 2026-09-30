@@ -20,7 +20,7 @@ export function NewsSection({ news }: { news: NewsArticle[] }) {
           className="news-grid"
           style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 20 }}>
           {news.map(n => (
-            <motion.div key={n.id} variants={fadeUp} style={{
+            <motion.div key={n.id} variants={fadeUp} whileHover={{ y: -6 }} className="zoom-hover" style={{
               background: 'var(--bg-muted)', borderRadius: 8, overflow: 'hidden',
               border: '1px solid var(--border)', transition: 'box-shadow 0.3s',
             }}

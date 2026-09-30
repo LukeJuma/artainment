@@ -87,6 +87,7 @@ export function WhoWeAre() {
             <motion.article
               key={p.num}
               variants={fadeUp}
+              whileHover={{ y: p.spotlight ? -26 : -6 }}
               className={p.spotlight ? 'pillar-spotlight' : undefined}
               style={{
                 position: 'relative',

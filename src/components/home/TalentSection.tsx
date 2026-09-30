@@ -20,9 +20,9 @@ export function TalentSection({ talent }: { talent: Talent[] }) {
           className="talent-grid-home"
           style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16 }}>
           {talent.slice(0, 5).map(t => (
-            <motion.div key={t.id} variants={fadeUp}>
+            <motion.div key={t.id} variants={fadeUp} whileHover={{ y: -6 }}>
               <Link to={`/actors/${t.slug}`} style={{ textDecoration: 'none' }}>
-                <div style={{ position: 'relative', height: 320, borderRadius: 8, overflow: 'hidden', marginBottom: 10, background: 'var(--bg-muted)' }}>
+                <div className="zoom-hover" style={{ position: 'relative', height: 320, borderRadius: 8, overflow: 'hidden', marginBottom: 10, background: 'var(--bg-muted)' }}>
                   <MediaArt type="actor" title={t.name} src={t.image_url} alt={t.name} />
                   <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.3)', opacity: 0, transition: 'opacity 0.3s', zIndex: 2 }}
                     onMouseEnter={e => (e.currentTarget.style.opacity = '1')}

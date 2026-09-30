@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useCallback, type CSSProperties } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { type Film, type Series } from '../../lib/api'
 import { Button } from '../ui/Button'
@@ -88,7 +88,44 @@ export function HeroSection({ films, series = [], featured, featuredKind = 'film
   const isUpcoming = film?.status === 'upcoming'
   const art = film?.backdrop_url || film?.poster_url || ''
   const detailPath = `/${film?.kind === 'series' ? 'series' : 'films'}/${film?.slug || ''}`
-  const numeral = String(current + 1).padStart(2, '0')
+
+  // Coverflow geometry: the active slide rises toward the viewer while
+  // neighbours recede, shrink and tilt — depth instead of a flat strip.
+  const coverStyle = (index: number): CSSProperties => {
+    const offset = index - current
+    const abs = Math.abs(offset)
+    const dir = offset === 0 ? 0 : offset > 0 ? 1 : -1
+    if (abs === 0) {
+      return {
+        transform: 'translateY(-16px) scale(1.22)',
+        opacity: 1, zIndex: 10,
+        border: '2px solid var(--ds-brand)',
+        boxShadow: 'var(--ds-shadow-glow-brand)',
+      }
+    }
+    if (abs === 1) {
+      return {
+        transform: `translateY(-4px) scale(1) rotateY(${-dir * 10}deg)`,
+        opacity: 0.85, zIndex: 5,
+        border: '1px solid rgba(255,255,255,0.35)',
+        boxShadow: '0 10px 28px rgba(0,0,0,0.5)',
+      }
+    }
+    if (abs === 2) {
+      return {
+        transform: `translateY(8px) scale(0.86) rotateY(${-dir * 18}deg)`,
+        opacity: 0.55, zIndex: 1,
+        border: '1px solid rgba(255,255,255,0.18)',
+        boxShadow: 'none',
+      }
+    }
+    return {
+      transform: 'translateY(12px) scale(0.72)',
+      opacity: 0.3, zIndex: 0,
+      border: '1px solid rgba(255,255,255,0.12)',
+      boxShadow: 'none',
+    }
+  }
 
   return (
     <section
@@ -125,18 +162,6 @@ export function HeroSection({ films, series = [], featured, featuredKind = 'film
       }}>
         <AnimatePresence mode="wait">
           <motion.div key={current} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }}>
-            {/* Oversized index numeral */}
-            <div style={{
-              fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: 'clamp(56px, 9vw, 110px)',
-              lineHeight: 1,
-              color: 'transparent',
-              WebkitTextStroke: '1.5px rgba(255,255,255,0.28)',
-              marginBottom: 4,
-              userSelect: 'none',
-            }}>
-              {numeral}
-            </div>
             <div style={{ display: 'flex', gap: 8, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
               {film?.kind === 'series' ? <Badge variant="brand">Series</Badge> : <Badge variant="brand">Film</Badge>}
               {isUpcoming ? <Badge variant="upcoming">Coming Soon</Badge> : (film?.tag ? <Badge variant="muted">{film.tag}</Badge> : null)}
@@ -177,12 +202,16 @@ export function HeroSection({ films, series = [], featured, featuredKind = 'film
         </AnimatePresence>
       </div>
 
-      {/* Thumbnail strip selector */}
+      {/* Coverflow selector: active slide rises, neighbours recede */}
       {pool.length > 1 && (
         <div style={{
           position: 'absolute', zIndex: 3, left: 0, right: 0, bottom: 0,
-          padding: '0 clamp(20px, 5vw, 80px) 26px',
-          display: 'flex', gap: 10, overflowX: 'auto', scrollbarWidth: 'none',
+          padding: '30px clamp(20px, 5vw, 80px) 26px',
+          display: 'flex', gap: 12, overflowX: 'auto', scrollbarWidth: 'none',
+          alignItems: 'flex-end',
+          perspective: 1100,
+          maskImage: 'linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)',
+          WebkitMaskImage: 'linear-gradient(to right, transparent, #000 8%, #000 92%, transparent)',
         }}>
           {pool.map((item, i) => {
             const thumb = item.poster_url || item.backdrop_url
@@ -192,19 +221,27 @@ export function HeroSection({ films, series = [], featured, featuredKind = 'film
                 key={`${item.kind}-${item.slug}`}
                 onClick={() => setCurrent(i)}
                 aria-label={`Show ${item.title}`}
+                title={item.title}
                 style={{
-                  flexShrink: 0, width: 92, height: 56, borderRadius: 'var(--ds-radius-sm)', overflow: 'hidden',
-                  border: active ? '2px solid var(--ds-brand)' : '1px solid rgba(255,255,255,0.2)',
-                  boxShadow: active ? 'var(--ds-shadow-glow-brand)' : 'none',
-                  opacity: active ? 1 : 0.55,
+                  flexShrink: 0, width: 104, height: 64, borderRadius: 'var(--ds-radius-sm)', overflow: 'hidden',
+                  position: 'relative',
                   cursor: 'pointer', padding: 0, background: 'var(--ds-surface-2)',
-                  transition: 'all var(--ds-dur-fast) var(--ds-ease-out)',
+                  transition: 'transform 0.5s var(--ds-ease-cinema), opacity 0.4s ease, box-shadow 0.4s ease, border-color 0.3s ease',
+                  ...coverStyle(i),
                 }}
               >
                 {thumb ? (
                   <img src={thumb} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 ) : (
                   <span style={{ fontSize: 10, color: 'var(--ds-text-3)', padding: 4, display: 'block' }}>{item.title}</span>
+                )}
+                {active && (
+                  <span style={{
+                    position: 'absolute', bottom: 4, left: 6, right: 6, overflow: 'hidden',
+                    whiteSpace: 'nowrap', textOverflow: 'ellipsis',
+                    fontFamily: "'DM Sans', sans-serif", fontSize: 9, fontWeight: 700,
+                    color: '#fff', textShadow: '0 1px 4px rgba(0,0,0,0.8)',
+                  }}>{item.title}</span>
                 )}
               </button>
             )

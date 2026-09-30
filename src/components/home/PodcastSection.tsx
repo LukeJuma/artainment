@@ -28,9 +28,9 @@ export function PodcastSection({ podcasts }: { podcasts: Podcast[] }) {
         <motion.div variants={stagger} initial="hidden" animate={inView ? 'visible' : 'hidden'}
           style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 18 }}>
           {podcasts.map(p => (
-            <motion.div key={p.id} variants={fadeUp}>
+            <motion.div key={p.id} variants={fadeUp} whileHover={{ y: -6 }}>
               <Link to={`/podcasts/${p.slug}`} style={{ textDecoration: 'none' }}>
-                <div style={{ position: 'relative', paddingBottom: '100%', borderRadius: 12, overflow: 'hidden', marginBottom: 12, background: 'var(--bg)' }}>
+                <div className="zoom-hover" style={{ position: 'relative', paddingBottom: '100%', borderRadius: 12, overflow: 'hidden', marginBottom: 12, background: 'var(--bg)' }}>
                   <MediaArt type="podcast" title={p.title} src={p.cover_url} alt={p.title} />
                   <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.25)', opacity: 0, transition: 'opacity 0.3s', zIndex: 2 }}
                     onMouseEnter={e => (e.currentTarget.style.opacity = '1')}

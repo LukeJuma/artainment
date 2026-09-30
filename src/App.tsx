@@ -39,6 +39,7 @@ const MicMtaaniBusinessDetailPage = lazy(() => import('./pages/MicMtaaniBusiness
 const MicMtaaniSubmitPage = lazy(() => import('./pages/MicMtaaniSubmitPage').then(m => ({ default: m.MicMtaaniSubmitPage })))
 const MicMtaaniSearchPage = lazy(() => import('./pages/MicMtaaniSearchPage').then(m => ({ default: m.MicMtaaniSearchPage })))
 const MicMtaaniTagPage = lazy(() => import('./pages/MicMtaaniTagPage').then(m => ({ default: m.MicMtaaniTagPage })))
+const NewsDetailPage = lazy(() => import('./pages/NewsDetailPage').then(m => ({ default: m.NewsDetailPage })))
 // Internal design-system preview â€” intentionally absent from all navigation.
 const DesignSystemPage = lazy(() => import('./pages/DesignSystemPage').then(m => ({ default: m.DesignSystemPage })))
 
@@ -89,6 +90,7 @@ function AppRoutes() {
             <Route path="/micmtaani/submit" element={<MicMtaaniSubmitPage />} />
             <Route path="/micmtaani/search" element={<MicMtaaniSearchPage />} />
             <Route path="/micmtaani/tag/:tag" element={<MicMtaaniTagPage />} />
+            <Route path="/news/:slug" element={<NewsDetailPage />} />
 
             <Route path="/design-system" element={<DesignSystemPage />} />
 

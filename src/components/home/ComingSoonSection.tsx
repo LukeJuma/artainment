@@ -51,6 +51,15 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
   const film = films[current % films.length]
   const art = film.backdrop_url || film.poster_url
 
+  const premiereDate = film.release_date ? new Date(film.release_date) : null
+  const premiereValid = premiereDate && !Number.isNaN(premiereDate.getTime())
+  const premiereLabel = premiereValid
+    ? premiereDate!.toLocaleDateString('en-KE', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })
+    : null
+  const daysToGo = premiereValid
+    ? Math.max(0, Math.ceil((premiereDate!.getTime() - Date.now()) / 86400000))
+    : null
+
   const countdown = [
     { label: 'Days', value: String(timeLeft.days).padStart(2, '0') },
     { label: 'Hrs', value: String(timeLeft.hours).padStart(2, '0') },
@@ -115,16 +124,28 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
           <Badge variant="upcoming">Up Next</Badge>
+          {film.status === 'in_production' && <Badge variant="live">Filming Now</Badge>}
           {film.tag && <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>{film.tag}</span>}
-          {film.genre && <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>Â· {film.genre}</span>}
-          {film.year && <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>Â· {film.year}</span>}
+          {film.genre && <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>· {film.genre}</span>}
+          {film.year && <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>· {film.year}</span>}
         </div>
 
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.7, color: 'rgba(255,255,255,0.8)', maxWidth: 460, margin: '0 0 32px' }}>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.7, color: 'rgba(255,255,255,0.8)', maxWidth: 460, margin: '0 0 8px' }}>
           {film.synopsis ? (film.synopsis.length > 140 ? film.synopsis.slice(0, 140) + '...' : film.synopsis) : 'A new story is on its way to your screen.'}
         </p>
 
+        {/* Premiere status line — tells the visitor exactly what's happening */}
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: 'var(--ds-gold)', margin: '0 0 28px', display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+          <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--ds-gold)', display: 'inline-block', animation: 'ds-pulse-dot 1.6s ease-in-out infinite' }} />
+          {premiereLabel
+            ? `Premieres ${premiereLabel}${daysToGo !== null && daysToGo > 0 ? ` — ${daysToGo} day${daysToGo === 1 ? '' : 's'} to go` : ' — almost here'}`
+            : 'Premiere date to be announced — follow this title for updates'}
+        </p>
+
         {/* Countdown */}
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.6)', margin: '0 0 12px' }}>
+          Countdown to premiere
+        </p>
         <div aria-label="Countdown timer" style={{ display: 'flex', gap: 12, marginBottom: 32, flexWrap: 'wrap' }}>
           {countdown.map(item => (
             <div key={item.label} style={{
@@ -139,6 +160,9 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
         </div>
 
         {/* Notify form */}
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.7)', margin: '0 0 12px', maxWidth: 460 }}>
+          Be first through the door — premiere alert, trailer drop and ticket info, straight to your inbox.
+        </p>
         <form onSubmit={handleSubscribe} style={{ display: 'flex', gap: 10, maxWidth: 460, flexWrap: 'wrap' }}>
           <input
             type="email"
