@@ -134,6 +134,11 @@ img { max-width: 100%; }
   .units-grid { grid-template-columns: 1fr !important; }
 }
 
+/* ─── Spotlight pillar (elevated middle service card, desktop only) ── */
+@media (min-width: 900px) {
+  .pillar-spotlight { transform: translateY(-18px); }
+}
+
 /* â”€â”€â”€ Featured production â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 @media (max-width: 768px) {
   .featured { min-height: 360px !important; }
