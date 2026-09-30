@@ -1,10 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Chonburi&family=Domine:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 @import 'tailwindcss';
+@import './styles/tokens.css';
 
 @theme {
   --font-heading: 'Chonburi', cursive;
   --font-body: 'DM Sans', sans-serif;
   --font-accent: 'Domine', serif;
+  --color-brand: #e11d48;
+  --color-brand-deep: #be1233;
+  --color-gold: #d4a24e;
+  --color-ink: #08080a;
+  --color-ink-soft: #121216;
+  --color-fog: #f5f3ee;
 }
 
 :root {
