@@ -39,6 +39,8 @@ const MicMtaaniBusinessDetailPage = lazy(() => import('./pages/MicMtaaniBusiness
 const MicMtaaniSubmitPage = lazy(() => import('./pages/MicMtaaniSubmitPage').then(m => ({ default: m.MicMtaaniSubmitPage })))
 const MicMtaaniSearchPage = lazy(() => import('./pages/MicMtaaniSearchPage').then(m => ({ default: m.MicMtaaniSearchPage })))
 const MicMtaaniTagPage = lazy(() => import('./pages/MicMtaaniTagPage').then(m => ({ default: m.MicMtaaniTagPage })))
+// Internal design-system preview — intentionally absent from all navigation.
+const DesignSystemPage = lazy(() => import('./pages/DesignSystemPage').then(m => ({ default: m.DesignSystemPage })))
 
 const pageTransition: Variants = {
   initial: { opacity: 0 },
@@ -87,6 +89,8 @@ function AppRoutes() {
             <Route path="/micmtaani/submit" element={<MicMtaaniSubmitPage />} />
             <Route path="/micmtaani/search" element={<MicMtaaniSearchPage />} />
             <Route path="/micmtaani/tag/:tag" element={<MicMtaaniTagPage />} />
+
+            <Route path="/design-system" element={<DesignSystemPage />} />
 
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
