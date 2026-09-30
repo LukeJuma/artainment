@@ -296,10 +296,10 @@ serve(async (req) => {
           token_type: 'Bearer'
         }), { headers: corsHeaders })
 
-      } catch (error) {
+      } catch (error: any) {
         console.error('Registration error:', error)
-        return new Response(JSON.stringify({ error: 'Registration failed' }), { 
-          status: 500, headers: corsHeaders 
+        return new Response(JSON.stringify({ error: 'Registration failed', detail: String(error?.message || error) }), {
+          status: 500, headers: corsHeaders
         })
       }
     }
@@ -315,13 +315,14 @@ serve(async (req) => {
           })
         }
 
-        // Get user
-        const { data: user } = await supabase
+        // Get user (maybeSingle: unknown emails must 401, never 500)
+        const { data: user, error: userError } = await supabase
           .from('users')
           .select('*')
           .eq('email', email)
-          .single()
+          .maybeSingle()
 
+        if (userError) throw new Error(`user lookup failed: ${userError.message}`)
         if (!user) {
           await logAuditEvent('LOGIN_FAILED', null, { email, reason: 'user_not_found' })
           return new Response(JSON.stringify({ error: 'Invalid credentials' }), { 
@@ -362,10 +363,10 @@ serve(async (req) => {
           token_type: 'Bearer'
         }), { headers: corsHeaders })
 
-      } catch (error) {
+      } catch (error: any) {
         console.error('Login error:', error)
-        return new Response(JSON.stringify({ error: 'Login failed' }), { 
-          status: 500, headers: corsHeaders 
+        return new Response(JSON.stringify({ error: 'Login failed', detail: String(error?.message || error) }), {
+          status: 500, headers: corsHeaders
         })
       }
     }
