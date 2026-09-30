@@ -42,4 +42,9 @@ class MicMtaaniJournalist extends Model
     {
         return $this->hasMany(MicMtaaniArticle::class, 'author_id');
     }
+
+    public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(User::class, 'user_id');
+    }
 }

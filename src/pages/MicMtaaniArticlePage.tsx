@@ -56,7 +56,7 @@ export function MicMtaaniArticlePage() {
       <MMNavbar />
 
       <div style={{ position: 'relative', height: 'clamp(260px, 50vw, 400px)', overflow: 'hidden' }}>
-        <img src={article.image_url || PLACEHOLDER_IMG} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <img src={article.image_url || PLACEHOLDER_IMG} alt={article.headline} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 16px 24px', maxWidth: 800 }}>
           {article.category && (
@@ -154,7 +154,7 @@ export function MicMtaaniArticlePage() {
                 background: 'var(--bg)', borderRadius: 8, border: '1px solid var(--border)', overflow: 'hidden',
                 minHeight: 44,
               }}>
-                <img src={r.image_url || PLACEHOLDER_IMG} alt="" loading="lazy" style={{ width: '100%', height: 160, objectFit: 'cover' }} />
+                <img src={r.image_url || PLACEHOLDER_IMG} alt={r.headline} loading="lazy" style={{ width: '100%', height: 160, objectFit: 'cover' }} />
                 <div style={{ padding: 16, flex: 1 }}>
                   <h4 style={{ fontSize: 'clamp(14px, 2.5vw, 15px)', fontWeight: 600, margin: 0, lineHeight: 1.3 }}>{r.headline}</h4>
                   <span style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6, display: 'flex', alignItems: 'center', gap: 4 }}><IconClock size={12} /> {r.reading_time} min read</span>

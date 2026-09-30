@@ -1,8 +1,10 @@
+import type { CSSProperties } from 'react'
+
 interface IconProps {
   size?: number
   color?: string
   className?: string
-  style?: React.CSSProperties
+  style?: CSSProperties
 }
 
 const dflt: IconProps = { size: 20, color: 'currentColor' }

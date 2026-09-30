@@ -14,9 +14,10 @@ class FilmController extends Controller
     {
         $query = Film::query();
 
-        // Filter draft content: Only show published films for non-admin users
+        // Films use the completed/in_production/upcoming vocabulary (see films migration);
+        // public visitors see released films, admins see everything.
         if (!$request->user() || !$request->user()->is_admin) {
-            $query->where('status', 'published');
+            $query->whereIn('status', ['completed', 'in_production']);
         }
 
         if ($request->has('genre') && $request->genre !== 'All') {
@@ -48,10 +49,11 @@ class FilmController extends Controller
     {
         $query = Film::where('slug', $slug);
         
-        // Filter draft content: Only show published films for non-admin users
+        // Films use the completed/in_production/upcoming vocabulary (see films migration);
+        // public visitors see released films, admins see everything.
         $request = request();
         if (!$request->user() || !$request->user()->is_admin) {
-            $query->where('status', 'published');
+            $query->whereIn('status', ['completed', 'in_production']);
         }
         
         $film = $query->firstOrFail();

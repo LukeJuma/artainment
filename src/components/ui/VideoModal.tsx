@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { motion, useReducedMotion } from 'framer-motion'
 import { IconX } from './Icons'
 import { parseYouTubeId, YouTubePlayer } from './YouTubePlayer'
@@ -109,9 +110,9 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
                 This content may require an active subscription or special access. Please log in or contact support if you believe this is an error.
               </p>
               <div style={{ display: 'flex', gap: 12, marginTop: 16 }}>
-                <a href="/login" className="btn-red" style={{ fontSize: 14, padding: '10px 20px' }}>
+                <Link to="/login" className="btn-red" style={{ fontSize: 14, padding: '10px 20px' }}>
                   Log in
-                </a>
+                </Link>
                 <button onClick={onClose} className="btn-outline-light" style={{ fontSize: 14, padding: '10px 20px' }}>
                   Close
                 </button>

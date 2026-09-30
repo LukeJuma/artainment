@@ -19,7 +19,7 @@ export function parseYouTubeId(input: string | null | undefined): string | null 
   return null
 }
 
-export let apiPromise: Promise<void> | null = null
+let apiPromise: Promise<void> | null = null
 
 export function loadYouTubeApi(): Promise<void> {
   const w = window as any

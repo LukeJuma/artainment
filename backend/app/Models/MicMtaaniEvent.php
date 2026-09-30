@@ -41,4 +41,9 @@ class MicMtaaniEvent extends Model
     {
         return 'slug';
     }
+
+    public function tickets(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(Ticket::class, 'event_id');
+    }
 }

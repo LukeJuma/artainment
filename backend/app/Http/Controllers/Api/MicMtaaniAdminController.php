@@ -46,6 +46,7 @@ class MicMtaaniAdminController extends Controller
 
         $validated['slug'] = Str::slug($validated['headline']);
         $validated['excerpt'] = Str::limit(strip_tags($validated['body'] ?? ''), 200);
+        $validated['status'] = $validated['status'] ?? 'draft';
         if ($validated['status'] === 'published' && empty($validated['published_at'])) {
             $validated['published_at'] = now();
         }

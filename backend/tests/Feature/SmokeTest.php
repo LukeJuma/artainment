@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Film;
 use App\Models\User;
+use App\Services\JwtService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
@@ -119,7 +120,8 @@ class SmokeTest extends TestCase
             'is_admin' => false,
         ]);
 
-        $token = $user->createToken('test')->plainTextToken;
+        // App uses custom JWT auth (JwtService), not Sanctum tokens.
+        $token = app(JwtService::class)->generateToken($user);
 
         $this->withHeader('Authorization', "Bearer $token")
             ->getJson('/api/auth/user')
@@ -138,14 +140,17 @@ class SmokeTest extends TestCase
 
     private function adminToken(): string
     {
+        // is_admin is intentionally NOT mass-assignable — set it explicitly.
         $admin = User::create([
             'name' => 'Admin',
             'email' => 'admin@example.com',
             'password' => bcrypt('password'),
-            'is_admin' => true,
         ]);
+        $admin->is_admin = true;
+        $admin->save();
 
-        return $admin->createToken('admin')->plainTextToken;
+        // App uses custom JWT auth (JwtService), not Sanctum tokens.
+        return app(JwtService::class)->generateToken($admin);
     }
 
     public function test_admin_dashboard_stats_returns_200(): void
@@ -167,13 +172,14 @@ class SmokeTest extends TestCase
         $res = $this->withHeader('Authorization', "Bearer $token")
             ->postJson('/api/upload', [
                 'file' => $file,
-                'folder' => 'posters',
+                // Must be in UploadController::sanitizeFolder() allowlist.
+                'folder' => 'thumbnails',
             ]);
 
         $res->assertCreated()
             ->assertJsonStructure(['url', 'path', 'filename']);
 
-        Storage::disk('public')->assertExists('posters/' . $file->hashName());
+        Storage::disk('public')->assertExists('thumbnails/' . $file->hashName());
     }
 
     public function test_admin_upload_rejects_unauthenticated(): void
@@ -297,7 +303,8 @@ class SmokeTest extends TestCase
             'is_admin' => false,
         ]);
 
-        $token = $user->createToken('test')->plainTextToken;
+        // App uses custom JWT auth (JwtService), not Sanctum tokens.
+        $token = app(JwtService::class)->generateToken($user);
 
         Film::create([
             'title' => 'Sub Film',

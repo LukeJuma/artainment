@@ -14,8 +14,9 @@ const corsHeaders = {
   'X-XSS-Protection': '1; mode=block',
 }
 
-// JWT Secret - use environment variable in production
+// JWT Secret and Salt from environment variables
 const JWT_SECRET = Deno.env.get('JWT_SECRET') || 'your-256-bit-secret-change-in-production'
+const SALT = Deno.env.get('PASSWORD_SALT') || 'default-salt-change-in-production'
 
 // Initialize Supabase client
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -69,7 +70,7 @@ async function verifyJWT(token: string): Promise<any> {
 // Password hashing
 async function hashPassword(password: string): Promise<string> {
   const hash = createHash('sha256')
-  hash.update(password + 'artainment-secure-salt-2024')
+  hash.update(password + SALT)
   return hash.digest('hex')
 }
 

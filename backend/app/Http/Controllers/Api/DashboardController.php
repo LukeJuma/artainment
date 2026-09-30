@@ -58,13 +58,17 @@ class DashboardController extends Controller
                     ? ''
                     : \DateTime::createFromFormat('Y-m', $key)->format('M');
 
+                // NOTE: Collection::where() does exact matching — use filter()+stripos()
+                // for substring matching on in-memory collections.
+                $isSub = fn ($p) => stripos((string) ($p->description ?? ''), 'subscription') !== false;
+                $isTicket = fn ($p) => stripos((string) ($p->description ?? ''), 'ticket') !== false;
+
                 return [
                     'month' => $month,
                     'revenue' => (float) $group->sum('amount'),
-                    'subscriptions' => (float) $group->where('description', 'like', '%subscription%')->sum('amount'),
-                    'tickets' => (float) $group->where('description', 'like', '%ticket%')->sum('amount'),
-                    'streaming' => (float) $group->where('description', 'not like', '%subscription%')
-                        ->where('description', 'not like', '%ticket%')->sum('amount'),
+                    'subscriptions' => (float) $group->filter($isSub)->sum('amount'),
+                    'tickets' => (float) $group->filter($isTicket)->sum('amount'),
+                    'streaming' => (float) $group->reject(fn ($p) => $isSub($p) || $isTicket($p))->sum('amount'),
                 ];
             })
             ->sortKeys()->values();

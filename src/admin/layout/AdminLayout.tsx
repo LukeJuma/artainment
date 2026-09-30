@@ -100,7 +100,7 @@ export function AdminLayout() {
 
   if (authLoading) {
     return (
-      <div className="admin-root">
+      <div className="admin-root" style={{ minHeight: '100vh', background: 'var(--admin-bg)' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--admin-bg)' }}>
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}

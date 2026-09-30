@@ -28,7 +28,7 @@ export function NewsSection({ news }: { news: NewsArticle[] }) {
             onMouseLeave={e => (e.currentTarget.style.boxShadow = 'none')}
             >
               <Link to={`/news/${n.slug}`} style={{ textDecoration: 'none' }}>
-                {n.image_url && <img src={n.image_url} alt="" loading="lazy" style={{ width: '100%', height: 180, objectFit: 'cover' }} />}
+                {n.image_url && <img src={n.image_url} alt={n.title} loading="lazy" style={{ width: '100%', height: 180, objectFit: 'cover' }} />}
                 <div style={{ padding: 16 }}>
                   <span style={{ fontFamily: 'DM Sans', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--red)' }}>{n.category}</span>
                   <h3 style={{ fontFamily: 'Chonburi', fontSize: 15, color: 'var(--text)', margin: '6px 0', lineHeight: 1.3 }}>{n.title}</h3>

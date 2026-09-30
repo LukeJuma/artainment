@@ -11,9 +11,10 @@ class HomeController extends Controller
     public function index(): JsonResponse
     {
         return response()->json([
-            // Filter draft content: Only show published content
-            'featured_film' => Film::where('featured', true)->where('status', 'published')->first(),
-            'films' => Film::where('status', 'published')->orderByDesc('created_at')->limit(6)->get(),
+            // Films use the completed/in_production/upcoming vocabulary (see films migration);
+            // public shelves show released films, while `coming_soon` carries the upcoming ones.
+            'featured_film' => Film::where('featured', true)->whereIn('status', ['completed', 'in_production'])->first(),
+            'films' => Film::whereIn('status', ['completed', 'in_production'])->orderByDesc('created_at')->limit(6)->get(),
             'services' => Service::where('active', true)->orderBy('sort_order')->get(),
             'talent' => Talent::where('active', true)->orderBy('sort_order')->limit(5)->get(),
             'gallery' => GalleryImage::orderBy('sort_order')->limit(6)->get(),

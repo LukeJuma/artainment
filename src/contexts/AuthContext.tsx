@@ -42,8 +42,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (token) {
       authAPI.user(token)
-        .then(u => { setUser(u); setLoading(false); })
-        .catch(() => { localStorage.removeItem('auth_token'); setToken(null); setLoading(false); });
+        .then(u => { 
+          setUser(u); 
+          setLoading(false); 
+        })
+        .catch(() => { 
+          localStorage.removeItem('auth_token'); 
+          localStorage.removeItem('auth_user');
+          setToken(null); 
+          setLoading(false); 
+        });
     } else {
       setLoading(false);
     }
@@ -52,6 +60,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = async (email: string, password: string) => {
     const res = await authAPI.login(email, password);
     localStorage.setItem('auth_token', res.token);
+    localStorage.setItem('auth_user', JSON.stringify(res.user));
     setToken(res.token);
     setUser(res.user);
     return res.user;

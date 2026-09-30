@@ -20,7 +20,10 @@ export function LoginPage() {
     setError('')
     try {
       const user = await login(email, password)
-      navigate(user?.is_admin ? '/admin' : '/')
+      // Small delay to ensure state is updated properly
+      setTimeout(() => {
+        navigate(user?.is_admin ? '/admin' : '/', { replace: true })
+      }, 100)
     } catch (err: any) {
       setError(err.message || 'Login failed')
     } finally {
