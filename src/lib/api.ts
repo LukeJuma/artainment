@@ -41,6 +41,16 @@ export async function api<T = any>(endpoint: string, options: ApiOptions = {}): 
   if (!isFormData && body) headers['Content-Type'] = 'application/json';
   headers['Accept'] = 'application/json';
 
+  // Supabase Edge Functions sit behind the Supabase API gateway, which
+  // rejects requests without project credentials (HTTP 401) before our
+  // function code ever runs. Mirror what supabase-js sends: the anon
+  // publishable key as `apikey`, plus as the default Bearer token when
+  // the user isn't logged in (a logged-in user's JWT takes precedence).
+  if (env.isSupabaseApi && env.supabaseAnonKey) {
+    headers['apikey'] = env.supabaseAnonKey;
+    if (!token) headers['Authorization'] = `Bearer ${env.supabaseAnonKey}`;
+  }
+
   const config: RequestInit = {
     method,
     headers,

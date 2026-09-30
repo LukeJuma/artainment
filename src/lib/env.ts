@@ -36,6 +36,32 @@ export const env = {
   },
 
   /**
+   * Get the Supabase anon (publishable) key.
+   * The anon key is public by design — Supabase JS clients ship it in the
+   * browser. It lets the Supabase gateway accept our edge-function calls.
+   * Falls back to the project's committed key so production keeps working
+   * even if the dashboard variable is missing.
+   */
+  get supabaseAnonKey(): string | undefined {
+    return (
+      import.meta.env.VITE_SUPABASE_ANON_KEY ||
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV0amtpdnduZWFmeXBoZGFtZ2giLCJyb2xlIjoiYW5vbiIsImlhdCI6MTcyNTczMzUwMiwiZXhwIjoyMDQxMzA5NTAyfQ.RCd5xPm4ao_aDF8IGfe8cVr4CptS7QuJhAm-DGby8BE'
+    );
+  },
+
+  /**
+   * Whether the API is hosted on Supabase Edge Functions.
+   * Supabase's gateway requires project credentials on every request.
+   */
+  get isSupabaseApi(): boolean {
+    try {
+      return new URL(this.apiUrl).hostname.endsWith('supabase.co');
+    } catch {
+      return false;
+    }
+  },
+
+  /**
    * Check if we're in development mode
    */
   get isDevelopment(): boolean {
