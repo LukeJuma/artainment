@@ -9,7 +9,6 @@ import { ComingSoonSection } from '../components/home/ComingSoonSection'
 import { TalentSection } from '../components/home/TalentSection'
 import { GallerySection } from '../components/home/GallerySection'
 import { NewsSection } from '../components/home/NewsSection'
-import { TestimonialsSection } from '../components/home/TestimonialsSection'
 import { CTASection } from '../components/home/CTASection'
 
 export function HomePage() {
@@ -28,7 +27,6 @@ export function HomePage() {
   const talent = data?.talent ?? []
   const gallery = data?.gallery ?? []
   const news = data?.news ?? []
-  const testimonials = data?.testimonials ?? []
   const podcasts = data?.podcasts ?? []
   const comingSoon = data?.coming_soon ?? []
 
@@ -55,7 +53,6 @@ export function HomePage() {
       <PodcastSection podcasts={podcasts} />
       <GallerySection images={gallery} />
       <NewsSection news={news} />
-      <TestimonialsSection testimonials={testimonials} />
       <CTASection />
     </>
   )

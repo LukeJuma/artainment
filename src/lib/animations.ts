@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import type { Variants } from 'framer-motion'
 
 export const fadeUp: Variants = {
@@ -9,17 +9,32 @@ export const fadeUp: Variants = {
 export const stagger: Variants = { visible: { transition: { staggerChildren: 0.1 } } }
 
 export function useInView(threshold = 0.15) {
-  const ref = useRef<HTMLDivElement>(null)
   const [inView, setInView] = useState(false)
-  useEffect(() => {
-    const el = ref.current
-    if (!el) return
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { setInView(true); obs.disconnect() }
-    }, { threshold })
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [threshold])
+  const obsRef = useRef<IntersectionObserver | null>(null)
+  // Callback ref (not useEffect-on-mount): sections that render only after
+  // async data arrives (early `return null` while loading) never had an
+  // observer attached, so their grids stayed invisible forever. Attaching
+  // on node mount fixes every current and future call site.
+  const ref = useCallback(
+    (el: HTMLDivElement | null) => {
+      obsRef.current?.disconnect()
+      obsRef.current = null
+      if (!el) return
+      if (inView) return
+      const obs = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setInView(true)
+            obs.disconnect()
+          }
+        },
+        { threshold },
+      )
+      obs.observe(el)
+      obsRef.current = obs
+    },
+    [threshold, inView],
+  )
   return { ref, inView }
 }
 
