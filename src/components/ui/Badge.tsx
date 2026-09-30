@@ -12,9 +12,9 @@ interface BadgeProps {
 const VARIANTS: Record<BadgeVariant, CSSProperties> = {
   brand: { background: 'var(--ds-brand)', color: '#fff' },
   gold: { background: 'var(--ds-gold)', color: '#1a1206' },
-  live: { background: 'rgba(225,29,72,0.15)', color: 'var(--ds-brand-400)', border: '1px solid rgba(225,29,72,0.45)' },
-  outline: { background: 'transparent', color: 'var(--ds-fog-300)', border: '1px solid var(--ds-line-strong)' },
-  muted: { background: 'rgba(255,255,255,0.08)', color: 'var(--ds-fog-300)' },
+  live: { background: 'rgba(225,29,72,0.15)', color: 'var(--ds-live-fg)', border: '1px solid rgba(225,29,72,0.45)' },
+  outline: { background: 'transparent', color: 'var(--ds-outline-fg)', border: '1px solid var(--ds-card-line)' },
+  muted: { background: 'var(--ds-chip-bg)', color: 'var(--ds-chip-fg)' },
   upcoming: { background: '#F59E0B', color: '#1a1206' },
 };
 

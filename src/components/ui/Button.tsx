@@ -39,8 +39,8 @@ const VARIANTS: Record<ButtonVariant, CSSProperties> = {
   },
   outline: {
     background: 'transparent',
-    color: 'var(--ds-fog-100)',
-    border: '1.5px solid var(--ds-line-strong)',
+    color: 'var(--ds-outline-fg)',
+    border: '1.5px solid var(--ds-card-line)',
   },
   ghost: {
     background: 'var(--ds-brand-wash)',

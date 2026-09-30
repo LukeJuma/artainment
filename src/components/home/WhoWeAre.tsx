@@ -53,25 +53,25 @@ const pillars: Pillar[] = [
 export function WhoWeAre() {
   const { ref, inView } = useInView()
   return (
-    <Section style={{ background: 'var(--ds-ink-950)', paddingTop: 'clamp(60px, 10vw, 100px)', borderTop: '1px solid var(--ds-line)', borderBottom: '1px solid var(--ds-line)' }}>
+    <Section style={{ background: 'var(--ds-surface)', paddingTop: 'clamp(60px, 10vw, 100px)', borderTop: '1px solid var(--ds-section-line)', borderBottom: '1px solid var(--ds-section-line)' }}>
       <div ref={ref} style={{ maxWidth: 1200, margin: '0 auto' }}>
         <div className="who-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(24px, 5vw, 80px)', marginBottom: 56, alignItems: 'start' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
               <span style={{ width: 28, height: 2, background: 'var(--ds-gold)' }} />
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, letterSpacing: 3, color: 'var(--ds-gold)', textTransform: 'uppercase', fontWeight: 700 }}>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, letterSpacing: 3, color: 'var(--ds-gold-cta)', textTransform: 'uppercase', fontWeight: 700 }}>
                 Who We Are
               </span>
             </div>
-            <h2 className="section-heading" style={{ color: 'var(--ds-fog-100)', margin: 0 }}>
+            <h2 className="section-heading" style={{ color: 'var(--ds-text)', margin: 0 }}>
               A Complete Creative<br /><span style={{ color: 'var(--ds-brand-500)' }}>Ecosystem.</span>
             </h2>
           </div>
           <div style={{ paddingTop: 8 }}>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.8, color: 'var(--ds-fog-300)', margin: '0 0 16px' }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.8, color: 'var(--ds-text-2)', margin: '0 0 16px' }}>
               The Artainment is Kenya's foremost creative media company — a studio, a streaming platform, a talent collective, and a creative agency united under one identity.
             </p>
-            <p style={{ fontFamily: "'Domine', serif", fontSize: 17, lineHeight: 1.7, color: 'var(--ds-fog-500)', fontStyle: 'italic', margin: 0 }}>
+            <p style={{ fontFamily: "'Domine', serif", fontSize: 17, lineHeight: 1.7, color: 'var(--ds-text-3)', fontStyle: 'italic', margin: 0 }}>
               "We don't just make content. We build culture."
             </p>
           </div>
@@ -92,11 +92,11 @@ export function WhoWeAre() {
                 position: 'relative',
                 display: 'flex',
                 flexDirection: 'column',
-                background: 'var(--ds-ink-900)',
-                border: p.spotlight ? '1px solid rgba(225,29,72,0.55)' : '1px solid var(--ds-line)',
+                background: 'var(--ds-surface-2)',
+                border: p.spotlight ? '1px solid rgba(225,29,72,0.55)' : '1px solid var(--ds-card-line)',
                 borderRadius: 'var(--ds-radius-lg)',
                 overflow: 'hidden',
-                boxShadow: p.spotlight ? 'var(--ds-shadow-glow-brand)' : 'var(--ds-shadow-card)',
+                boxShadow: p.spotlight ? 'var(--ds-shadow-glow-brand)' : 'var(--ds-card-shadow)',
               }}
             >
               {p.spotlight && (
@@ -118,15 +118,15 @@ export function WhoWeAre() {
               </div>
               {/* Body */}
               <div style={{ display: 'flex', flexDirection: 'column', flex: 1, padding: '24px 24px 26px' }}>
-                <h3 style={{ fontFamily: "'Chonburi', cursive", fontWeight: 400, fontSize: 24, color: 'var(--ds-fog-100)', margin: '0 0 8px' }}>
+                <h3 style={{ fontFamily: "'Chonburi', cursive", fontWeight: 400, fontSize: 24, color: 'var(--ds-text)', margin: '0 0 8px' }}>
                   {p.title}
                 </h3>
-                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, lineHeight: 1.65, color: 'var(--ds-fog-300)', margin: '0 0 16px' }}>
+                <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, lineHeight: 1.65, color: 'var(--ds-text-2)', margin: '0 0 16px' }}>
                   {p.blurb}
                 </p>
-                <ul style={{ listStyle: 'none', margin: '0 0 24px', padding: '16px 0 0', borderTop: '1px solid var(--ds-line)', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                <ul style={{ listStyle: 'none', margin: '0 0 24px', padding: '16px 0 0', borderTop: '1px solid var(--ds-card-line)', display: 'flex', flexDirection: 'column', gap: 10 }}>
                   {p.points.map(pt => (
-                    <li key={pt} style={{ display: 'flex', gap: 10, fontFamily: "'DM Sans', sans-serif", fontSize: 13, lineHeight: 1.55, color: 'var(--ds-fog-300)' }}>
+                    <li key={pt} style={{ display: 'flex', gap: 10, fontFamily: "'DM Sans', sans-serif", fontSize: 13, lineHeight: 1.55, color: 'var(--ds-text-2)' }}>
                       <span style={{ width: 6, height: 6, borderRadius: '50%', background: p.spotlight ? 'var(--ds-brand-400)' : 'var(--ds-gold)', flexShrink: 0, marginTop: 6 }} />
                       {pt}
                     </li>
@@ -139,9 +139,9 @@ export function WhoWeAre() {
                       display: 'inline-flex', alignItems: 'center', gap: 8,
                       fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase',
                       textDecoration: 'none',
-                      color: p.spotlight ? '#fff' : 'var(--ds-gold)',
+                      color: p.spotlight ? '#fff' : 'var(--ds-gold-cta)',
                       background: p.spotlight ? 'var(--ds-brand)' : 'transparent',
-                      border: p.spotlight ? 'none' : '1.5px solid rgba(212,162,78,0.5)',
+                      border: p.spotlight ? 'none' : '1.5px solid var(--ds-gold-cta)',
                       boxShadow: p.spotlight ? 'var(--ds-shadow-glow-brand)' : 'none',
                       padding: '12px 26px', borderRadius: 'var(--ds-radius-pill)',
                       transition: 'all var(--ds-dur-fast) var(--ds-ease-out)',

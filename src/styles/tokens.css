@@ -77,6 +77,44 @@
   --ds-scrim-top: linear-gradient(to bottom, rgba(5, 5, 7, 0.75) 0%, transparent 100%);
 }
 
+/* ── Theme-aware surfaces: every chrome surface follows the toggle ── */
+:root,
+[data-theme='dark'] {
+  --ds-surface: var(--ds-ink-900);
+  --ds-surface-2: var(--ds-ink-800);
+  --ds-text: var(--ds-fog-100);
+  --ds-text-2: var(--ds-fog-300);
+  --ds-text-3: var(--ds-fog-500);
+  --ds-card-line: rgba(255, 255, 255, 0.1);
+  --ds-card-shadow: var(--ds-shadow-card);
+  --ds-section-line: var(--ds-line);
+  --ds-chip-bg: rgba(255, 255, 255, 0.08);
+  --ds-chip-fg: var(--ds-fog-300);
+  --ds-outline-fg: var(--ds-fog-100);
+  --ds-live-fg: var(--ds-brand-400);
+  --ds-pill-idle-bg: rgba(255, 255, 255, 0.07);
+  --ds-pill-idle-fg: var(--ds-fog-300);
+  --ds-gold-cta: var(--ds-gold);
+}
+
+[data-theme='light'] {
+  --ds-surface: #fffdf8;
+  --ds-surface-2: #ffffff;
+  --ds-text: #1c1710;
+  --ds-text-2: #5d564a;
+  --ds-text-3: #a39c8d;
+  --ds-card-line: rgba(28, 20, 8, 0.14);
+  --ds-card-shadow: 0 12px 32px rgba(60, 40, 10, 0.12);
+  --ds-section-line: rgba(28, 20, 8, 0.12);
+  --ds-chip-bg: rgba(28, 20, 8, 0.06);
+  --ds-chip-fg: #5d564a;
+  --ds-outline-fg: #2a241c;
+  --ds-live-fg: #be1233;
+  --ds-pill-idle-bg: rgba(28, 20, 8, 0.06);
+  --ds-pill-idle-fg: #5d564a;
+  --ds-gold-cta: #8a6420;
+}
+
 /* ── Shared keyframes ── */
 @keyframes ds-pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }

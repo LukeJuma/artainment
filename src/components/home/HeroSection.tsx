@@ -197,14 +197,14 @@ export function HeroSection({ films, series = [], featured, featuredKind = 'film
                   border: active ? '2px solid var(--ds-brand)' : '1px solid rgba(255,255,255,0.2)',
                   boxShadow: active ? 'var(--ds-shadow-glow-brand)' : 'none',
                   opacity: active ? 1 : 0.55,
-                  cursor: 'pointer', padding: 0, background: 'var(--ds-ink-800)',
+                  cursor: 'pointer', padding: 0, background: 'var(--ds-surface-2)',
                   transition: 'all var(--ds-dur-fast) var(--ds-ease-out)',
                 }}
               >
                 {thumb ? (
                   <img src={thumb} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 ) : (
-                  <span style={{ fontSize: 10, color: 'var(--ds-fog-500)', padding: 4, display: 'block' }}>{item.title}</span>
+                  <span style={{ fontSize: 10, color: 'var(--ds-text-3)', padding: 4, display: 'block' }}>{item.title}</span>
                 )}
               </button>
             )
