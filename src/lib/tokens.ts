@@ -1,6 +1,6 @@
-/**
+﻿/**
  * Design-system tokens mirrored in TypeScript for inline-style usage.
- * Source of truth is `src/styles/tokens.css` — keep the two in sync.
+ * Source of truth is `src/styles/tokens.css` â€” keep the two in sync.
  */
 
 export const ds = {
@@ -36,7 +36,7 @@ export const ds = {
     600: 'var(--ds-fog-600)',
   },
   font: {
-    display: "'Chonburi', cursive",
+    display: "'Bebas Neue', sans-serif",
     body: "'DM Sans', sans-serif",
     accent: "'Domine', serif",
   },

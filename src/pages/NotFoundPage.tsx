@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 import { Nav } from '../components/ui/Nav'
 import { Footer } from '../components/ui/Footer'
 
@@ -12,7 +12,7 @@ export function NotFoundPage() {
         padding: 'clamp(16px, 5vw, 80px)',
       }}>
         <h1 style={{
-          fontFamily: 'Chonburi, cursive', fontSize: 'clamp(64px, 15vw, 120px)',
+          fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(64px, 15vw, 120px)',
           lineHeight: 1, color: 'var(--red)', marginBottom: 16,
         }}>404</h1>
         <p style={{

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { type Film } from '../../lib/api'
 import { contactAPI } from '../../lib/api'
 import { Badge } from '../ui/Badge'
@@ -106,7 +106,7 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
         </div>
 
         <h2 style={{
-          fontFamily: "'Chonburi', cursive", fontWeight: 400, color: '#fff',
+          fontFamily: "'Bebas Neue', sans-serif", fontWeight: 400, color: '#fff',
           fontSize: 'clamp(40px, 7vw, 88px)', lineHeight: 1, margin: '0 0 12px',
           textTransform: 'uppercase', letterSpacing: '0.01em', maxWidth: 800,
         }}>
@@ -116,8 +116,8 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
         <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 16, flexWrap: 'wrap' }}>
           <Badge variant="upcoming">Up Next</Badge>
           {film.tag && <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>{film.tag}</span>}
-          {film.genre && <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>· {film.genre}</span>}
-          {film.year && <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>· {film.year}</span>}
+          {film.genre && <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>Â· {film.genre}</span>}
+          {film.year && <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.75)' }}>Â· {film.year}</span>}
         </div>
 
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.7, color: 'rgba(255,255,255,0.8)', maxWidth: 460, margin: '0 0 32px' }}>
@@ -132,7 +132,7 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
               background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
               borderRadius: 'var(--ds-radius-md)', backdropFilter: 'blur(8px)',
             }}>
-              <div style={{ fontFamily: "'Chonburi', cursive", fontSize: 30, color: '#fff', lineHeight: 1 }}>{item.value}</div>
+              <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 30, color: '#fff', lineHeight: 1 }}>{item.value}</div>
               <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--ds-gold)', marginTop: 6 }}>{item.label}</div>
             </div>
           ))}

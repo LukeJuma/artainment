@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { type Film, type Series } from '../../lib/api'
 import { Button } from '../ui/Button'
@@ -127,7 +127,7 @@ export function HeroSection({ films, series = [], featured, featuredKind = 'film
           <motion.div key={current} initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.5 }}>
             {/* Oversized index numeral */}
             <div style={{
-              fontFamily: "'Chonburi', cursive",
+              fontFamily: "'Bebas Neue', sans-serif",
               fontSize: 'clamp(56px, 9vw, 110px)',
               lineHeight: 1,
               color: 'transparent',
@@ -142,7 +142,7 @@ export function HeroSection({ films, series = [], featured, featuredKind = 'film
               {isUpcoming ? <Badge variant="upcoming">Coming Soon</Badge> : (film?.tag ? <Badge variant="muted">{film.tag}</Badge> : null)}
             </div>
             <h1 style={{
-              color: '#fff', margin: '0 0 12px', fontFamily: "'Chonburi', cursive", fontWeight: 400,
+              color: '#fff', margin: '0 0 12px', fontFamily: "'Bebas Neue', sans-serif", fontWeight: 400,
               fontSize: 'clamp(38px, 7vw, 84px)', lineHeight: 0.98, letterSpacing: '-0.01em',
             }}>{film?.title || ''}</h1>
             <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: 12, flexWrap: 'wrap' }}>

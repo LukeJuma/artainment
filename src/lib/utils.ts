@@ -1,4 +1,4 @@
-import { PLACEHOLDER } from './constants'
+﻿import { PLACEHOLDER } from './constants'
 
 export function imgOr(type: 'film' | 'service' | 'talent' | 'production' | 'news', url: string | null, idx = 0): string {
   if (url) return url

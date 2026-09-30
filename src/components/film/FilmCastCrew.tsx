@@ -1,4 +1,4 @@
-import { useReducedMotion } from 'framer-motion'
+﻿import { useReducedMotion } from 'framer-motion'
 import type { CastPerson, Film } from '../../lib/api'
 import { FadeIn, FadeInStagger } from '../ui/FadeIn'
 import { SectionLabel } from '../ui/SectionLabel'

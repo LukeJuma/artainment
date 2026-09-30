@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Type-safe environment variable utilities
  * Provides runtime validation and better error messages for missing environment variables
  */
@@ -37,7 +37,7 @@ export const env = {
 
   /**
    * Get the Supabase anon (publishable) key.
-   * The anon key is public by design — Supabase JS clients ship it in the
+   * The anon key is public by design â€” Supabase JS clients ship it in the
    * browser. It lets the Supabase gateway accept our edge-function calls.
    * Falls back to the project's committed key so production keeps working
    * even if the dashboard variable is missing.

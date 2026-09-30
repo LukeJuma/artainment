@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { talentAPI, type Talent } from '../lib/api'
@@ -14,7 +14,7 @@ export function TalentDetailPage() {
   const [error, setError] = useState(false)
   useEffect(() => { if (!slug) return; talentAPI.get(slug).then(setTalent).catch(() => setError(true)) }, [slug])
 
-  if (error) return <div style={{ paddingTop: 80, textAlign: 'center', color: 'var(--text)', fontFamily: 'Chonburi, cursive', fontSize: 24 }}>Talent not found.</div>
+  if (error) return <div style={{ paddingTop: 80, textAlign: 'center', color: 'var(--text)', fontFamily: "'Bebas Neue', sans-serif", fontSize: 24 }}>Talent not found.</div>
   if (!talent) return <Loader />
 
   return (
@@ -27,9 +27,9 @@ export function TalentDetailPage() {
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.15 }}>
             <SectionLabel text="Our Actors" />
-            <h1 style={{ fontFamily: 'Chonburi, cursive', fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 700, color: 'var(--text)', margin: '0 0 8px' }}>{talent.name}</h1>
+            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(36px, 5vw, 56px)', fontWeight: 700, color: 'var(--text)', margin: '0 0 8px' }}>{talent.name}</h1>
             <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--red)', textTransform: 'uppercase', letterSpacing: 2, fontWeight: 600, margin: '0 0 24px' }}>{talent.role}</p>
-            <div style={{ fontFamily: 'Chonburi, cursive', fontSize: 14, color: 'var(--text-secondary)', marginBottom: 32 }}>{talent.credits} credits</div>
+            <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 14, color: 'var(--text-secondary)', marginBottom: 32 }}>{talent.credits} credits</div>
             {talent.bio && <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 16, lineHeight: 1.8, color: 'var(--text-secondary)', margin: 0 }}>{talent.bio}</p>}
             {talent.socials && Object.keys(talent.socials).length > 0 && (
               <div style={{ display: 'flex', gap: 10, marginTop: 28 }}>

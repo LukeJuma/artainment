@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+﻿import { motion } from 'framer-motion'
 import { type GalleryImage } from '../../lib/api'
 import { useInView } from '../../lib/animations'
 import { Section } from '../ui/Section'

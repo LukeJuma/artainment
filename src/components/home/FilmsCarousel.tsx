@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo, type CSSProperties } from 'react'
+﻿import { useState, useEffect, useRef, useMemo, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { type Film, type Series } from '../../lib/api'
@@ -147,7 +147,7 @@ export function FilmsCarousel({ films, series = [] }: { films: Film[]; series?: 
                     <span style={{ position: 'absolute', top: 8, left: 8, zIndex: 2 }}><Badge variant={item.tag === 'Coming Soon' ? 'upcoming' : 'brand'}>{item.tag}</Badge></span>
                   ) : null)}
                 </div>
-                <h3 style={{ fontFamily: 'Chonburi', fontSize: 14, color: 'var(--text)', margin: '0 0 4px' }}>{item.title}</h3>
+                <h3 style={{ fontFamily: 'Bebas Neue', fontSize: 14, color: 'var(--text)', margin: '0 0 4px' }}>{item.title}</h3>
                 {meta(item.year, item.genre, item.rating)}
               </Link>
             </motion.div>

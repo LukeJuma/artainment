@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { podcastAPI, videoStreamUrl, type Podcast, type PodcastEpisode } from '../lib/api'
@@ -19,7 +19,7 @@ export function PodcastDetailPage() {
     podcastAPI.get(slug).then(setPodcast).catch(() => setError(true))
   }, [slug])
 
-  if (error) return <div style={{ paddingTop: 80, textAlign: 'center', color: 'var(--text)', fontFamily: 'Chonburi, cursive', fontSize: 24 }}>Podcast not found.</div>
+  if (error) return <div style={{ paddingTop: 80, textAlign: 'center', color: 'var(--text)', fontFamily: "'Bebas Neue', sans-serif", fontSize: 24 }}>Podcast not found.</div>
   if (!podcast) return <Loader />
 
   const episodes = podcast.episodes ?? []
@@ -35,9 +35,9 @@ export function PodcastDetailPage() {
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.15 }}>
             <SectionLabel text={podcast.episodes?.some(e => e.video_url) ? 'Watch & Listen' : 'Listen'} />
-            <h1 style={{ fontFamily: 'Chonburi, cursive', fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 700, color: 'var(--text)', margin: '0 0 8px' }}>{podcast.title}</h1>
+            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 700, color: 'var(--text)', margin: '0 0 8px' }}>{podcast.title}</h1>
             <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--red)', textTransform: 'uppercase', letterSpacing: 2, fontWeight: 600, margin: '0 0 16px' }}>
-              {podcast.host}{podcast.category ? ` · ${podcast.category}` : ''}
+              {podcast.host}{podcast.category ? ` Â· ${podcast.category}` : ''}
             </p>
             {podcast.description && <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, lineHeight: 1.8, color: 'var(--text-secondary)', margin: 0 }}>{podcast.description}</p>}
           </motion.div>
@@ -46,7 +46,7 @@ export function PodcastDetailPage() {
 
       <Section>
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-          <h2 style={{ fontFamily: 'Chonburi, cursive', fontSize: 22, color: 'var(--text)', margin: '0 0 24px' }}>Episodes</h2>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, color: 'var(--text)', margin: '0 0 24px' }}>Episodes</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {episodes.map(ep => (
               <motion.div key={ep.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
@@ -57,7 +57,7 @@ export function PodcastDetailPage() {
                 </button>
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, letterSpacing: 1.5, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 2 }}>Episode {ep.episode_number}</div>
-                  <div style={{ fontFamily: 'Chonburi, cursive', fontSize: 15, color: 'var(--text)' }}>{ep.title}</div>
+                  <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 15, color: 'var(--text)' }}>{ep.title}</div>
                   {ep.description && <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4, overflow: 'hidden', display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2 }}>{ep.description}</div>}
                 </div>
                 <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
@@ -79,7 +79,7 @@ export function PodcastDetailPage() {
             <motion.div initial={{ scale: 0.94, y: 16 }} animate={{ scale: 1, y: 0 }} exit={{ scale: 0.94, y: 16 }} transition={{ duration: 0.25 }} onClick={e => e.stopPropagation()}
               style={{ width: '100%', maxWidth: 520, background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 16, padding: 28 }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
-                <div style={{ fontFamily: 'Chonburi, cursive', fontSize: 16, color: 'var(--text)' }}>{playing.title}</div>
+                <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, color: 'var(--text)' }}>{playing.title}</div>
                 <button onClick={() => setPlaying(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--text-secondary)', display: 'flex', minHeight: 40, minWidth: 40, alignItems: 'center', justifyContent: 'center' }} aria-label="Close">
                   <IconX size={18} />
                 </button>

@@ -1,4 +1,4 @@
-import { Button } from '../components/ui/Button';
+﻿import { Button } from '../components/ui/Button';
 import { Badge } from '../components/ui/Badge';
 import { SectionHeading } from '../components/ui/SectionHeading';
 
@@ -59,12 +59,12 @@ export function DesignSystemPage() {
         <SectionHeading
           eyebrow="Artainment DS v1"
           title="Design System"
-          sub="Dark-cinematic token layer and primitives. Nothing on this page ships to production surfaces — pages adopt these pieces incrementally."
+          sub="Dark-cinematic token layer and primitives. Nothing on this page ships to production surfaces â€” pages adopt these pieces incrementally."
         />
 
-        {/* ── Palette ── */}
+        {/* â”€â”€ Palette â”€â”€ */}
         <div style={block}>
-          <p style={blockTitle}>Palette — Brand (evolved crimson)</p>
+          <p style={blockTitle}>Palette â€” Brand (evolved crimson)</p>
           <div style={grid}>
             {swatch('var(--ds-brand-950)', 'Crimson 950', '#1a0508')}
             {swatch('var(--ds-brand-900)', 'Crimson 900', '#3d0a10')}
@@ -73,13 +73,13 @@ export function DesignSystemPage() {
             {swatch('var(--ds-brand-500)', 'Brand 500', '#f43f5e')}
             {swatch('var(--ds-brand-400)', 'Brand 400', '#fb7185')}
           </div>
-          <p style={{ ...blockTitle, marginTop: 32 }}>Palette — Gold (ratings, featured, awards)</p>
+          <p style={{ ...blockTitle, marginTop: 32 }}>Palette â€” Gold (ratings, featured, awards)</p>
           <div style={grid}>
             {swatch('var(--ds-gold-600)', 'Gold 600', '#b07f2e')}
             {swatch('var(--ds-gold-500)', 'Gold 500', '#d4a24e')}
             {swatch('var(--ds-gold-400)', 'Gold 400', '#e8b64c')}
           </div>
-          <p style={{ ...blockTitle, marginTop: 32 }}>Palette — Ink surfaces</p>
+          <p style={{ ...blockTitle, marginTop: 32 }}>Palette â€” Ink surfaces</p>
           <div style={grid}>
             {swatch('var(--ds-ink-950)', 'Ink 950', '#08080a')}
             {swatch('var(--ds-ink-900)', 'Ink 900', '#0d0d10')}
@@ -87,7 +87,7 @@ export function DesignSystemPage() {
             {swatch('var(--ds-ink-800)', 'Ink 800', '#17171c')}
             {swatch('var(--ds-ink-700)', 'Ink 700', '#1f1f26')}
           </div>
-          <p style={{ ...blockTitle, marginTop: 32 }}>Palette — Fog text</p>
+          <p style={{ ...blockTitle, marginTop: 32 }}>Palette â€” Fog text</p>
           <div style={grid}>
             {swatch('var(--ds-fog-100)', 'Fog 100', '#f5f3ee')}
             {swatch('var(--ds-fog-300)', 'Fog 300', '#c9c5bd')}
@@ -96,28 +96,28 @@ export function DesignSystemPage() {
           </div>
         </div>
 
-        {/* ── Typography ── */}
+        {/* â”€â”€ Typography â”€â”€ */}
         <div style={block}>
           <p style={blockTitle}>Typography</p>
           <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 3, color: 'var(--ds-brand-400)', marginBottom: 12 }}>
-            EYEBROW — TRACKED LABEL
+            EYEBROW â€” TRACKED LABEL
           </div>
-          <div style={{ fontFamily: "'Chonburi', cursive", fontSize: 'var(--ds-display-xl)', lineHeight: 1 }}>Display XL</div>
-          <div style={{ fontFamily: "'Chonburi', cursive", fontSize: 'var(--ds-display-lg)', lineHeight: 1.05, marginTop: 16 }}>
+          <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'var(--ds-display-xl)', lineHeight: 1 }}>Display XL</div>
+          <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'var(--ds-display-lg)', lineHeight: 1.05, marginTop: 16 }}>
             Display LG
           </div>
-          <div style={{ fontFamily: "'Chonburi', cursive", fontSize: 'var(--ds-display-md)', lineHeight: 1.1, marginTop: 16 }}>
+          <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'var(--ds-display-md)', lineHeight: 1.1, marginTop: 16 }}>
             Display MD
           </div>
           <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 16, lineHeight: 1.7, color: 'var(--ds-fog-300)', marginTop: 16, maxWidth: 640 }}>
-            Body — DM Sans at 16px/1.7. Fog 300 keeps long-form reading comfortable on near-black without halation.
+            Body â€” DM Sans at 16px/1.7. Fog 300 keeps long-form reading comfortable on near-black without halation.
           </div>
           <div style={{ fontFamily: "'Domine', serif", fontSize: 19, lineHeight: 1.6, color: 'var(--ds-fog-300)', marginTop: 12, maxWidth: 640 }}>
-            Accent — Domine serif for pull-quotes and editorial moments.
+            Accent â€” Domine serif for pull-quotes and editorial moments.
           </div>
         </div>
 
-        {/* ── Buttons ── */}
+        {/* â”€â”€ Buttons â”€â”€ */}
         <div style={block}>
           <p style={blockTitle}>Buttons</p>
           {(['primary', 'gold', 'outline', 'ghost', 'light'] as const).map(v => (
@@ -133,7 +133,7 @@ export function DesignSystemPage() {
           ))}
         </div>
 
-        {/* ── Badges ── */}
+        {/* â”€â”€ Badges â”€â”€ */}
         <div style={block}>
           <p style={blockTitle}>Badges</p>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -146,7 +146,7 @@ export function DesignSystemPage() {
           </div>
         </div>
 
-        {/* ── Section headings ── */}
+        {/* â”€â”€ Section headings â”€â”€ */}
         <div style={block}>
           <p style={blockTitle}>Section headings</p>
           <SectionHeading eyebrow="Now Streaming" title="Featured Movies" sub="Hand-picked premieres, festival winners and audience favourites." />
@@ -159,7 +159,7 @@ export function DesignSystemPage() {
           />
         </div>
 
-        {/* ── Elevation, radii, motion ── */}
+        {/* â”€â”€ Elevation, radii, motion â”€â”€ */}
         <div style={block}>
           <p style={blockTitle}>Elevation & glow</p>
           <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
@@ -193,12 +193,12 @@ export function DesignSystemPage() {
               fade-up loop
             </div>
             <span style={{ fontSize: 12, color: 'var(--ds-fog-500)', fontFamily: 'monospace' }}>
-              ease-out / ease-cinema · 150 / 250 / 500ms
+              ease-out / ease-cinema Â· 150 / 250 / 500ms
             </span>
           </div>
         </div>
 
-        {/* ── Scrims ── */}
+        {/* â”€â”€ Scrims â”€â”€ */}
         <div style={block}>
           <p style={blockTitle}>Scrims (text-over-artwork legibility)</p>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 16 }}>
@@ -220,7 +220,7 @@ export function DesignSystemPage() {
         </div>
 
         <p style={{ fontSize: 12, color: 'var(--ds-fog-600)', textAlign: 'center', marginTop: 8 }}>
-          Internal preview — not linked from navigation. Tokens: <span style={{ fontFamily: 'monospace' }}>src/styles/tokens.css</span>
+          Internal preview â€” not linked from navigation. Tokens: <span style={{ fontFamily: 'monospace' }}>src/styles/tokens.css</span>
         </p>
       </div>
     </div>

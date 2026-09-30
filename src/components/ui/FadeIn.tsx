@@ -1,4 +1,4 @@
-import { motion, type Variants } from 'framer-motion'
+﻿import { motion, type Variants } from 'framer-motion'
 import { useInView } from '../../lib/animations'
 
 interface FadeInProps {

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { filmsAPI, type Film } from '../lib/api'
@@ -52,7 +52,7 @@ export function FilmsPage() {
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <motion.div ref={headingRef} initial={{ opacity: 0, y: 30 }} animate={headingInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
             <SectionLabel text="The Artainment" />
-            <h1 style={{ fontFamily: 'Chonburi, cursive', fontSize: 'clamp(42px, 6vw, 80px)', fontWeight: 700, color: 'var(--text)', lineHeight: 0.95, margin: '0 0 48px' }}>Our Movies</h1>
+            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(42px, 6vw, 80px)', fontWeight: 700, color: 'var(--text)', lineHeight: 0.95, margin: '0 0 48px' }}>Our Movies</h1>
           </motion.div>
           <div className="films-filter" style={{ display: 'flex', gap: 10, marginBottom: 56, flexWrap: 'wrap' }}>
             {genres.map(g => (
@@ -71,9 +71,9 @@ export function FilmsPage() {
                     </div>
                     {film.tag && <span style={{ position: 'absolute', top: 12, left: 12, fontFamily: 'DM Sans, sans-serif', fontSize: 10, letterSpacing: 1.5, background: 'var(--red)', color: 'var(--text)', padding: '3px 10px', borderRadius: 4, textTransform: 'uppercase', fontWeight: 700, zIndex: 2 }}>{film.tag}</span>}
                   </div>
-                  <h3 style={{ fontFamily: 'Chonburi, cursive', fontSize: 16, fontWeight: 600, color: 'var(--text)', margin: '0 0 6px' }}>{film.title}</h3>
+                  <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, fontWeight: 600, color: 'var(--text)', margin: '0 0 6px' }}>{film.title}</h3>
                   <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-muted)' }}>{film.year} · {film.genre}</span>
+                    <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-muted)' }}>{film.year} Â· {film.genre}</span>
                     <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--red)', marginLeft: 'auto', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}><IconStar size={12} color="var(--red)" /> {film.rating}</span>
                   </div>
                 </Link>

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+﻿import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { talentAPI, type Talent } from '../lib/api'
@@ -44,7 +44,7 @@ export function TalentPage() {
       <Section>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           <SectionLabel text="The Collective" />
-          <h1 style={{ fontFamily: 'Chonburi, cursive', fontSize: 'clamp(42px, 6vw, 80px)', fontWeight: 700, color: 'var(--text)', lineHeight: 0.95, margin: '0 0 80px' }}>Our Actors</h1>
+          <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(42px, 6vw, 80px)', fontWeight: 700, color: 'var(--text)', lineHeight: 0.95, margin: '0 0 80px' }}>Our Actors</h1>
           <motion.div ref={ref} variants={stagger} initial="hidden" animate={inView ? 'visible' : 'hidden'}
             style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 32 }}>
             {talent.map(t => (
@@ -54,7 +54,7 @@ export function TalentPage() {
                     <MediaArt type="actor" title={t.name} src={t.image_url} alt={t.name} />
                     <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, color-mix(in srgb, var(--bg-muted) 85%, transparent) 0%, transparent 60%)' }} />
                     <div style={{ position: 'absolute', bottom: 20, left: 20, right: 20 }}>
-                      <div style={{ fontFamily: 'Chonburi, cursive', fontSize: 16, fontWeight: 600, color: 'var(--text)' }}>{t.name}</div>
+                      <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, fontWeight: 600, color: 'var(--text)' }}>{t.name}</div>
                       <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--red)', textTransform: 'uppercase', letterSpacing: 1, fontWeight: 600 }}>{t.role}</div>
                     </div>
                   </div>

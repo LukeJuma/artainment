@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { homeAPI, type HomeData } from '../lib/api'
 import { HeroSection } from '../components/home/HeroSection'
 import { WhoWeAre } from '../components/home/WhoWeAre'

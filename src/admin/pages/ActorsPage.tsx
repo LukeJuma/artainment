@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+﻿import { useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Plus, Trash2, Pencil, Star, X, Loader2, ImagePlus, AtSign, Share2, Link2, Music2, Globe } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
@@ -177,7 +177,7 @@ export function ActorsPage() {
                   {actor.slug && <span style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>@{actor.slug}</span>}
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginBottom: 10 }}>
-                  {actor.role || 'Actor'} · {actor.credits || 0} credits · {socialsCount(actor)} social links
+                  {actor.role || 'Actor'} Â· {actor.credits || 0} credits Â· {socialsCount(actor)} social links
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <button className="admin-btn admin-btn-ghost admin-btn-sm" style={{ flex: 1 }} onClick={() => openEdit(actor)}>

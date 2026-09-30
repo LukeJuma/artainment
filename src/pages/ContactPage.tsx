@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { contactAPI } from '../lib/api'
 import { useInView } from '../lib/animations'
@@ -52,8 +52,8 @@ export function ContactPage() {
         <div className="contact-grid" style={{ maxWidth: 1280, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 100 }}>
           <motion.div ref={infoRef} initial={{ opacity: 0, x: -30 }} animate={infoInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6 }}>
             <SectionLabel text="Get In Touch" />
-            <h1 style={{ fontFamily: "'Chonburi', cursive", fontSize: 'clamp(36px, 5vw, 72px)', fontWeight: 700, color: 'var(--text)', lineHeight: 1, margin: '0 0 32px' }}>Let's Create<br />Something<br /><em style={{ fontFamily: "'Domine', serif", color: 'var(--red)', fontStyle: 'italic', fontWeight: 300 }}>Together.</em></h1>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(15px, 1.5vw, 16px)', lineHeight: 1.8, color: 'var(--text-secondary)', margin: '0 0 60px' }}>Whether you're booking a service, pitching a project, or looking to join our team — we'd love to hear from you.</p>
+            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(36px, 5vw, 72px)', fontWeight: 700, color: 'var(--text)', lineHeight: 1, margin: '0 0 32px' }}>Let's Create<br />Something<br /><em style={{ fontFamily: "'Domine', serif", color: 'var(--red)', fontStyle: 'italic', fontWeight: 300 }}>Together.</em></h1>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(15px, 1.5vw, 16px)', lineHeight: 1.8, color: 'var(--text-secondary)', margin: '0 0 60px' }}>Whether you're booking a service, pitching a project, or looking to join our team â€” we'd love to hear from you.</p>
             {[
               { label: 'Email', value: 'hello@theartainment.co.ke', icon: <IconMail size={16} color="var(--red)" /> },
               { label: 'Location', value: 'Nairobi, Kenya', icon: <IconMapPin size={16} color="var(--red)" /> },
@@ -74,7 +74,7 @@ export function ContactPage() {
               <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
                 style={{ background: 'color-mix(in srgb, var(--red) 8%, transparent)', border: '1px solid color-mix(in srgb, var(--red) 20%, transparent)', borderRadius: 12, padding: 'clamp(48px, 6vw, 80px) clamp(24px, 4vw, 48px)', textAlign: 'center' }}>
                 <div style={{ marginBottom: 24 }}><IconCheck size={48} color="var(--red)" /></div>
-                <h3 style={{ fontFamily: "'Chonburi', cursive", fontSize: 'clamp(22px, 3vw, 28px)', color: 'var(--text)', margin: '0 0 16px' }}>Message Received</h3>
+                <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(22px, 3vw, 28px)', color: 'var(--text)', margin: '0 0 16px' }}>Message Received</h3>
                 <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(14px, 1.5vw, 15px)', color: 'var(--text-secondary)', lineHeight: 1.7 }}>We'll be in touch within 24 hours. Thank you for reaching out to The Artainment.</p>
               </motion.div>
             ) : (

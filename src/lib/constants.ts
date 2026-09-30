@@ -1,4 +1,4 @@
-export const NAV_LINKS = [
+﻿export const NAV_LINKS = [
   { label: 'Movies', path: '/films' },
   { label: 'Series', path: '/series' },
   { label: 'Actors', path: '/actors' },

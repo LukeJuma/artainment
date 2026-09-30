@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, ShieldOff, ShieldCheck, UserCog, X } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
@@ -32,7 +32,7 @@ function toAdminCard(u: AdminUser, selfId?: number): AdminCard {
     email: u.email,
     role: u.id === selfId ? 'Super Admin' : 'Admin',
     status: 'Active',
-    joined: u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : '—',
+    joined: u.created_at ? new Date(u.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : 'â€”',
     isSelf: u.id === selfId,
   }
 }

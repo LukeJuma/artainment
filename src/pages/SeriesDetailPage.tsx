@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { seriesAPI, videoStreamUrl, type Episode, type Series } from '../lib/api'
@@ -31,7 +31,7 @@ export function SeriesDetailPage() {
   if (error) {
     return (
       <div style={{ paddingTop: 120, textAlign: 'center' }}>
-        <p style={{ fontFamily: 'Chonburi, cursive', fontSize: 24, color: 'var(--text)', marginBottom: 24 }}>Series not found.</p>
+        <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 24, color: 'var(--text)', marginBottom: 24 }}>Series not found.</p>
         <Link to="/series" className="btn-outline">Browse Series</Link>
       </div>
     )
@@ -60,7 +60,7 @@ export function SeriesDetailPage() {
             <span style={{
               fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-secondary)',
             }}>
-              💡 Enhanced player replaces YouTube controls with a custom cinematic UI
+              ðŸ’¡ Enhanced player replaces YouTube controls with a custom cinematic UI
             </span>
           </div>
           <div style={{
@@ -115,7 +115,7 @@ export function SeriesDetailPage() {
         {playing && playing.video_url && (
           <VideoModal
             src={videoStreamUrl(playing.video_url)!}
-            title={`${series.title} — Episode ${playing.episode_number}: ${playing.title}`}
+            title={`${series.title} â€” Episode ${playing.episode_number}: ${playing.title}`}
             poster={series.backdrop_url || series.poster_url}
             onClose={() => setPlaying(null)}
             useCustomPlayer={useCustomPlayer}

@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+﻿import { motion } from 'framer-motion'
 import { Megaphone, TrendingUp, Users, Target } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
 

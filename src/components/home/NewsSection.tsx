@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+﻿import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { type NewsArticle } from '../../lib/api'
 import { useInView, fadeUp, stagger } from '../../lib/animations'
@@ -31,7 +31,7 @@ export function NewsSection({ news }: { news: NewsArticle[] }) {
                 {n.image_url && <img src={n.image_url} alt={n.title} loading="lazy" style={{ width: '100%', height: 180, objectFit: 'cover' }} />}
                 <div style={{ padding: 16 }}>
                   <span style={{ fontFamily: 'DM Sans', fontSize: 10, fontWeight: 700, textTransform: 'uppercase', letterSpacing: 1, color: 'var(--red)' }}>{n.category}</span>
-                  <h3 style={{ fontFamily: 'Chonburi', fontSize: 15, color: 'var(--text)', margin: '6px 0', lineHeight: 1.3 }}>{n.title}</h3>
+                  <h3 style={{ fontFamily: 'Bebas Neue', fontSize: 15, color: 'var(--text)', margin: '6px 0', lineHeight: 1.3 }}>{n.title}</h3>
                   <p style={{ fontFamily: 'DM Sans', fontSize: 13, color: 'var(--text-muted)', margin: 0, lineHeight: 1.6 }}>{n.excerpt}</p>
                   {n.published_at && (
                     <span style={{ fontFamily: 'DM Sans', fontSize: 11, color: 'var(--text-muted)', marginTop: 10, display: 'flex', alignItems: 'center', gap: 4 }}>

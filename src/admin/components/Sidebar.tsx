@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+﻿import { motion } from 'framer-motion'
 import { LogOut, ChevronLeft, ChevronRight } from 'lucide-react'
 import { NAV_SECTIONS } from '../lib/navigation'
 

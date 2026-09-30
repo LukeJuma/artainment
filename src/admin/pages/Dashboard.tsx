@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+﻿import { useState, useEffect, useMemo } from 'react'
 import { motion } from 'framer-motion'
 import {
   DollarSign, Users, Headphones, Ticket, Calendar, Trophy,
@@ -156,7 +156,7 @@ export function Dashboard() {
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
             <span style={{ fontSize: 24 }}>
-              {currentTime.getHours() < 12 ? '☀️' : currentTime.getHours() < 17 ? '🌤️' : '🌙'}
+              {currentTime.getHours() < 12 ? 'â˜€ï¸' : currentTime.getHours() < 17 ? 'ðŸŒ¤ï¸' : 'ðŸŒ™'}
             </span>
             <h1 style={{
               fontFamily: "'Plus Jakarta Sans', sans-serif",
@@ -181,10 +181,10 @@ export function Dashboard() {
 
           <div style={{ display: 'flex', gap: 24, marginTop: 20 }}>
             {[
-              { label: 'Revenue Today', value: `KES ${(r?.today ?? 0 / 1000).toFixed(0)}K`, change: r?.today ? '+12%' : '—', positive: true, icon: DollarSign, color: '#2DD36F' },
-              { label: 'New Users Today', value: String(u?.new_today ?? 0), change: u?.new_today ? '+8%' : '—', positive: true, icon: Users, color: '#3B82F6' },
-              { label: 'Revenue This Week', value: `KES ${((r?.this_week ?? 0) / 1000).toFixed(0)}K`, change: r?.this_week ? '+' : '—', positive: true, icon: Headphones, color: '#8B5CF6' },
-              { label: 'Active Events', value: String(mm?.events ?? 0), change: '—', positive: true, icon: Calendar, color: '#FF4D2D' },
+              { label: 'Revenue Today', value: `KES ${(r?.today ?? 0 / 1000).toFixed(0)}K`, change: r?.today ? '+12%' : 'â€”', positive: true, icon: DollarSign, color: '#2DD36F' },
+              { label: 'New Users Today', value: String(u?.new_today ?? 0), change: u?.new_today ? '+8%' : 'â€”', positive: true, icon: Users, color: '#3B82F6' },
+              { label: 'Revenue This Week', value: `KES ${((r?.this_week ?? 0) / 1000).toFixed(0)}K`, change: r?.this_week ? '+' : 'â€”', positive: true, icon: Headphones, color: '#8B5CF6' },
+              { label: 'Active Events', value: String(mm?.events ?? 0), change: 'â€”', positive: true, icon: Calendar, color: '#FF4D2D' },
             ].map((item, idx) => (
               <motion.div
                 key={item.label}

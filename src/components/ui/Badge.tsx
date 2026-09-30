@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+﻿import type { CSSProperties, ReactNode } from 'react';
 
 type BadgeVariant = 'brand' | 'gold' | 'live' | 'outline' | 'muted' | 'upcoming';
 

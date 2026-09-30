@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+﻿import { motion } from 'framer-motion'
 import { type Talent } from '../../lib/api'
 import { useInView, fadeUp, stagger } from '../../lib/animations'
 import { Section } from '../ui/Section'
@@ -30,7 +30,7 @@ export function TalentSection({ talent }: { talent: Talent[] }) {
                     <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: '#fff' }}>View Profile</span>
                   </div>
                 </div>
-                <h3 style={{ fontFamily: 'Chonburi', fontSize: 14, color: 'var(--text)', margin: '0 0 3px' }}>{t.name}</h3>
+                <h3 style={{ fontFamily: 'Bebas Neue', fontSize: 14, color: 'var(--text)', margin: '0 0 3px' }}>{t.name}</h3>
                 <span style={{ fontFamily: 'DM Sans', fontSize: 11, color: 'var(--text-muted)' }}>{t.role}</span>
               </Link>
             </motion.div>

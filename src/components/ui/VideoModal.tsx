@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useReducedMotion } from 'framer-motion'
 import { IconX } from './Icons'
@@ -101,7 +101,7 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
                 border: '2px solid rgba(239,68,68,0.4)', display: 'flex', alignItems: 'center',
                 justifyContent: 'center', fontSize: 24, color: '#ff6b6b', marginBottom: 8,
               }}>
-                ⚠️
+                âš ï¸
               </div>
               <h3 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: '#fff' }}>
                 Unable to load this video

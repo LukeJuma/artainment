@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { type Podcast } from '../../lib/api'
 import { useInView, fadeUp, stagger } from '../../lib/animations'
@@ -40,9 +40,9 @@ export function PodcastSection({ podcasts }: { podcasts: Podcast[] }) {
                     </span>
                   </div>
                 </div>
-                <h3 style={{ fontFamily: "'Chonburi', cursive", fontSize: 15, color: 'var(--text)', margin: '0 0 3px' }}>{p.title}</h3>
+                <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 15, color: 'var(--text)', margin: '0 0 3px' }}>{p.title}</h3>
                 <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-muted)' }}>
-                  {p.host ? `${p.host} · ` : ''}{p.episodes_count ?? 0} episodes
+                  {p.host ? `${p.host} Â· ` : ''}{p.episodes_count ?? 0} episodes
                 </span>
               </Link>
             </motion.div>

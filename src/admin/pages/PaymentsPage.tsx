@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+﻿import { motion } from 'framer-motion'
 import {
   DollarSign, TrendingUp, CreditCard, ArrowDownRight,
   Download, RefreshCcw,
@@ -47,7 +47,7 @@ function methodLabel(method: string): string {
 }
 
 function formatDate(value: string | null | undefined): string {
-  if (!value) return '—'
+  if (!value) return 'â€”'
   const d = new Date(value)
   return isNaN(d.getTime()) ? value : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 }
@@ -215,7 +215,7 @@ export function PaymentsPage() {
                     <td className="cell-primary">{p.user?.name ?? 'Guest'}</td>
                     <td style={{ fontWeight: 700, color: 'var(--admin-text)' }}>KES {p.amount.toLocaleString()}</td>
                     <td>{methodLabel(p.method)}</td>
-                    <td style={{ color: 'var(--admin-text-muted)' }}>{p.reference ?? '—'}</td>
+                    <td style={{ color: 'var(--admin-text-muted)' }}>{p.reference ?? 'â€”'}</td>
                     <td><span className="badge" style={{ background: sc.bg, color: sc.color }}><span className="badge-dot" />{statusLabel(p.status)}</span></td>
                     <td style={{ color: 'var(--admin-text-muted)' }}>{formatDate(p.paid_at ?? p.created_at)}</td>
                   </motion.tr>

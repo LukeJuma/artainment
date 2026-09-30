@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+﻿import { motion } from 'framer-motion'
 import {
   CreditCard, TrendingUp, Users, DollarSign,
   Crown, Star, Heart, GraduationCap, Calendar, MoreHorizontal, Edit3, Plus,
@@ -29,7 +29,7 @@ const planMeta: Record<string, { icon: typeof Crown; color: string }> = {
 const defaultMeta = { icon: Crown, color: '#3B82F6' }
 
 function formatDate(value: string | null): string {
-  if (!value) return '—'
+  if (!value) return 'â€”'
   const d = new Date(value)
   return isNaN(d.getTime()) ? value : d.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
 }
@@ -69,8 +69,8 @@ export function SubscriptionsPage() {
     id: s.id,
     user: s.user?.name ?? `User #${s.user_id}`,
     plan: s.plan?.name ?? 'Unknown',
-    method: s.plan ? `KES ${s.plan.price}` : '—',
-    amount: s.plan ? `KES ${s.plan.price}` : '—',
+    method: s.plan ? `KES ${s.plan.price}` : 'â€”',
+    amount: s.plan ? `KES ${s.plan.price}` : 'â€”',
     date: formatDate(s.started_at ?? s.ends_at),
     status: s.status === 'active' ? 'Active' : s.status === 'cancelled' ? 'Cancelled' : 'Expired',
   }))
@@ -226,7 +226,7 @@ export function SubscriptionsPage() {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--admin-text)' }}>{t.user}</div>
-                  <div style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{t.plan} · {t.date}</div>
+                  <div style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{t.plan} Â· {t.date}</div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--admin-success)' }}>{t.amount}</div>

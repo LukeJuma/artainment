@@ -1,4 +1,4 @@
-import type { Film } from '../../lib/api'
+﻿import type { Film } from '../../lib/api'
 import { FadeIn } from '../ui/FadeIn'
 import { SectionLabel } from '../ui/SectionLabel'
 

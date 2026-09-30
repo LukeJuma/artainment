@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react';
+﻿import type { CSSProperties, ReactNode } from 'react';
 
 interface SectionHeadingProps {
   eyebrow?: string;
@@ -11,7 +11,7 @@ interface SectionHeadingProps {
 }
 
 /**
- * Cinematic section header: red tick + tracked eyebrow, Chonburi display
+ * Cinematic section header: red tick + tracked eyebrow, Bebas Neue display
  * title, muted sub-copy. Replaces ad-hoc SectionLabel + h2 combinations.
  */
 export function SectionHeading({
@@ -59,7 +59,7 @@ export function SectionHeading({
       )}
       <h2
         style={{
-          fontFamily: "'Chonburi', cursive",
+          fontFamily: "'Bebas Neue', sans-serif",
           fontWeight: 400,
           fontSize: 'var(--ds-display-lg)',
           lineHeight: 1.05,

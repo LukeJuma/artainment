@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, Plus, Calendar, MapPin, Users, Clock, Ticket, Eye,
@@ -119,7 +119,7 @@ export function EventsPage() {
     <div>
       <PageHeader
         title="Events"
-        description={`${events.length} events · ${liveCount} live now`}
+        description={`${events.length} events Â· ${liveCount} live now`}
         actions={
           <button className="admin-btn admin-btn-primary" onClick={() => setShowModal(true)}>
             <Plus size={15} />

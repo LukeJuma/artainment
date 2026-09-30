@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { filmsAPI, videoStreamUrl, fullFilmStreamUrl, type Film } from '../lib/api'
@@ -52,7 +52,7 @@ export function FilmDetailPage() {
   if (error) {
     return (
       <div style={{ paddingTop: 120, textAlign: 'center' }}>
-        <p style={{ fontFamily: 'Chonburi, cursive', fontSize: 24, color: 'var(--text)', marginBottom: 24 }}>Film not found.</p>
+        <p style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 24, color: 'var(--text)', marginBottom: 24 }}>Film not found.</p>
         <Link to="/films" className="btn-outline">Browse Movies</Link>
       </div>
     )
@@ -78,7 +78,7 @@ export function FilmDetailPage() {
             <span style={{
               fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-secondary)',
             }}>
-              💡 Enhanced player replaces YouTube controls with a custom cinematic UI
+              ðŸ’¡ Enhanced player replaces YouTube controls with a custom cinematic UI
             </span>
           </div>
           <div style={{

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { authAPI } from '../lib/api'
@@ -33,7 +33,7 @@ export function ForgotPasswordPage() {
         style={{ width: '100%', maxWidth: 440, padding: '0 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 48 }}>
           <SectionLabel text="Password Recovery" />
-          <h1 style={{ fontFamily: 'Chonburi, cursive', fontSize: 'clamp(32px, 6vw, 42px)', fontWeight: 700, color: 'var(--text)', margin: '0 0 8px' }}>Forgot Password</h1>
+          <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(32px, 6vw, 42px)', fontWeight: 700, color: 'var(--text)', margin: '0 0 8px' }}>Forgot Password</h1>
           <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: 'var(--text-secondary)' }}>Enter your email and we'll send you a reset link</p>
         </div>
         {message ? (

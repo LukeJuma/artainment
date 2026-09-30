@@ -1,4 +1,4 @@
-import { motion, AnimatePresence } from 'framer-motion'
+﻿import { motion, AnimatePresence } from 'framer-motion'
 import { X, Check, Clock, AlertTriangle, DollarSign, Users, Trophy, Ticket, Settings } from 'lucide-react'
 
 interface NotificationPanelProps {

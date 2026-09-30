@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { type Testimonial } from '../../lib/api'
 import { useInView } from '../../lib/animations'

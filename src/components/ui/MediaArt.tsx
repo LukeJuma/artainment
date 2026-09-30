@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react'
+﻿import type { CSSProperties } from 'react'
 import { Film as FilmIcon, Mic as MicIcon, User as UserIcon } from 'lucide-react'
 
 interface MediaArtProps {
@@ -69,12 +69,12 @@ export function MediaArt({ type, title, src, alt, absolute = true, style }: Medi
       </div>
       <span style={{
         position: 'absolute', top: '12%', left: 0, right: 0, textAlign: 'center',
-        fontFamily: "'Chonburi', cursive", fontSize: 'clamp(26px, 4vw, 44px)',
+        fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(26px, 4vw, 44px)',
         color: 'var(--ds-text-3)', opacity: 0.55, letterSpacing: '0.04em',
       }}>{initials}</span>
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16% 12% 10%' }}>
         <div style={{
-          fontFamily: "'Chonburi', cursive", fontSize: 13, lineHeight: 1.25,
+          fontFamily: "'Bebas Neue', sans-serif", fontSize: 13, lineHeight: 1.25,
           color: 'var(--ds-text-2)', textAlign: 'center',
           overflow: 'hidden', display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2,
         }}>{title}</div>

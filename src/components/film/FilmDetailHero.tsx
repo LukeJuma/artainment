@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 import { motion, useReducedMotion } from 'framer-motion'
 import type { Film } from '../../lib/api'
 import { IconPlay, IconStar, IconClock, IconArrowRight } from '../ui/Icons'
@@ -27,7 +27,7 @@ export function FilmDetailHero({ film, onPlayTrailer, onPlayFull }: FilmDetailHe
       className="film-hero"
       style={{ position: 'relative', overflow: 'hidden', background: '#0a0a0c', minHeight: 'clamp(560px, 78vh, 720px)' }}
     >
-      {/* ─── Cinematic backdrop ─────────────────────────── */}
+      {/* â”€â”€â”€ Cinematic backdrop â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="film-hero-backdrop" style={{ position: 'absolute', inset: 0 }}>
         {film.poster_url && (
           <motion.img
@@ -65,7 +65,7 @@ export function FilmDetailHero({ film, onPlayTrailer, onPlayFull }: FilmDetailHe
         }} />
       </div>
 
-      {/* ─── Hero content ─────────────────────────────── */}
+      {/* â”€â”€â”€ Hero content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
       <div className="film-hero-inner" style={{
         position: 'relative', maxWidth: 1280, margin: '0 auto',
         padding: 'clamp(120px, 17vh, 180px) 32px clamp(56px, 8vh, 96px)',
@@ -84,7 +84,7 @@ export function FilmDetailHero({ film, onPlayTrailer, onPlayFull }: FilmDetailHe
           </motion.div>
 
           <motion.h2 {...rise(0.2)} className="film-hero-title" style={{
-            fontFamily: 'Chonburi, cursive', fontSize: 'clamp(40px, 7vw, 104px)', lineHeight: 0.95,
+            fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(40px, 7vw, 104px)', lineHeight: 0.95,
             color: '#fff', fontWeight: 700, margin: '0 0 22px', letterSpacing: '0.01em',
             textShadow: '0 4px 34px rgba(0,0,0,0.55)',
           }}>

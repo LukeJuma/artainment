@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode, MouseEvent } from 'react';
+﻿import type { CSSProperties, ReactNode, MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 
 type ButtonVariant = 'primary' | 'gold' | 'outline' | 'ghost' | 'light';

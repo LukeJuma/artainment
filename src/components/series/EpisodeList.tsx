@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Episode, Series } from '../../lib/api'
 import { IconPlay } from '../ui/Icons'
@@ -26,11 +26,11 @@ export function EpisodeList({ series, onPlayEpisode }: EpisodeListProps) {
     <section style={{ padding: '72px 0' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 32px' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 16, marginBottom: 12, flexWrap: 'wrap' }}>
-          <h2 style={{ fontFamily: 'Chonburi, cursive', fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 700, color: 'var(--text)', margin: 0 }}>
+          <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 700, color: 'var(--text)', margin: 0 }}>
             Episodes
           </h2>
           <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)' }}>
-            {seasons.length} season{seasons.length > 1 ? 's' : ''} · {seasons.reduce((n, s) => n + (s.episodes?.length || 0), 0)} episodes
+            {seasons.length} season{seasons.length > 1 ? 's' : ''} Â· {seasons.reduce((n, s) => n + (s.episodes?.length || 0), 0)} episodes
           </span>
         </div>
 
@@ -80,14 +80,14 @@ export function EpisodeList({ series, onPlayEpisode }: EpisodeListProps) {
                     }}
                   >
                     <span style={{
-                      fontFamily: 'Chonburi, cursive', fontSize: 22, color: 'var(--text-muted)',
+                      fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, color: 'var(--text-muted)',
                       width: 44, flexShrink: 0, textAlign: 'center',
                     }}>
                       {String(ep.episode_number).padStart(2, '0')}
                     </span>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-                        <h3 style={{ fontFamily: 'Chonburi, cursive', fontSize: 17, fontWeight: 600, color: 'var(--text)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 17, fontWeight: 600, color: 'var(--text)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {ep.title}
                         </h3>
                         {ep.duration && <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-muted)', flexShrink: 0 }}>{ep.duration}</span>}

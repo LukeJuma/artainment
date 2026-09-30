@@ -1,4 +1,4 @@
-import { type Film, type Series } from '../../lib/api'
+﻿import { type Film, type Series } from '../../lib/api'
 import { useInView } from '../../lib/animations'
 import { Section } from '../ui/Section'
 import { Button } from '../ui/Button'
@@ -45,7 +45,7 @@ export function FeaturedProduction({ film, kind = 'film' }: { film: Film | Serie
               </span>
             )}
           </div>
-          <h2 className="section-heading" style={{ color: '#fff', margin: '0 0 14px', fontFamily: "'Chonburi', cursive", fontWeight: 400, fontSize: 'clamp(30px, 5vw, 72px)', lineHeight: 1 }}>
+          <h2 className="section-heading" style={{ color: '#fff', margin: '0 0 14px', fontFamily: "'Bebas Neue', sans-serif", fontWeight: 400, fontSize: 'clamp(30px, 5vw, 72px)', lineHeight: 1 }}>
             {film.title}
           </h2>
           {film.synopsis && (
