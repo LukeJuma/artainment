@@ -14,7 +14,7 @@ export function FeaturedProduction({ film, kind = 'film' }: { film: Film | Serie
   const detailPath = `/${isSeries ? 'series' : 'films'}/${film.slug}`
 
   return (
-    <Section style={{ padding: 0, marginBottom: 'clamp(48px, 6vw, 88px)', overflow: 'hidden', background: 'var(--ds-ink-950)' }}>
+    <Section style={{ padding: 0, marginBottom: 0, overflow: 'hidden', background: 'var(--ds-ink-950)' }}>
       <div ref={ref} className="featured" style={{ position: 'relative', minHeight: 520 }}>
         <div style={{ position: 'absolute', inset: 0, height: 520 }}>
           <MediaArt type={isSeries ? 'series' : 'film'} title={film.title} src={film.backdrop_url || film.poster_url} alt={film.title} />

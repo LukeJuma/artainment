@@ -91,7 +91,25 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
   }
 
   return (
-    <section aria-label="Coming soon" style={{ position: 'relative', overflow: 'hidden', background: 'var(--ds-ink-950)' }}>
+    <section aria-label="Coming soon" style={{ background: 'var(--bg)' }}>
+      {/* Section header on page background — not overlaid on the artwork */}
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: 'clamp(48px, 7vw, 84px) clamp(20px, 5vw, 80px) clamp(28px, 4vw, 44px)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+          <span style={{ width: 28, height: 2, background: 'var(--ds-gold-cta)' }} />
+          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, letterSpacing: 3, color: 'var(--ds-gold-cta)', textTransform: 'uppercase', fontWeight: 700 }}>
+            On The Horizon
+          </span>
+        </div>
+        <h2 className="section-heading" style={{ color: 'var(--text)', margin: '0 0 10px' }}>
+          Coming Soon
+        </h2>
+        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.7, color: 'var(--text-secondary)', margin: 0, maxWidth: 560 }}>
+          Films and series on their way to your screen — premiere dates, countdowns and first-access alerts.
+        </p>
+      </div>
+
+      {/* Full-bleed artwork band */}
+      <div style={{ position: 'relative', overflow: 'hidden', background: 'var(--ds-ink-950)' }}>
       {/* Backdrop */}
       <div aria-hidden="true" style={{ position: 'absolute', inset: 0 }}>
         {art ? (
@@ -105,15 +123,8 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
 
       <div style={{
         position: 'relative', zIndex: 1, maxWidth: 1200, margin: '0 auto',
-        padding: 'clamp(72px, 10vw, 140px) clamp(20px, 5vw, 80px)',
+        padding: 'clamp(56px, 8vw, 110px) clamp(20px, 5vw, 80px)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16 }}>
-          <span style={{ width: 28, height: 2, background: 'var(--ds-gold)' }} />
-          <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, letterSpacing: 3, color: 'var(--ds-gold)', textTransform: 'uppercase', fontWeight: 700 }}>
-            Coming Soon
-          </span>
-        </div>
-
         <h2 style={{
           fontFamily: "'Bebas Neue', sans-serif", fontWeight: 400, color: '#fff',
           fontSize: 'clamp(40px, 7vw, 88px)', lineHeight: 1, margin: '0 0 12px',
@@ -218,6 +229,7 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
             </a>
           ))}
         </div>
+      </div>
       </div>
     </section>
   )
