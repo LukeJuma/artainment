@@ -1614,10 +1614,22 @@ serve(async (req) => {
           }
           if (method === 'POST') {
             const body = sanitizeInput(await req.json())
-            // Auto-slug common title fields when the client omits slug
-            if (!body.slug && (body.title || body.headline || body.name)) {
+            // Auto-slug common title fields when the client omits slug —
+            // only for tables that actually have a slug column.
+            const SLUGGED = new Set(['films', 'series', 'podcasts', 'talents', 'productions', 'news', 'micmtaani_articles', 'micmtaani_categories', 'micmtaani_journalists', 'micmtaani_events', 'micmtaani_businesses'])
+            if (SLUGGED.has(table) && !body.slug && (body.title || body.headline || body.name)) {
               body.slug = String(body.title || body.headline || body.name)
                 .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+            }
+            // Never store a plain-text password (admin-created users)
+            if (table === 'users') {
+              if (!body.password) {
+                return new Response(JSON.stringify({ error: 'Password is required' }), {
+                  status: 422, headers: corsHeaders
+                })
+              }
+              body.password = await hashPassword(body.password)
+              delete body.is_admin // role changes go through /users/:id/role
             }
             const { data, error } = await supabase.from(table).insert(body).select(selectCols).single()
             if (error) throw error

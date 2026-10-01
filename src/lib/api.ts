@@ -880,6 +880,8 @@ export const adminAPI = {
 
   // Users
   users: (token: string) => api<AdminUser[]>('/admin/users', { token }),
+  createUser: (token: string, data: { name: string; email: string; password: string }) =>
+    api<AdminUser>('/admin/users', { method: 'POST', token, body: data }),
   updateUserRole: (token: string, id: number, isAdmin: boolean) =>
     api<AdminUser>(`/admin/users/${id}/role`, { method: 'PUT', token, body: { is_admin: isAdmin } }),
   deleteUser: (token: string, id: number) =>

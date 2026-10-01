@@ -70,6 +70,12 @@ export function UsersPage() {
   const [search, setSearch] = useState('')
   const [selectedRole, setSelectedRole] = useState('All')
   const [selectedStatus, setSelectedStatus] = useState('All')
+  const [showAdd, setShowAdd] = useState(false)
+  const [newName, setNewName] = useState('')
+  const [newEmail, setNewEmail] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [addError, setAddError] = useState('')
+  const [adding, setAdding] = useState(false)
 
   const users: User[] = (rawUsers ?? []).map(adminUserToUser)
 
@@ -108,6 +114,45 @@ export function UsersPage() {
     }
   }
 
+  const handleAddUser = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!token) return
+    setAdding(true)
+    setAddError('')
+    try {
+      await adminAPI.createUser(token, {
+        name: newName.trim(),
+        email: newEmail.trim(),
+        password: newPassword,
+      })
+      setNewName('')
+      setNewEmail('')
+      setNewPassword('')
+      setShowAdd(false)
+      refetch()
+    } catch (err: any) {
+      setAddError(err.message || 'Failed to create user')
+    } finally {
+      setAdding(false)
+    }
+  }
+
+  const handleExport = () => {
+    const rows = [
+      ['id', 'name', 'email', 'role', 'status', 'joined'].join(','),
+      ...filtered.map(u =>
+        [u.id, `"${u.name.replace(/"/g, '""')}"`, u.email, u.role, u.status, u.joined].join(','),
+      ),
+    ]
+    const blob = new Blob([rows.join('\n')], { type: 'text/csv;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `artainment-users-${new Date().toISOString().slice(0, 10)}.csv`
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   if (loading) {
     return (
       <div>
@@ -124,11 +169,11 @@ export function UsersPage() {
         description={`${users.length} registered users across your platform`}
         actions={
           <div style={{ display: 'flex', gap: 8 }}>
-            <button className="admin-btn admin-btn-secondary">
+            <button className="admin-btn admin-btn-secondary" onClick={handleExport}>
               <Download size={15} />
               Export
             </button>
-            <button className="admin-btn admin-btn-primary">
+            <button className="admin-btn admin-btn-primary" onClick={() => { setAddError(''); setShowAdd(true) }}>
               <Plus size={15} />
               Add User
             </button>
@@ -269,9 +314,14 @@ export function UsersPage() {
                       >
                         {user.isAdmin ? <ShieldOff size={13} /> : <ShieldCheck size={13} />}
                       </button>
-                      <button className="admin-btn admin-btn-ghost admin-btn-sm" style={{ padding: 5 }} title="Email">
+                      <a
+                        className="admin-btn admin-btn-ghost admin-btn-sm"
+                        style={{ padding: 5 }}
+                        title={`Email ${user.email}`}
+                        href={`mailto:${user.email}`}
+                      >
                         <Mail size={13} />
-                      </button>
+                      </a>
                       <button
                         className="admin-btn admin-btn-ghost admin-btn-sm"
                         style={{ padding: 5, color: isSelf ? 'var(--admin-text-faint)' : 'var(--admin-danger)' }}
@@ -298,6 +348,67 @@ export function UsersPage() {
           ))}
         </div>
       </div>
+
+      {showAdd && (
+        <div
+          style={{ position: 'fixed', inset: 0, zIndex: 200, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}
+          onClick={() => setShowAdd(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, scale: 0.96, y: 12 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            onClick={e => e.stopPropagation()}
+            style={{ width: 'min(440px, 100%)', background: 'var(--admin-card)', border: '1px solid var(--admin-border)', borderRadius: 'var(--admin-radius-xl)', padding: 28 }}
+          >
+            <h3 style={{ fontSize: 17, fontWeight: 700, color: 'var(--admin-text)', margin: '0 0 6px' }}>Add User</h3>
+            <p style={{ fontSize: 13, color: 'var(--admin-text-muted)', margin: '0 0 20px' }}>
+              Creates a subscriber account. Grant admin afterwards with the shield icon if needed.
+            </p>
+            {addError && (
+              <div style={{ background: 'var(--admin-danger-glow)', border: '1px solid var(--admin-danger)', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: 'var(--admin-danger)', marginBottom: 16 }}>
+                {addError}
+              </div>
+            )}
+            <form onSubmit={handleAddUser} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <input
+                className="admin-input"
+                placeholder="Full name"
+                value={newName}
+                onChange={e => setNewName(e.target.value)}
+                required
+                style={{ width: '100%', boxSizing: 'border-box' }}
+              />
+              <input
+                className="admin-input"
+                type="email"
+                placeholder="Email address"
+                value={newEmail}
+                onChange={e => setNewEmail(e.target.value)}
+                required
+                style={{ width: '100%', boxSizing: 'border-box' }}
+              />
+              <input
+                className="admin-input"
+                type="password"
+                placeholder="Temporary password (min 8 characters)"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                required
+                minLength={8}
+                style={{ width: '100%', boxSizing: 'border-box' }}
+              />
+              <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 4 }}>
+                <button type="button" className="admin-btn admin-btn-secondary" onClick={() => setShowAdd(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="admin-btn admin-btn-primary" disabled={adding}>
+                  {adding ? 'Creating...' : 'Create User'}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </div>
+      )}
     </div>
   )
 }
