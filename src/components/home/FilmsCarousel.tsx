@@ -16,12 +16,115 @@ const TABS: { id: TrendTab; label: string }[] = [
   { id: 'recent', label: 'Recently Added' },
 ];
 
+type PoolItem = (Film | Series) & { _kind: 'film' | 'series' };
+
+function HoverCard({ item, rect, onEnter, onLeave }: {
+  item: PoolItem
+  rect: DOMRect
+  onEnter: () => void
+  onLeave: () => void
+}) {
+  const isSeries = item._kind === 'series'
+  const art = item.backdrop_url || item.poster_url
+  const width = 340
+  const height = 400
+  const left = Math.min(Math.max(rect.left + rect.width / 2 - width / 2, 12), window.innerWidth - width - 12)
+  // Prefer opening downward; flip upward when near the viewport bottom
+  const top = rect.bottom + height + 16 < window.innerHeight
+    ? rect.top - 12
+    : Math.max(12, rect.bottom - height + 12)
+
+  return (
+    <div
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+      style={{
+        position: 'fixed', left, top, width, zIndex: 300,
+        background: '#101014', border: '1px solid rgba(255,255,255,0.12)',
+        borderRadius: 12, overflow: 'hidden',
+        boxShadow: '0 30px 90px rgba(0,0,0,0.7)',
+        animation: 'ds-fade-up 0.25s var(--ds-ease-out)',
+      }}
+    >
+      <div style={{ position: 'relative', height: 170, background: 'linear-gradient(160deg, #1c1224, #0d0d10)' }}>
+        {art && <img src={art} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,14,0.9), transparent 55%)' }} />
+        {typeof item.rating === 'number' && (
+          <span style={{
+            position: 'absolute', top: 10, right: 10,
+            display: 'inline-flex', alignItems: 'center', gap: 4,
+            background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
+            color: '#fff', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700,
+            padding: '5px 10px', borderRadius: 6,
+          }}>
+            <IconStar size={13} color="var(--ds-gold)" filled /> {item.rating.toFixed(1)}
+          </span>
+        )}
+        <span style={{
+          position: 'absolute', left: 14, bottom: 10,
+          fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: 'rgba(255,255,255,0.85)',
+        }}>
+          {isSeries ? 'Series' : 'Movie'}
+          {item.year ? ` · ${item.year}` : ''}
+          {item.genre ? ` · ${item.genre}` : ''}
+        </span>
+      </div>
+      <div style={{ padding: '16px 18px 18px' }}>
+        <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 26, color: '#fff', lineHeight: 1, marginBottom: 8 }}>
+          {item.title}
+        </div>
+        {item.synopsis && (
+          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, lineHeight: 1.6, color: 'rgba(255,255,255,0.72)', margin: '0 0 16px', overflow: 'hidden', display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 3 }}>
+            {item.synopsis.length > 130 ? item.synopsis.slice(0, 130) + '…' : item.synopsis}
+          </p>
+        )}
+        <Link
+          to={`/${isSeries ? 'series' : 'films'}/${item.slug}`}
+          style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+            background: '#fff', color: '#101014',
+            fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: 0.5,
+            padding: '12px', borderRadius: 8, textDecoration: 'none',
+          }}
+        >
+          ▶ Watch Now
+        </Link>
+      </div>
+    </div>
+  )
+}
+
 export function FilmsCarousel({ films, series = [] }: { films: Film[]; series?: Series[] }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const { ref, inView } = useInView()
   const [vw, setVw] = useState(() => (typeof window !== 'undefined' ? window.innerWidth : 1200))
   const [tab, setTab] = useState<TrendTab>('popular')
   const [genre, setGenre] = useState('All')
+  const [hovered, setHovered] = useState<{ item: PoolItem; rect: DOMRect } | null>(null)
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const [canHover] = useState(() => typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches)
+
+  const showHover = (item: PoolItem, el: HTMLElement) => {
+    if (!canHover) return
+    if (hideTimer.current) clearTimeout(hideTimer.current)
+    setHovered({ item, rect: el.getBoundingClientRect() })
+  }
+
+  const scheduleHide = () => {
+    if (hideTimer.current) clearTimeout(hideTimer.current)
+    hideTimer.current = setTimeout(() => setHovered(null), 180)
+  }
+
+  // A fixed popover detaches from its card on scroll — dismiss it instead
+  useEffect(() => {
+    const hide = () => setHovered(null)
+    window.addEventListener('scroll', hide, true)
+    window.addEventListener('resize', hide)
+    return () => {
+      window.removeEventListener('scroll', hide, true)
+      window.removeEventListener('resize', hide)
+    }
+  }, [])
 
   useEffect(() => {
     const onResize = () => setVw(window.innerWidth)
@@ -34,8 +137,6 @@ export function FilmsCarousel({ films, series = [] }: { films: Film[]; series?: 
     for (const f of [...films, ...series]) if (f.genre) set.add(f.genre)
     return ['All', ...Array.from(set).sort()]
   }, [films, series])
-
-  type PoolItem = (Film | Series) & { _kind: 'film' | 'series' };
 
   const pool = useMemo<PoolItem[]>(() => {
     const all: PoolItem[] = [
@@ -137,10 +238,23 @@ export function FilmsCarousel({ films, series = [] }: { films: Film[]; series?: 
           const link = `/${isSeries ? 'series' : 'films'}/${item.slug}`
           return (
             <motion.div key={`${isSeries ? 's' : 'f'}-${item.id}`} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} whileHover={{ y: -6 }} transition={{ delay: Math.min(i * 0.06, 0.6), duration: 0.5 }}
+              onMouseEnter={e => showHover(item, e.currentTarget)}
+              onMouseLeave={scheduleHide}
               style={{ flexShrink: 0, width: cardW, scrollSnapAlign: 'start' }}>
               <Link to={link} style={{ textDecoration: 'none' }}>
                 <div className="zoom-hover" style={{ position: 'relative', height: cardH, borderRadius: 8, overflow: 'hidden', marginBottom: 10, background: 'var(--bg-muted)' }}>
                   <MediaArt type={isSeries ? 'series' : 'film'} title={item.title} src={item.poster_url} alt={item.title} />
+                  {typeof item.rating === 'number' && (
+                    <span style={{
+                      position: 'absolute', top: 8, right: 8, zIndex: 2,
+                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                      background: 'rgba(0,0,0,0.65)', backdropFilter: 'blur(6px)',
+                      color: '#fff', fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700,
+                      padding: '4px 9px', borderRadius: 6,
+                    }}>
+                      <IconStar size={12} color="var(--ds-gold)" filled /> {item.rating.toFixed(1)}
+                    </span>
+                  )}
                   {isSeries ? (
                     <span style={{ position: 'absolute', top: 8, left: 8, zIndex: 2 }}><Badge variant="brand">Series</Badge></span>
                   ) : (item.tag ? (
@@ -159,6 +273,15 @@ export function FilmsCarousel({ films, series = [] }: { films: Film[]; series?: 
           </p>
         )}
       </div>
+      {/* Hover expansion: rich preview pinned near the hovered card */}
+      {hovered && (
+        <HoverCard
+          item={hovered.item}
+          rect={hovered.rect}
+          onEnter={() => { if (hideTimer.current) clearTimeout(hideTimer.current) }}
+          onLeave={scheduleHide}
+        />
+      )}
       <div style={{ textAlign: 'center', marginTop: 36 }}>
         <Link to="/films" className="btn-outline">View All Movies</Link>
       </div>
