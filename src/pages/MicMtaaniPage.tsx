@@ -140,7 +140,7 @@ export function MicMtaaniPage() {
             <Link to="/micmtaani/news" style={{
               display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '14px 0', marginTop: 20,
               background: 'var(--red)', color: '#fff', fontWeight: 600, fontSize: 13, minHeight: 48,
-              letterSpacing: 1, textTransform: 'uppercase', borderRadius: 6, textDecoration: 'none',
+              letterSpacing: 1, textTransform: 'uppercase', borderRadius: 'var(--ds-radius-pill)', textDecoration: 'none',
             }}>View All News</Link>
           </div>
 
@@ -261,7 +261,7 @@ export function MicMtaaniPage() {
           <p style={{ fontSize: 14, color: 'var(--text-secondary)', margin: '0 0 20px' }}>Share news, events, or announcements with the Nakuru community.</p>
           <Link to="/micmtaani/submit" style={{
             display: 'inline-flex', alignItems: 'center', justifyContent: 'center', padding: '12px 32px', background: 'var(--red)', color: '#fff',
-            fontWeight: 600, fontSize: 14, borderRadius: 6, textDecoration: 'none', letterSpacing: 0.5, minHeight: 44,
+            fontWeight: 600, fontSize: 14, borderRadius: 'var(--ds-radius-pill)', textDecoration: 'none', letterSpacing: 0.5, minHeight: 44,
           }}>Submit a Story</Link>
         </section>
       </div>
@@ -291,7 +291,7 @@ function MMNewsletterCompact() {
         style={{ width: '100%', padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg-muted)', color: 'var(--text)', fontSize: 16, marginBottom: 8, outline: 'none', minHeight: 44 }}
       />
       <button type="submit" style={{
-        width: '100%', padding: '10px 0', borderRadius: 6, border: 'none', minHeight: 44,
+        width: '100%', padding: '10px 0', borderRadius: 'var(--ds-radius-pill)', border: 'none', minHeight: 44,
         background: 'var(--red)', color: '#fff', fontSize: 13, fontWeight: 600,
         cursor: 'pointer', letterSpacing: 0.5,
       }}>Subscribe</button>

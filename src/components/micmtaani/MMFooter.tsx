@@ -45,7 +45,7 @@ export function MMFooter() {
             <form onSubmit={handleSubscribe} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} required placeholder="Your email"
                 style={{ padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 16, outline: 'none', minHeight: 44 }} />
-              <button type="submit" style={{ padding: '10px 0', borderRadius: 6, border: 'none', background: 'var(--red)', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', minHeight: 44 }}>Subscribe</button>
+              <button type="submit" style={{ padding: '10px 0', borderRadius: 'var(--ds-radius-pill)', border: 'none', background: 'var(--red)', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer', minHeight: 44 }}>Subscribe</button>
             </form>
             {msg && <p style={{ fontSize: 12, color: 'var(--red)', marginTop: 8 }}>{msg}</p>}
           </div>

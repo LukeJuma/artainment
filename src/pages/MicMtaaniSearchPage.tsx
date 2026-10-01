@@ -62,7 +62,7 @@ export function MicMtaaniSearchPage() {
           </div>
           <button type="submit" style={{
             padding: '12px 24px', minHeight: 44, background: 'var(--red)', color: '#fff', border: 'none',
-            borderRadius: 6, fontSize: 14, fontWeight: 600, cursor: 'pointer',
+            borderRadius: 'var(--ds-radius-pill)', fontSize: 14, fontWeight: 600, cursor: 'pointer',
             display: 'inline-flex', alignItems: 'center',
           }}>Search</button>
         </form>

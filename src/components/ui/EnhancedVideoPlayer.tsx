@@ -487,7 +487,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
                   {/* Play / Pause */}
                   <button onClick={togglePlayPause} style={{
                     background: 'none', border: 'none', color: '#fff', cursor: 'pointer',
-                    padding: 8, borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    padding: 8, borderRadius: 'var(--ds-radius-pill)', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     transition: 'background 0.15s ease',
                   }}
                     onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
@@ -555,7 +555,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
                     <button onClick={() => setShowSettings(!showSettings)} style={{
                       background: 'none', border: 'none', color: '#fff', cursor: 'pointer',
                       padding: 8, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      borderRadius: 6, transition: 'background 0.15s ease',
+                      borderRadius: 'var(--ds-radius-pill)', transition: 'background 0.15s ease',
                     }}
                       onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.12)'}
                       onMouseLeave={e => e.currentTarget.style.background = 'none'}
@@ -658,3 +658,4 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
     </div>
   )
 }
+

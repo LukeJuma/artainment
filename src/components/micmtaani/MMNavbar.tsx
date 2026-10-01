@@ -87,7 +87,7 @@ export function MMNavbar() {
             <form onSubmit={handleSearch} style={{ padding: '0 0 12px', display: 'flex', gap: 8, maxWidth: 1200, margin: '0 auto' }}>
               <input type="text" value={searchQ} onChange={e => setSearchQ(e.target.value)} placeholder="Search..." autoFocus
                 style={{ flex: 1, padding: '10px 12px', borderRadius: 6, border: '1px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', fontSize: 16, outline: 'none', minHeight: 44 }} />
-              <button type="submit" style={{ padding: '8px 16px', background: 'var(--red)', color: '#fff', border: 'none', borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer', minHeight: 44 }}>Search</button>
+              <button type="submit" style={{ padding: '8px 16px', background: 'var(--red)', color: '#fff', border: 'none', borderRadius: 'var(--ds-radius-pill)', fontSize: 13, fontWeight: 600, cursor: 'pointer', minHeight: 44 }}>Search</button>
             </form>
           </motion.div>
         )}

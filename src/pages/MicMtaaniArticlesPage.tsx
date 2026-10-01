@@ -115,7 +115,7 @@ export function MicMtaaniArticlesPage() {
               <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 32, flexWrap: 'wrap' }}>
                 {Array.from({ length: data.last_page }, (_, i) => i + 1).map(p => (
                   <button key={p} onClick={() => setPage(p)} style={{
-                    minWidth: 44, minHeight: 44, borderRadius: 6, border: '1px solid var(--border)', background: p === data.current_page ? 'var(--red)' : 'var(--bg)',
+                    minWidth: 44, minHeight: 44, borderRadius: 'var(--ds-radius-pill)', border: '1px solid var(--border)', background: p === data.current_page ? 'var(--red)' : 'var(--bg)',
                     color: p === data.current_page ? '#fff' : 'var(--text)', fontSize: 13, fontWeight: 500, cursor: 'pointer',
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                   }}>{p}</button>

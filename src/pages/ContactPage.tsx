@@ -106,7 +106,7 @@ export function ContactPage() {
                   <textarea style={{ ...inputStyle, minHeight: 140, resize: 'vertical' }} value={form.message} onChange={e => setForm({ ...form, message: e.target.value })} placeholder="Tell us about your project..." required />
                 </div>
                 <button type="submit" disabled={loading}
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'var(--red)', border: 'none', cursor: loading ? 'wait' : 'pointer', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: '#fff', padding: '0 36px', borderRadius: 6, marginTop: 8, opacity: loading ? 0.7 : 1, minHeight: 48, WebkitAppearance: 'none' }}>
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: 'var(--red)', border: 'none', cursor: loading ? 'wait' : 'pointer', fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: '#fff', padding: '0 36px', borderRadius: 'var(--ds-radius-pill)', marginTop: 8, opacity: loading ? 0.7 : 1, minHeight: 48, WebkitAppearance: 'none' }}>
                   {loading ? 'Sending...' : <><IconSend size={14} color="#fff" /> Send Message</>}
                 </button>
               </form>

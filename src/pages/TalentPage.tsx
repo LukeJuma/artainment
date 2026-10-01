@@ -68,7 +68,7 @@ export function TalentPage() {
           {hasMore && (
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }}>
               <button onClick={loadMore} disabled={loadingMore}
-                style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: 'DM Sans, sans-serif', fontSize: 13, letterSpacing: 1, padding: '12px 36px', borderRadius: 6, cursor: 'pointer', transition: 'all 0.2s' }}>
+                style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: 'DM Sans, sans-serif', fontSize: 13, letterSpacing: 1, padding: '12px 36px', borderRadius: 'var(--ds-radius-pill)', cursor: 'pointer', transition: 'all 0.2s' }}>
                 {loadingMore ? 'Loading...' : 'Load More'}
               </button>
             </div>

@@ -20,7 +20,7 @@ export function CTASection() {
             style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {['Book Photography', 'Book Videography', 'Commission a Film', 'Hire Our Talent', 'Partner With Us'].map((label) => (
               <Link key={label} to="/contact"
-                style={{ background: 'var(--bg)', border: '1.5px solid var(--border)', fontFamily: 'DM Sans', fontSize: 13, fontWeight: 500, color: 'var(--text)', padding: '14px 20px', borderRadius: 6, textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'all 0.2s', minHeight: 48 }}
+                style={{ background: 'var(--bg)', border: '1.5px solid var(--border)', fontFamily: 'DM Sans', fontSize: 13, fontWeight: 500, color: 'var(--text)', padding: '14px 20px', borderRadius: 'var(--ds-radius-pill)', textDecoration: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'all 0.2s', minHeight: 48 }}
                 onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--red)'; e.currentTarget.style.color = 'var(--red)' }}
                 onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border)'; e.currentTarget.style.color = 'var(--text)' }}
               >

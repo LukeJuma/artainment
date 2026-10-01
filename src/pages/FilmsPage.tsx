@@ -57,7 +57,7 @@ export function FilmsPage() {
           <div className="films-filter" style={{ display: 'flex', gap: 10, marginBottom: 56, flexWrap: 'wrap' }}>
             {genres.map(g => (
               <button key={g} onClick={() => setFilter(g)}
-                style={{ background: filter === g ? 'var(--red)' : 'transparent', border: `1px solid ${filter === g ? 'var(--red)' : 'var(--border)'}`, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 12, letterSpacing: 1.5, textTransform: 'uppercase', color: filter === g ? 'var(--text)' : 'var(--text-secondary)', padding: '10px 22px', minHeight: 40, borderRadius: 6, transition: 'all 0.2s', fontWeight: 500 }}>{g}</button>
+                style={{ background: filter === g ? 'var(--red)' : 'transparent', border: `1px solid ${filter === g ? 'var(--red)' : 'var(--border)'}`, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 12, letterSpacing: 1.5, textTransform: 'uppercase', color: filter === g ? 'var(--text)' : 'var(--text-secondary)', padding: '10px 22px', minHeight: 40, borderRadius: 'var(--ds-radius-pill)', transition: 'all 0.2s', fontWeight: 500 }}>{g}</button>
             ))}
           </div>
           <motion.div ref={gridRef} variants={stagger} initial="hidden" animate={gridInView ? 'visible' : 'hidden'}
@@ -83,7 +83,7 @@ export function FilmsPage() {
           {hasMore && (
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: 48 }}>
               <button onClick={loadMore} disabled={loadingMore}
-                style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: 'DM Sans, sans-serif', fontSize: 13, letterSpacing: 1, padding: '12px 36px', borderRadius: 6, cursor: 'pointer', transition: 'all 0.2s' }}>
+                style={{ background: 'transparent', border: '1px solid var(--border)', color: 'var(--text)', fontFamily: 'DM Sans, sans-serif', fontSize: 13, letterSpacing: 1, padding: '12px 36px', borderRadius: 'var(--ds-radius-pill)', cursor: 'pointer', transition: 'all 0.2s' }}>
                 {loadingMore ? 'Loading...' : 'Load More'}
               </button>
             </div>

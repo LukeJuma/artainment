@@ -90,7 +90,7 @@ export function MicMtaaniSubmitPage() {
             </div>
             <button type="submit" disabled={loading} style={{
               padding: '14px 0', minHeight: 48, background: 'var(--red)', color: '#fff', border: 'none',
-              borderRadius: 6, fontSize: 14, fontWeight: 600, cursor: loading ? 'wait' : 'pointer',
+              borderRadius: 'var(--ds-radius-pill)', fontSize: 14, fontWeight: 600, cursor: loading ? 'wait' : 'pointer',
               letterSpacing: 0.5, opacity: loading ? 0.7 : 1,
             }}>{loading ? 'Submitting...' : 'Submit Story'}</button>
           </form>

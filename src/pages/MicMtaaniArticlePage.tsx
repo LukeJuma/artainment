@@ -137,7 +137,7 @@ export function MicMtaaniArticlePage() {
             />
             <button type="submit" style={{
               padding: '10px 24px', minHeight: 44, background: 'var(--red)', color: '#fff', border: 'none',
-              borderRadius: 6, fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              borderRadius: 'var(--ds-radius-pill)', fontSize: 13, fontWeight: 600, cursor: 'pointer',
             }}>Post Comment</button>
             {commentMsg && <p style={{ fontSize: 13, color: '#059669', marginTop: 8 }}>{commentMsg}</p>}
           </form>

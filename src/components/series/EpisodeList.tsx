@@ -45,7 +45,7 @@ export function EpisodeList({ series, onPlayEpisode }: EpisodeListProps) {
                   border: `1px solid ${activeSeason === s.season_number ? 'var(--red)' : 'var(--border)'}`,
                   cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 12, letterSpacing: 1.5,
                   textTransform: 'uppercase', color: activeSeason === s.season_number ? 'var(--text)' : 'var(--text-secondary)',
-                  padding: '10px 22px', minHeight: 40, borderRadius: 6, transition: 'all 0.2s', fontWeight: 600,
+                  padding: '10px 22px', minHeight: 40, borderRadius: 'var(--ds-radius-pill)', transition: 'all 0.2s', fontWeight: 600,
                 }}
               >
                 {s.title || `Season ${s.season_number}`}
@@ -103,7 +103,7 @@ export function EpisodeList({ series, onPlayEpisode }: EpisodeListProps) {
                       disabled={!playable}
                       style={{
                         display: 'inline-flex', alignItems: 'center', gap: 8, flexShrink: 0,
-                        minHeight: 44, padding: '0 20px', borderRadius: 6, cursor: playable ? 'pointer' : 'not-allowed',
+                        minHeight: 44, padding: '0 20px', borderRadius: 'var(--ds-radius-pill)', cursor: playable ? 'pointer' : 'not-allowed',
                         background: playable ? 'var(--red)' : 'var(--bg-muted)',
                         border: 'none', color: playable ? 'var(--text)' : 'var(--text-muted)',
                         fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase',

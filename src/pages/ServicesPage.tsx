@@ -21,7 +21,7 @@ function ServiceRow({ service: s, index: i }: { service: Service; index: number 
         <div style={{ fontFamily: 'Domine, serif', fontSize: 52, color: 'color-mix(in srgb, var(--red) 8%, transparent)', fontWeight: 300, lineHeight: 1, marginBottom: 16 }}>{String(i + 1).padStart(2, '0')}</div>
         <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 28, fontWeight: 600, color: 'var(--text)', margin: '0 0 16px' }}>{s.title}</h2>
         <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(14px, 1.5vw, 15px)', lineHeight: 1.8, color: 'var(--text-secondary)', margin: '0 0 36px' }}>{s.description}</p>
-        <Link to="/contact" style={{ background: 'var(--red)', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--text)', padding: '14px 28px', minHeight: 48, display: 'inline-flex', alignItems: 'center', borderRadius: 6, textDecoration: 'none', alignSelf: 'flex-start' }}>Book This Service</Link>
+        <Link to="/contact" style={{ background: 'var(--red)', border: 'none', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--text)', padding: '14px 28px', minHeight: 48, display: 'inline-flex', alignItems: 'center', borderRadius: 'var(--ds-radius-pill)', textDecoration: 'none', alignSelf: 'flex-start' }}>Book This Service</Link>
       </div>
     </motion.div>
   )
