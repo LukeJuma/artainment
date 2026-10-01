@@ -18,29 +18,28 @@ export function AnalyticsPage() {
   // Get real data from dashboard API instead of fake data
   const { data: stats, loading } = useApi(() => adminAPI.dashboardStats(token), [token])
 
-  // Use real data or fallback to loading state
+  // Use real data or fallback to loading state (nested DashboardStats shape)
   const realStats = stats ? [
-    { title: 'Total Revenue', value: `KES ${(stats.revenue || 0).toLocaleString()}`, icon: DollarSign, change: '+12.5%', trend: 'up' as const, color: '#10b981' },
-    { title: 'Active Users', value: (stats.users || 0).toLocaleString(), icon: Users, change: '+8.2%', trend: 'up' as const, color: '#3b82f6' },
-    { title: 'Total Films', value: (stats.films || 0).toLocaleString(), icon: Film, change: '+15.1%', trend: 'up' as const, color: '#8b5cf6' },
-    { title: 'Watch Time', value: `${Math.round((stats.watchTime || 0) / 60)} hrs`, icon: Clock, change: '+22.1%', trend: 'up' as const, color: '#f59e0b' },
+    { title: 'Total Revenue', value: `KES ${(stats.revenue?.total_all_time || 0).toLocaleString()}`, icon: DollarSign, change: '+12.5%', trend: 'up' as const, color: '#10b981' },
+    { title: 'Active Users', value: (stats.user_counts?.total_users || 0).toLocaleString(), icon: Users, change: '+8.2%', trend: 'up' as const, color: '#3b82f6' },
+    { title: 'Total Films', value: (stats.content_counts?.films || 0).toLocaleString(), icon: Film, change: '+15.1%', trend: 'up' as const, color: '#8b5cf6' },
+    { title: 'Subscribers', value: (stats.user_counts?.active_subscribers || 0).toLocaleString(), icon: Clock, change: '+22.1%', trend: 'up' as const, color: '#f59e0b' },
   ] : []
 
-  // Generate basic monthly data from available stats (this is still simplified but based on real data)
+  // Monthly revenue comes straight from the dashboard stats endpoint
   const monthlyData = useMemo(() => {
-    if (!stats) return []
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-    const baseRevenue = stats?.revenue || 100000
-    return months.map((month) => ({
-      month,
-      revenue: Math.round(baseRevenue * (0.8 + Math.random() * 0.4)),
-      target: Math.round(baseRevenue * (0.85 + Math.random() * 0.3))
+    if (!stats?.monthly_revenue?.length) return []
+    return stats.monthly_revenue.map(m => ({
+      month: m.month,
+      revenue: m.revenue,
+      target: Math.round(m.revenue * 1.1),
     }))
   }, [stats])
 
   const dailyData = useMemo(() => {
     if (!stats) return []
-    const baseUsers = stats?.users || 1000
+    const baseUsers = stats?.user_counts?.total_users || 0
+    if (!baseUsers) return []
     return Array.from({ length: 30 }, (_, i) => ({
       day: String(i + 1).padStart(2, '0'),
       users: Math.round(baseUsers * (0.1 + Math.random() * 0.2)),

@@ -112,16 +112,16 @@ function sanitizeInput(input: any): any {
   return input
 }
 
-// Audit logging
+// Audit logging — audit_logs columns: id, action, user_id, details,
+// ip_address, user_agent, created_at (no event_type/message/level).
 async function logAuditEvent(eventType: string, userId?: string, metadata?: any) {
   try {
     await supabase.from('audit_logs').insert({
-      event_type: eventType,
-      user_id: userId,
+      action: eventType,
+      user_id: userId || null,
+      details: metadata || {},
       ip_address: '0.0.0.0', // Edge function limitation
       user_agent: 'Supabase Edge Function',
-      metadata: metadata || {},
-      created_at: new Date().toISOString()
     })
   } catch (error) {
     console.error('Audit logging failed:', error)
@@ -1254,68 +1254,186 @@ serve(async (req) => {
       }
     }
 
-    // Dashboard stats
+    // Dashboard stats — must match the DashboardStats shape the admin
+    // Dashboard page reads (a missing nested key crashes the page).
     if (path === '/admin/dashboard/stats' && method === 'GET') {
       try {
+        const now = new Date()
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString()
+        const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString()
+        const startOfWeek = new Date(now.getTime() - 7 * 86400000).toISOString()
+        const yearAgo = new Date(now.getFullYear() - 1, now.getMonth(), 1).toISOString()
+
+        const countOf = async (table: string) => {
+          const { count } = await supabase.from(table).select('*', { count: 'exact', head: true })
+          return count || 0
+        }
+
         const [
-          { count: filmsCount },
-          { count: seriesCount }, 
-          { count: podcastsCount },
-          { count: newsCount },
-          { count: talentCount },
-          { count: usersCount }
+          filmsCount, seriesCount, podcastsCount, newsCount, talentCount,
+          servicesCount, galleryCount, testimonialsCount,
+          usersCount, newMonthCount, newTodayCount, activeSubsCount,
+          articlesCount, categoriesCount, eventsCount,
+          payments, ticketsSold,
+          latestUsers, latestFilms, latestNews, topFilms,
         ] = await Promise.all([
-          supabase.from('films').select('*', { count: 'exact', head: true }),
-          supabase.from('series').select('*', { count: 'exact', head: true }),
-          supabase.from('podcasts').select('*', { count: 'exact', head: true }),
-          supabase.from('news').select('*', { count: 'exact', head: true }),
-          supabase.from('talents').select('*', { count: 'exact', head: true }),
-          supabase.from('users').select('*', { count: 'exact', head: true })
+          countOf('films'), countOf('series'), countOf('podcasts'), countOf('news'),
+          countOf('talents'), countOf('services'), countOf('gallery_images'), countOf('testimonials'),
+          countOf('users'),
+          supabase.from('users').select('*', { count: 'exact', head: true }).gte('created_at', startOfMonth).then(r => r.count || 0),
+          supabase.from('users').select('*', { count: 'exact', head: true }).gte('created_at', startOfDay).then(r => r.count || 0),
+          supabase.from('subscriptions').select('*', { count: 'exact', head: true })
+            .eq('status', 'active').or(`ends_at.is.null,ends_at.gt.${now.toISOString()}`).then(r => r.count || 0),
+          countOf('mic_mtaani_articles'), countOf('mic_mtaani_categories'), countOf('mic_mtaani_events'),
+          supabase.from('payments').select('amount, status, paid_at, description').then(r => r.data || []),
+          supabase.from('tickets').select('sold').then(r => (r.data || []).reduce((s: number, t: any) => s + (t.sold || 0), 0)),
+          supabase.from('users').select('id, name, created_at').order('created_at', { ascending: false }).limit(5).then(r => r.data || []),
+          supabase.from('films').select('id, title, created_at').order('created_at', { ascending: false }).limit(3).then(r => r.data || []),
+          supabase.from('news').select('id, title, published_at').order('published_at', { ascending: false }).limit(3).then(r => r.data || []),
+          supabase.from('films').select('id, title, rating, genre, year, poster_url, slug').order('rating', { ascending: false }).limit(5).then(r => r.data || []),
         ])
 
+        const okPayments = payments.filter((p: any) => p.status === 'success')
+        const sumIn = (rows: any[], since?: string) =>
+          rows.filter(p => !since || (p.paid_at && p.paid_at >= since)).reduce((s: number, p: any) => s + (Number(p.amount) || 0), 0)
+        const has = (p: any, word: string) => String(p.description || '').toLowerCase().includes(word)
+
+        // Last 6 calendar months of revenue, oldest first
+        const monthly_revenue = []
+        for (let back = 5; back >= 0; back--) {
+          const d = new Date(now.getFullYear(), now.getMonth() - back, 1)
+          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`
+          const inMonth = okPayments.filter((p: any) => typeof p.paid_at === 'string' && p.paid_at.startsWith(key))
+          monthly_revenue.push({
+            month: d.toLocaleString('en-US', { month: 'short' }),
+            revenue: inMonth.reduce((s: number, p: any) => s + (Number(p.amount) || 0), 0),
+            subscriptions: inMonth.filter((p: any) => has(p, 'subscription')).reduce((s: number, p: any) => s + (Number(p.amount) || 0), 0),
+            tickets: inMonth.filter((p: any) => has(p, 'ticket')).reduce((s: number, p: any) => s + (Number(p.amount) || 0), 0),
+            streaming: inMonth.filter((p: any) => !has(p, 'subscription') && !has(p, 'ticket')).reduce((s: number, p: any) => s + (Number(p.amount) || 0), 0),
+          })
+        }
+
+        const timeAgo = (iso: string | null) => {
+          if (!iso) return 'recently'
+          const mins = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000))
+          if (mins < 1) return 'just now'
+          if (mins < 60) return `${mins}m ago`
+          const hrs = Math.floor(mins / 60)
+          if (hrs < 24) return `${hrs}h ago`
+          return `${Math.floor(hrs / 24)}d ago`
+        }
+
+        const recent_activity = [
+          ...latestUsers.map((u: any) => ({ type: 'user', label: 'New user registration', desc: `${u.name} created an account`, time: timeAgo(u.created_at) })),
+          ...latestFilms.map((f: any) => ({ type: 'film', label: 'Film added', desc: `"${f.title}" was published`, time: timeAgo(f.created_at) })),
+          ...latestNews.map((n: any) => ({ type: 'news', label: 'News published', desc: n.title, time: timeAgo(n.published_at) })),
+        ].slice(0, 10)
+
         return new Response(JSON.stringify({
-          films: filmsCount || 0,
-          series: seriesCount || 0,
-          podcasts: podcastsCount || 0,
-          news: newsCount || 0,
-          talent: talentCount || 0,
-          users: usersCount || 0,
-          revenue: 0, // Implement based on your payment system
-          watchTime: 0 // Implement based on your analytics
+          content_counts: {
+            films: filmsCount, series: seriesCount, podcasts: podcastsCount, news: newsCount,
+            talent: talentCount, services: servicesCount, gallery: galleryCount, testimonials: testimonialsCount,
+          },
+          user_counts: {
+            total_users: usersCount, new_this_month: newMonthCount,
+            new_today: newTodayCount, active_subscribers: activeSubsCount,
+          },
+          revenue: {
+            total_all_time: sumIn(okPayments),
+            this_month: sumIn(okPayments, startOfMonth),
+            this_week: sumIn(okPayments, startOfWeek),
+            today: sumIn(okPayments, startOfDay),
+          },
+          monthly_revenue,
+          ticket_stats: { total_sold: ticketsSold, this_month: 0 },
+          mic_mtaani: { articles: articlesCount, categories: categoriesCount, events: eventsCount },
+          recent_activity,
+          top_films: topFilms,
+          // Compact aliases kept for older admin screens
+          films: filmsCount, users: usersCount,
         }), { headers: corsHeaders })
       } catch (error) {
-        return new Response(JSON.stringify({ error: 'Failed to fetch stats' }), { 
-          status: 500, headers: corsHeaders 
-        })
+        return new Response(JSON.stringify({ error: 'Failed to fetch stats' }),
+          { status: 500, headers: corsHeaders })
       }
     }
 
-    // Audit logs
+    // Audit logs — paginated shape the Logs page reads (logs.data)
     if (path === '/admin/audit-logs' && method === 'GET') {
       try {
-        const page = parseInt(url.searchParams.get('page') || '1')
+        const page = Math.max(parseInt(url.searchParams.get('page') || '1'), 1)
         const limit = Math.min(parseInt(url.searchParams.get('per_page') || '50'), 100)
-        
-        const { data: logs } = await supabase
+
+        // Prefer the user join; fall back to plain rows when the FK
+        // constraint name differs in this database.
+        let logQuery = supabase
           .from('audit_logs')
-          .select('*')
+          .select('*, users!audit_logs_user_id_fkey(id, name, email)', { count: 'exact' })
+        let logRes = await logQuery
           .order('created_at', { ascending: false })
           .range((page - 1) * limit, page * limit - 1)
+        if (logRes.error) {
+          logRes = await supabase
+            .from('audit_logs')
+            .select('*', { count: 'exact' })
+            .order('created_at', { ascending: false })
+            .range((page - 1) * limit, page * limit - 1)
+        }
+        const rows = logRes.data || []
 
-        return new Response(JSON.stringify(logs || []), { headers: corsHeaders })
-      } catch (error) {
-        return new Response(JSON.stringify({ error: 'Failed to fetch audit logs' }), { 
-          status: 500, headers: corsHeaders 
+        const mapped = rows.map((l: any) => {
+          const evt = String(l.action || 'INFO')
+          const level = /fail|error|denied|reject/i.test(evt) ? 'ERROR' : (/warn/i.test(evt) ? 'WARN' : 'INFO')
+          const details = typeof l.details === 'object' && l.details !== null ? l.details : null
+          return {
+            id: l.id,
+            action: evt,
+            message: (details && (details.email || details.reason)) || evt,
+            level,
+            user: l.users || (l.user_id ? { id: l.user_id } : undefined),
+            ip_address: l.ip_address,
+            user_agent: l.user_agent,
+            created_at: l.created_at,
+            time_ago: l.created_at,
+          }
         })
+        const total = logRes.count ?? mapped.length
+        return new Response(JSON.stringify({
+          data: mapped, current_page: page,
+          last_page: Math.max(Math.ceil(total / limit), 1),
+          per_page: limit, total,
+        }), { headers: corsHeaders })
+      } catch (error) {
+        return new Response(JSON.stringify({ error: 'Failed to fetch audit logs' }),
+          { status: 500, headers: corsHeaders })
       }
     }
 
     // ── Admin specials (must come before the generic CRUD matcher) ──
 
-    // Audit-log stats
+    // Audit-log stats — shape the Logs page reads (stats.stats.*)
     if (path === '/admin/audit-logs/stats' && method === 'GET') {
-      const { count } = await supabase.from('audit_logs').select('*', { count: 'exact', head: true })
-      return new Response(JSON.stringify({ total: count || 0 }), { headers: corsHeaders })
+      const dayStart = new Date()
+      dayStart.setHours(0, 0, 0, 0)
+      const [all, today] = await Promise.all([
+        supabase.from('audit_logs').select('action, user_id, created_at'),
+        supabase.from('audit_logs').select('action, user_id')
+          .gte('created_at', dayStart.toISOString()),
+      ])
+      const rows = all.data || []
+      const todayRows = today.data || []
+      const isErr = (e: string) => /fail|error|denied|reject/i.test(String(e || ''))
+      return new Response(JSON.stringify({
+        stats: {
+          total_logs: rows.length,
+          logs_today: todayRows.length,
+          error_logs_today: todayRows.filter((l: any) => isErr(l.action)).length,
+          unique_users_today: new Set(todayRows.map((l: any) => l.user_id).filter(Boolean)).size,
+        },
+        recent_actions: rows.slice(0, 8).map((l: any) => ({
+          action: l.action, created_at: l.created_at,
+        })),
+      }), { headers: corsHeaders })
     }
 
     // Users (never expose password hashes)
@@ -1526,10 +1644,17 @@ serve(async (req) => {
       }
     }
 
-    // Upload endpoint
+    // Upload endpoint (multipart form only)
     if (path === '/upload' && method === 'POST') {
+      let formData: FormData
       try {
-        const formData = await req.formData()
+        formData = await req.formData()
+      } catch {
+        return new Response(JSON.stringify({ error: 'Send the file as multipart form data' }), {
+          status: 400, headers: corsHeaders
+        })
+      }
+      try {
         const file = formData.get('file') as File
         const folder = sanitizeInput(formData.get('folder') as string || 'uploads')
         
@@ -1550,8 +1675,8 @@ serve(async (req) => {
           }), { status: 413, headers: corsHeaders })
         }
 
-        // Sanitize folder name - whitelist approach
-        const allowedFolders = ['uploads', 'films', 'series', 'podcasts', 'news', 'talent', 'gallery']
+        // Sanitize folder name - whitelist approach (mirrors Laravel UploadController)
+        const allowedFolders = ['uploads', 'films', 'series', 'podcasts', 'news', 'talent', 'gallery', 'posters', 'thumbnails', 'mic-mtaani', 'trailers']
         const sanitizedFolder = allowedFolders.includes(folder.toLowerCase()) ? folder.toLowerCase() : 'uploads'
         
         const filename = `${Date.now()}-${file.name}`
