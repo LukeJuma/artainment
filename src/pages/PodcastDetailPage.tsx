@@ -6,7 +6,14 @@ import { Loader } from '../components/ui/Loader'
 import { Section } from '../components/ui/Section'
 import { SectionLabel } from '../components/ui/SectionLabel'
 import { MediaArt } from '../components/ui/MediaArt'
+import { parseYouTubeId } from '../components/ui/YouTubePlayer'
 import { IconPlay, IconX } from '../components/ui/Icons'
+
+function episodeThumb(ep: PodcastEpisode, fallbackCover?: string | null): string | null {
+  const yt = parseYouTubeId(ep.video_url)
+  if (yt) return `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`
+  return fallbackCover || null
+}
 
 export function PodcastDetailPage() {
   const { slug } = useParams()
@@ -48,23 +55,75 @@ export function PodcastDetailPage() {
         <div style={{ maxWidth: 1000, margin: '0 auto' }}>
           <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, color: 'var(--text)', margin: '0 0 24px' }}>Episodes</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {episodes.map(ep => (
-              <motion.div key={ep.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}
-                style={{ display: 'flex', alignItems: 'center', gap: 16, background: 'var(--bg-muted)', border: '1px solid var(--border)', borderRadius: 10, padding: '16px 20px' }}>
-                <button onClick={() => hasMedia(ep) && setPlaying(ep)} disabled={!hasMedia(ep)}
-                  style={{ width: 44, height: 44, borderRadius: '50%', background: hasMedia(ep) ? 'var(--red)' : 'var(--border)', border: 'none', cursor: hasMedia(ep) ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', justifyContent: 'center', color: hasMedia(ep) ? '#fff' : 'var(--text-muted)', flexShrink: 0 }}>
-                  <IconPlay size={16} color={hasMedia(ep) ? '#fff' : 'var(--text-muted)'} />
-                </button>
-                <div style={{ minWidth: 0, flex: 1 }}>
-                  <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, letterSpacing: 1.5, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 2 }}>Episode {ep.episode_number}</div>
-                  <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 15, color: 'var(--text)' }}>{ep.title}</div>
-                  {ep.description && <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4, overflow: 'hidden', display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2 }}>{ep.description}</div>}
-                </div>
-                <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                  {ep.duration || ''}
-                </div>
-              </motion.div>
-            ))}
+            {episodes.map(ep => {
+              const playable = hasMedia(ep)
+              const thumb = episodeThumb(ep, podcast.cover_url)
+              return (
+                <motion.div
+                  key={ep.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  whileHover={playable ? { y: -3 } : {}}
+                  className="ep-row"
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 18, padding: 14,
+                    background: 'var(--ds-surface-2)', border: '1px solid var(--ds-card-line)',
+                    borderRadius: 'var(--ds-radius-md)', boxShadow: 'var(--ds-card-shadow)',
+                  }}
+                >
+                  <button
+                    onClick={() => playable && setPlaying(ep)}
+                    disabled={!playable}
+                    aria-label={playable ? `Play ${ep.title}` : `${ep.title} coming soon`}
+                    style={{
+                      position: 'relative', width: 168, aspectRatio: '16/9', flexShrink: 0,
+                      borderRadius: 'var(--ds-radius-sm)', overflow: 'hidden', padding: 0,
+                      border: '1px solid var(--ds-card-line)', cursor: playable ? 'pointer' : 'not-allowed',
+                      background: 'linear-gradient(160deg, var(--ds-surface-2), var(--ds-surface))',
+                    }}
+                  >
+                    {thumb ? (
+                      <img src={thumb} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                    ) : (
+                      <span style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: 30, color: 'var(--ds-text-3)' }}>
+                        {String(ep.episode_number).padStart(2, '0')}
+                      </span>
+                    )}
+                    <span style={{
+                      position: 'absolute', top: 6, left: 6,
+                      background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
+                      color: '#fff', fontFamily: "'Bebas Neue', sans-serif", fontSize: 13,
+                      minWidth: 24, height: 24, padding: '0 6px', borderRadius: 6,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      {ep.episode_number}
+                    </span>
+                    {playable && (
+                      <span style={{
+                        position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        background: 'rgba(0,0,0,0.25)',
+                      }}>
+                        <span style={{
+                          width: 46, height: 46, borderRadius: '50%', background: 'var(--ds-brand)',
+                          boxShadow: 'var(--ds-shadow-glow-brand)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        }}>
+                          <IconPlay size={17} color="#fff" />
+                        </span>
+                      </span>
+                    )}
+                  </button>
+                  <div style={{ minWidth: 0, flex: 1 }}>
+                    <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, letterSpacing: 1.5, color: 'var(--text-muted)', textTransform: 'uppercase', marginBottom: 2 }}>Episode {ep.episode_number}</div>
+                    <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 19, letterSpacing: '0.02em', color: 'var(--text)' }}>{ep.title}</div>
+                    {ep.description && <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', marginTop: 4, overflow: 'hidden', display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2 }}>{ep.description}</div>}
+                  </div>
+                  <div style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-muted)', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                    {ep.duration || ''}
+                  </div>
+                </motion.div>
+              )
+            })}
             {episodes.length === 0 && (
               <div style={{ textAlign: 'center', padding: 48, fontFamily: 'DM Sans, sans-serif', color: 'var(--text-muted)' }}>No episodes yet.</div>
             )}
