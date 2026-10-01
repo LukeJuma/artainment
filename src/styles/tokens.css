@@ -1,11 +1,11 @@
-﻿/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-   THE ARTAINMENT â€” DESIGN SYSTEM TOKENS (v1: dark cinematic)
+/* ═══════════════════════════════════════════════════════════════════
+   THE ARTAINMENT - DESIGN SYSTEM TOKENS (v1: dark cinematic)
    Theme-agnostic constants. Legacy --bg/--text/--red vars are untouched;
    pages adopt these tokens incrementally. Do not rename without a codemod.
-   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
+   ═══════════════════════════════════════════════════════════════════ */
 
 :root {
-  /* â”€â”€ Brand: evolved crimson (red lineage, tuned for dark cinema) â”€â”€ */
+  /* ── Brand: evolved crimson (red lineage, tuned for dark cinema) ── */
   --ds-brand-950: #1a0508;
   --ds-brand-900: #3d0a10;
   --ds-brand-700: #b91c1c;
@@ -17,14 +17,14 @@
   --ds-brand-glow: rgba(225, 29, 72, 0.35);
   --ds-brand-wash: rgba(225, 29, 72, 0.12);
 
-  /* â”€â”€ Gold: ratings, featured, awards â€” use sparingly â”€â”€ */
+  /* ── Gold: ratings, featured, awards - use sparingly ── */
   --ds-gold-600: #b07f2e;
   --ds-gold-500: #d4a24e;
   --ds-gold-400: #e8b64c;
   --ds-gold: var(--ds-gold-500);
   --ds-gold-glow: rgba(212, 162, 78, 0.3);
 
-  /* â”€â”€ Cinematic ink surfaces (dark-first) â”€â”€ */
+  /* ── Cinematic ink surfaces (dark-first) ── */
   --ds-ink-950: #08080a;
   --ds-ink-900: #0d0d10;
   --ds-ink-850: #121216;
@@ -33,13 +33,13 @@
   --ds-line: rgba(255, 255, 255, 0.08);
   --ds-line-strong: rgba(255, 255, 255, 0.14);
 
-  /* â”€â”€ Fog text (warm whites for dark surfaces) â”€â”€ */
+  /* ── Fog text (warm whites for dark surfaces) ── */
   --ds-fog-100: #f5f3ee;
   --ds-fog-300: #c9c5bd;
   --ds-fog-500: #8a877f;
   --ds-fog-600: #6b6963;
 
-  /* â”€â”€ Type scale â”€â”€ */
+  /* ── Type scale ── */
   --ds-font-display: 'Bebas Neue', sans-serif;
   --ds-font-body: 'DM Sans', sans-serif;
   --ds-font-accent: 'Domine', serif;
@@ -50,7 +50,7 @@
   --ds-eyebrow-size: 11px;
   --ds-eyebrow-tracking: 3px;
 
-  /* â”€â”€ Radii â”€â”€ */
+  /* ── Radii ── */
   --ds-radius-xs: 4px;
   --ds-radius-sm: 8px;
   --ds-radius-md: 12px;
@@ -58,26 +58,26 @@
   --ds-radius-xl: 24px;
   --ds-radius-pill: 999px;
 
-  /* â”€â”€ Elevation & glow â”€â”€ */
+  /* ── Elevation & glow ── */
   --ds-shadow-card: 0 8px 28px rgba(0, 0, 0, 0.45);
   --ds-shadow-lift: 0 18px 60px rgba(0, 0, 0, 0.55);
   --ds-shadow-glow-brand: 0 0 24px var(--ds-brand-glow), 0 8px 32px rgba(0, 0, 0, 0.5);
   --ds-shadow-glow-gold: 0 0 20px var(--ds-gold-glow);
 
-  /* â”€â”€ Motion â”€â”€ */
+  /* ── Motion ── */
   --ds-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ds-ease-cinema: cubic-bezier(0.25, 0.46, 0.45, 0.94);
   --ds-dur-fast: 150ms;
   --ds-dur-base: 250ms;
   --ds-dur-slow: 500ms;
 
-  /* â”€â”€ Scrims â”€â”€ */
+  /* ── Scrims ── */
   --ds-scrim-bottom: linear-gradient(to top, rgba(5, 5, 7, 0.92) 0%, rgba(5, 5, 7, 0.45) 45%, transparent 75%);
   --ds-scrim-left: linear-gradient(to right, rgba(8, 8, 10, 0.94) 0%, rgba(8, 8, 10, 0.55) 45%, transparent 100%);
   --ds-scrim-top: linear-gradient(to bottom, rgba(5, 5, 7, 0.75) 0%, transparent 100%);
 }
 
-/* â”€â”€ Theme-aware surfaces: every chrome surface follows the toggle â”€â”€ */
+/* ── Theme-aware surfaces: every chrome surface follows the toggle ── */
 :root,
 [data-theme='dark'] {
   --ds-surface: var(--ds-ink-900);
@@ -115,7 +115,7 @@
   --ds-gold-cta: #8a6420;
 }
 
-/* â”€â”€ Shared keyframes â”€â”€ */
+/* ── Shared keyframes ── */
 @keyframes ds-pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.45; transform: scale(0.8); }

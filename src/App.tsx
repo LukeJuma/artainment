@@ -1,4 +1,4 @@
-﻿import { lazy, Suspense } from 'react'
+import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useParams } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { AuthProvider } from './contexts/AuthContext'
@@ -11,7 +11,7 @@ import { HomePage } from './pages/HomePage'
 import { NotFoundPage } from './pages/NotFoundPage'
 import type { Variants } from 'framer-motion'
 
-// Route-level code splitting â€” each page below loads in its own chunk.
+// Route-level code splitting - each page below loads in its own chunk.
 const FilmsPage = lazy(() => import('./pages/FilmsPage').then(m => ({ default: m.FilmsPage })))
 const FilmDetailPage = lazy(() => import('./pages/FilmDetailPage').then(m => ({ default: m.FilmDetailPage })))
 const SeriesPage = lazy(() => import('./pages/SeriesPage').then(m => ({ default: m.SeriesPage })))
@@ -40,7 +40,7 @@ const MicMtaaniSubmitPage = lazy(() => import('./pages/MicMtaaniSubmitPage').the
 const MicMtaaniSearchPage = lazy(() => import('./pages/MicMtaaniSearchPage').then(m => ({ default: m.MicMtaaniSearchPage })))
 const MicMtaaniTagPage = lazy(() => import('./pages/MicMtaaniTagPage').then(m => ({ default: m.MicMtaaniTagPage })))
 const NewsDetailPage = lazy(() => import('./pages/NewsDetailPage').then(m => ({ default: m.NewsDetailPage })))
-// Internal design-system preview â€” intentionally absent from all navigation.
+// Internal design-system preview - intentionally absent from all navigation.
 const DesignSystemPage = lazy(() => import('./pages/DesignSystemPage').then(m => ({ default: m.DesignSystemPage })))
 
 const pageTransition: Variants = {

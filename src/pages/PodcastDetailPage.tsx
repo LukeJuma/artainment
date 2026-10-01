@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { podcastAPI, videoStreamUrl, type Podcast, type PodcastEpisode } from '../lib/api'
@@ -37,7 +37,7 @@ export function PodcastDetailPage() {
             <SectionLabel text={podcast.episodes?.some(e => e.video_url) ? 'Watch & Listen' : 'Listen'} />
             <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 700, color: 'var(--text)', margin: '0 0 8px' }}>{podcast.title}</h1>
             <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--red)', textTransform: 'uppercase', letterSpacing: 2, fontWeight: 600, margin: '0 0 16px' }}>
-              {podcast.host}{podcast.category ? ` Â· ${podcast.category}` : ''}
+              {podcast.host}{podcast.category ? ` · ${podcast.category}` : ''}
             </p>
             {podcast.description && <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, lineHeight: 1.8, color: 'var(--text-secondary)', margin: 0 }}>{podcast.description}</p>}
           </motion.div>

@@ -1,4 +1,4 @@
-﻿import { motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { useInView } from '../lib/animations'
 import { Section } from '../components/ui/Section'
 import { SectionLabel } from '../components/ui/SectionLabel'
@@ -32,11 +32,11 @@ export function AboutPage() {
           <div className="about-mission-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(32px, 5vw, 100px)', marginBottom: 'clamp(60px, 8vw, 100px)' }}>
             <motion.div ref={missionRef} initial={{ opacity: 0, x: -30 }} animate={missionInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6 }}>
               <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(32px, 4vw, 42px)', fontWeight: 600, color: 'var(--text)', margin: '0 0 24px' }}>Our Mission</h2>
-              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(15px, 1.5vw, 16px)', lineHeight: 1.85, color: 'var(--text-secondary)', margin: 0 }}>The Artainment exists to create, nurture, produce, and showcase African stories and talent. We believe that Kenya's creative voice deserves a world-class platform â€” one that celebrates our culture while reaching audiences globally.</p>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(15px, 1.5vw, 16px)', lineHeight: 1.85, color: 'var(--text-secondary)', margin: 0 }}>The Artainment exists to create, nurture, produce, and showcase African stories and talent. We believe that Kenya's creative voice deserves a world-class platform - one that celebrates our culture while reaching audiences globally.</p>
             </motion.div>
             <motion.div ref={visionRef} initial={{ opacity: 0, x: 30 }} animate={visionInView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6, delay: 0.15 }}>
               <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(32px, 4vw, 42px)', fontWeight: 600, color: 'var(--text)', margin: '0 0 24px' }}>Our Vision</h2>
-              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(15px, 1.5vw, 16px)', lineHeight: 1.85, color: 'var(--text-secondary)', margin: 0 }}>To become East Africa's leading creative media ecosystem â€” a home for storytellers, a destination for audiences, and a launchpad for talent that will define the continent's cultural future.</p>
+              <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 'clamp(15px, 1.5vw, 16px)', lineHeight: 1.85, color: 'var(--text-secondary)', margin: 0 }}>To become East Africa's leading creative media ecosystem - a home for storytellers, a destination for audiences, and a launchpad for talent that will define the continent's cultural future.</p>
             </motion.div>
           </div>
           <div className="timeline" style={{ borderLeft: '2px solid var(--border)', paddingLeft: 'clamp(24px, 4vw, 48px)' }}>

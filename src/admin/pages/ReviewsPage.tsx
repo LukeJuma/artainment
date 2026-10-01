@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { Star, Flag, Search, X, Loader2, Trash2, Check } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
@@ -75,7 +75,7 @@ export function ReviewsPage() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
                     <span style={{ fontSize: 14, fontWeight: 700, color: 'var(--admin-text)' }}>{review.name}</span>
-                    <span style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>Â·</span>
+                    <span style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>·</span>
                     <span style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{review.created_at ? new Date(review.created_at).toLocaleDateString() : ''}</span>
                     {review.is_approved ? <span className="badge badge-success"><Check size={9} /> Approved</span> : <span className="badge badge-warning"><Flag size={9} /> Pending</span>}
                   </div>

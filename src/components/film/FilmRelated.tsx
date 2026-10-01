@@ -1,4 +1,4 @@
-﻿import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { motion, useReducedMotion } from 'framer-motion'
 import type { Film } from '../../lib/api'
 import { FadeIn } from '../ui/FadeIn'
@@ -40,7 +40,7 @@ export function FilmRelated({ films }: { films: Film[] }) {
                   {film.title}
                 </h3>
                 <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                  <span style={{ fontFamily: 'DM Sans', fontSize: 12, color: 'var(--text-muted)' }}>{film.year} Â· {film.genre}</span>
+                  <span style={{ fontFamily: 'DM Sans', fontSize: 12, color: 'var(--text-muted)' }}>{film.year} · {film.genre}</span>
                   <span style={{
                     display: 'inline-flex', alignItems: 'center', gap: 4, marginLeft: 'auto',
                     color: 'var(--red)', fontWeight: 600, fontSize: 12, fontFamily: 'DM Sans',

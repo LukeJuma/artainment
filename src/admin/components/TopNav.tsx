@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Menu, Search, Plus, Bell, Clock, Sun, Moon } from 'lucide-react'
 import { CommandPalette } from './CommandPalette'
 import { NotificationPanel } from './NotificationPanel'
@@ -65,7 +65,7 @@ export function TopNav({ pageTitle, onToggleSidebar, onNavigate }: TopNavProps) 
           <div className="admin-search" onClick={() => setCmdOpen(true)}>
             <Search size={15} style={{ color: 'var(--admin-text-muted)', flexShrink: 0 }} />
             <input type="text" placeholder="Search anything..." readOnly />
-            <span className="search-shortcut">âŒ˜K</span>
+            <span className="search-shortcut">⌘K</span>
           </div>
         </div>
 
@@ -110,7 +110,7 @@ export function TopNav({ pageTitle, onToggleSidebar, onNavigate }: TopNavProps) 
           >
             <Clock size={13} />
             <span>{formattedTime}</span>
-            <span style={{ color: 'var(--admin-text-faint)', margin: '0 2px' }}>Â·</span>
+            <span style={{ color: 'var(--admin-text-faint)', margin: '0 2px' }}>·</span>
             <span style={{ color: 'var(--admin-text-muted)' }}>{formattedDate}</span>
           </div>
 

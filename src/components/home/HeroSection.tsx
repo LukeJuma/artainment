@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback, type CSSProperties } from 'react'
+import { useState, useEffect, useCallback, type CSSProperties } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { type Film, type Series } from '../../lib/api'
 import { Button } from '../ui/Button'
@@ -90,7 +90,7 @@ export function HeroSection({ films, series = [], featured, featuredKind = 'film
   const detailPath = `/${film?.kind === 'series' ? 'series' : 'films'}/${film?.slug || ''}`
 
   // Coverflow geometry: the active slide rises toward the viewer while
-  // neighbours recede, shrink and tilt — depth instead of a flat strip.
+  // neighbours recede, shrink and tilt - depth instead of a flat strip.
   const coverStyle = (index: number): CSSProperties => {
     const offset = index - current
     const abs = Math.abs(offset)

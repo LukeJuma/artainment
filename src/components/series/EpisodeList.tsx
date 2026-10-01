@@ -1,7 +1,14 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import type { Episode, Series } from '../../lib/api'
+import { parseYouTubeId } from '../ui/YouTubePlayer'
 import { IconPlay } from '../ui/Icons'
+
+function episodeThumb(ep: Episode): string | null {
+  const yt = parseYouTubeId(ep.video_url)
+  if (yt) return `https://i.ytimg.com/vi/${yt}/hqdefault.jpg`
+  return (ep as { poster_url?: string | null }).poster_url || null
+}
 
 interface EpisodeListProps {
   series: Series
@@ -30,7 +37,7 @@ export function EpisodeList({ series, onPlayEpisode }: EpisodeListProps) {
             Episodes
           </h2>
           <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)' }}>
-            {seasons.length} season{seasons.length > 1 ? 's' : ''} Â· {seasons.reduce((n, s) => n + (s.episodes?.length || 0), 0)} episodes
+            {seasons.length} season{seasons.length > 1 ? 's' : ''} · {seasons.reduce((n, s) => n + (s.episodes?.length || 0), 0)} episodes
           </span>
         </div>
 
@@ -71,23 +78,44 @@ export function EpisodeList({ series, onPlayEpisode }: EpisodeListProps) {
             >
               {(current?.episodes || []).map(ep => {
                 const playable = Boolean(ep.video_url)
+                const thumb = episodeThumb(ep)
                 return (
                   <div
                     key={ep.id}
+                    className="ep-row"
                     style={{
-                      display: 'flex', alignItems: 'center', gap: 18, padding: '18px 4px',
-                      borderBottom: '1px solid var(--border)',
+                      display: 'flex', alignItems: 'center', gap: 18, padding: '14px',
+                      background: 'var(--ds-surface-2)', border: '1px solid var(--ds-card-line)',
+                      borderRadius: 'var(--ds-radius-md)', marginBottom: 12,
+                      boxShadow: 'var(--ds-card-shadow)',
                     }}
                   >
-                    <span style={{
-                      fontFamily: "'Bebas Neue', sans-serif", fontSize: 22, color: 'var(--text-muted)',
-                      width: 44, flexShrink: 0, textAlign: 'center',
+                    {/* Thumbnail with episode number badge */}
+                    <div style={{
+                      position: 'relative', width: 168, aspectRatio: '16/9', flexShrink: 0,
+                      borderRadius: 'var(--ds-radius-sm)', overflow: 'hidden',
+                      background: 'linear-gradient(160deg, var(--ds-surface-2), var(--ds-surface))',
                     }}>
-                      {String(ep.episode_number).padStart(2, '0')}
-                    </span>
+                      {thumb ? (
+                        <img src={thumb} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                      ) : (
+                        <span style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: 34, color: 'var(--ds-text-3)' }}>
+                          {String(ep.episode_number).padStart(2, '0')}
+                        </span>
+                      )}
+                      <span style={{
+                        position: 'absolute', top: 6, left: 6,
+                        background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(4px)',
+                        color: '#fff', fontFamily: "'Bebas Neue', sans-serif", fontSize: 13,
+                        minWidth: 24, height: 24, padding: '0 6px', borderRadius: 6,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      }}>
+                        {ep.episode_number}
+                      </span>
+                    </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-                        <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 17, fontWeight: 600, color: 'var(--text)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 19, fontWeight: 400, letterSpacing: '0.02em', color: 'var(--text)', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {ep.title}
                         </h3>
                         {ep.duration && <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-muted)', flexShrink: 0 }}>{ep.duration}</span>}
@@ -103,14 +131,15 @@ export function EpisodeList({ series, onPlayEpisode }: EpisodeListProps) {
                       disabled={!playable}
                       style={{
                         display: 'inline-flex', alignItems: 'center', gap: 8, flexShrink: 0,
-                        minHeight: 44, padding: '0 20px', borderRadius: 'var(--ds-radius-pill)', cursor: playable ? 'pointer' : 'not-allowed',
-                        background: playable ? 'var(--red)' : 'var(--bg-muted)',
-                        border: 'none', color: playable ? 'var(--text)' : 'var(--text-muted)',
-                        fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase',
+                        minHeight: 44, padding: '0 22px', borderRadius: 'var(--ds-radius-pill)', cursor: playable ? 'pointer' : 'not-allowed',
+                        background: playable ? 'var(--ds-brand)' : 'var(--ds-chip-bg)',
+                        border: 'none', color: playable ? '#fff' : 'var(--ds-chip-fg)',
+                        boxShadow: playable ? 'var(--ds-shadow-glow-brand)' : 'none',
+                        fontFamily: 'DM Sans, sans-serif', fontSize: 12, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase',
                         transition: 'all 0.2s',
                       }}
                     >
-                      <IconPlay size={14} color={playable ? 'var(--text)' : 'var(--text-muted)'} /> {playable ? 'Play' : 'Soon'}
+                      <IconPlay size={14} color={playable ? '#fff' : 'var(--ds-chip-fg)'} /> {playable ? 'Play' : 'Soon'}
                     </button>
                   </div>
                 )

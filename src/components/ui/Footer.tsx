@@ -38,7 +38,7 @@ export function Footer() {
         </div>
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>&copy; {new Date().getFullYear()} The Artainment Studios. All rights reserved.</span>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginLeft: 'auto' }}>
             {SOCIAL_LINKS.map(s => (
               <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
                 style={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.55)', transition: 'color 0.2s, border-color 0.2s' }}
@@ -46,8 +46,11 @@ export function Footer() {
                 onMouseLeave={e => { e.currentTarget.style.color = 'rgba(255,255,255,0.55)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.15)' }}
               ><s.icon size={15} /></a>
             ))}
+            <span style={{ width: 1, height: 20, background: 'rgba(255,255,255,0.15)', margin: '0 6px' }} />
+            <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+              Designed by Prime IT Services
+            </span>
           </div>
-          <span style={{ fontFamily: 'Domine, serif', fontSize: 12, color: 'rgba(255,255,255,0.2)', fontStyle: 'italic' }}>Nairobi, Kenya</span>
         </div>
       </div>
     </footer>

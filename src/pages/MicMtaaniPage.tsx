@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { mmAPI, MMHomepage } from '../lib/api'
 import { Loader } from '../components/ui/Loader'
@@ -91,7 +91,7 @@ export function MicMtaaniPage() {
             <div style={{ marginTop: 12, fontSize: 12, color: 'rgba(255,255,255,0.6)', display: 'flex', alignItems: 'center', gap: 6 }}>
               <IconClock size={13} color="rgba(255,255,255,0.6)" />
               <span>{featured.reading_time} min read</span>
-              <span style={{ margin: '0 2px' }}>Â·</span>
+              <span style={{ margin: '0 2px' }}>·</span>
               <span>{timeAgo(featured.published_at || '')}</span>
             </div>
           </div>
@@ -130,7 +130,7 @@ export function MicMtaaniPage() {
                     <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
                       <IconClock size={12} color="var(--text-muted)" />
                       <span>{article.reading_time} min read</span>
-                      <span style={{ margin: '0 2px' }}>Â·</span>
+                      <span style={{ margin: '0 2px' }}>·</span>
                       <span>{timeAgo(article.published_at)}</span>
                     </div>
                   </div>
@@ -193,7 +193,7 @@ export function MicMtaaniPage() {
                     <p style={{ fontSize: 12, color: 'var(--text-secondary)', margin: '4px 0 0', display: 'flex', alignItems: 'center', gap: 4 }}>
                       <IconClock size={11} color="var(--text-secondary)" />
                       <span>{new Date(ev.starts_at).toLocaleDateString('en-KE', { month: 'short', day: 'numeric' })}</span>
-                      <span style={{ margin: '0 2px' }}>Â·</span>
+                      <span style={{ margin: '0 2px' }}>·</span>
                       <span>{ev.location}</span>
                     </p>
                   </div>
@@ -224,7 +224,7 @@ export function MicMtaaniPage() {
                   <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: 0, display: 'flex', alignItems: 'center', gap: 4 }}>
                     <IconClock size={11} color="var(--text-muted)" />
                     <span>{new Date(ev.starts_at).toLocaleDateString('en-KE', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}</span>
-                    <span style={{ margin: '0 2px' }}>Â·</span>
+                    <span style={{ margin: '0 2px' }}>·</span>
                     <span>{ev.location}</span>
                   </p>
                 </div>

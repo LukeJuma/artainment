@@ -1,4 +1,4 @@
-﻿import { motion } from 'framer-motion'
+import { motion } from 'framer-motion'
 import { MiniChart } from './ChartCard'
 import { AnimatedCounter } from './AnimatedCounter'
 
@@ -116,7 +116,7 @@ export function StatCard({
           background: isPositive ? 'var(--admin-success-glow)' : 'var(--admin-danger-glow)',
           color: isPositive ? 'var(--admin-success)' : 'var(--admin-danger)',
         }}>
-          {isPositive ? 'â†‘' : 'â†“'} {Math.abs(change)}%
+          {isPositive ? '↑' : '↓'} {Math.abs(change)}%
         </span>
         <span style={{ color: 'var(--admin-text-muted)', fontWeight: 500 }}>{changeLabel}</span>
       </div>

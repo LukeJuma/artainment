@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { useInView, fadeUp, stagger } from '../../lib/animations'
@@ -15,7 +15,7 @@ interface Pillar {
   spotlight?: boolean
 }
 
-// The other five ecosystem units are folded into these three pillars â€”
+// The other five ecosystem units are folded into these three pillars -
 /// nothing from the original eight is dropped, only redistributed.
 const pillars: Pillar[] = [
   {
@@ -29,13 +29,13 @@ const pillars: Pillar[] = [
   {
     num: '02',
     title: 'Videography',
-    blurb: 'Corporate, music video and event coverage â€” our flagship craft.',
+    blurb: 'Corporate, music video and event coverage - our flagship craft.',
     image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?w=800&q=80&auto=format&fit=crop',
     points: [
-      'Film Production â€” features, shorts, documentaries',
+      'Film Production - features, shorts, documentaries',
       'Corporate, music videos & live events',
-      'Creative Agency â€” scriptwriting, directing, brand content',
-      'Acting Group & Talent Development â€” casting, coaching, pathways',
+      'Creative Agency - scriptwriting, directing, brand content',
+      'Acting Group & Talent Development - casting, coaching, pathways',
     ],
     cta: 'Start a production',
     spotlight: true,
@@ -45,7 +45,7 @@ const pillars: Pillar[] = [
     title: 'Streaming',
     blurb: 'Our digital platform for African stories.',
     image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80&auto=format&fit=crop',
-    points: ['Films, series & podcasts on demand', 'Mic Mtaani TV â€” community voices', 'Premieres & exclusive drops'],
+    points: ['Films, series & podcasts on demand', 'Mic Mtaani TV - community voices', 'Premieres & exclusive drops'],
     cta: 'Start watching',
   },
 ]
@@ -69,7 +69,7 @@ export function WhoWeAre() {
           </div>
           <div style={{ paddingTop: 8 }}>
             <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.8, color: 'var(--ds-text-2)', margin: '0 0 16px' }}>
-              The Artainment is Kenya's foremost creative media company â€” a studio, a streaming platform, a talent collective, and a creative agency united under one identity.
+              The Artainment is Kenya's foremost creative media company - a studio, a streaming platform, a talent collective, and a creative agency united under one identity.
             </p>
             <p style={{ fontFamily: "'Domine', serif", fontSize: 17, lineHeight: 1.7, color: 'var(--ds-text-3)', fontStyle: 'italic', margin: 0 }}>
               "We don't just make content. We build culture."
@@ -148,7 +148,7 @@ export function WhoWeAre() {
                       transition: 'all var(--ds-dur-fast) var(--ds-ease-out)',
                     }}
                   >
-                    {p.cta} â†’
+                    {p.cta} →
                   </Link>
                 </div>
               </div>

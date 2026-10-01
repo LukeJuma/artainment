@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, useMemo, type CSSProperties } from 'react'
+import { useState, useEffect, useRef, useMemo, type CSSProperties } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { type Film, type Series } from '../../lib/api'
@@ -115,7 +115,7 @@ export function FilmsCarousel({ films, series = [] }: { films: Film[]; series?: 
     hideTimer.current = setTimeout(() => setHovered(null), 180)
   }
 
-  // A fixed popover detaches from its card on scroll — dismiss it instead
+  // A fixed popover detaches from its card on scroll - dismiss it instead
   useEffect(() => {
     const hide = () => setHovered(null)
     window.addEventListener('scroll', hide, true)

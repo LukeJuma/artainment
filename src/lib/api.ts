@@ -73,7 +73,11 @@ export async function api<T = any>(endpoint: string, options: ApiOptions = {}): 
   const data = await res.json();
 
   if (!res.ok) {
-    throw new Error(data.message || data.errors?.[Object.keys(data.errors || {})[0]]?.[0] || 'Request failed');
+    // Laravel returns { message } / { errors }; the Supabase edge API
+    // returns { error }. Prefer whichever the backend actually sent so
+    // users see "Invalid credentials" instead of "Request failed".
+    const firstValidationError = data.errors ? data.errors[Object.keys(data.errors)[0]]?.[0] : undefined;
+    throw new Error(data.message || data.error || firstValidationError || 'Request failed');
   }
 
   return data as T;

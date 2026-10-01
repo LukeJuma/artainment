@@ -1,4 +1,4 @@
-﻿import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, Plus, Trash2, Pencil, Star, Film as FilmIcon,
@@ -231,9 +231,9 @@ export function MoviesPage() {
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: 'var(--admin-text-muted)', marginBottom: 10 }}>
                     <span>{film.genre}</span>
-                    <span>Â·</span>
+                    <span>·</span>
                     <span>{film.year}</span>
-                    {film.duration && <><span>Â·</span><span>{film.duration}</span></>}
+                    {film.duration && <><span>·</span><span>{film.duration}</span></>}
                     <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, marginLeft: 'auto' }}>
                       <Star size={10} style={{ color: 'var(--admin-accent)', fill: 'var(--admin-accent)' }} />
                       {film.rating}
@@ -254,7 +254,7 @@ export function MoviesPage() {
         </div>
       )}
 
-      {/* â”€â”€â”€ Add / Edit Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Add / Edit Modal ─────────────────────────── */}
       <AnimatePresence>
         {showModal && (
           <motion.div className="admin-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowModal(false)}>
@@ -370,7 +370,7 @@ export function MoviesPage() {
                   <FileUpload label="Full Film Video" value={form.full_video_url} onChange={url => setForm({ ...form, full_video_url: url })} folder="movies/full" type="video" />
                 </div>
 
-                {/* YouTube link â€” plays directly without uploading */}
+                {/* YouTube link - plays directly without uploading */}
                 <div style={{ marginBottom: 16 }}>
                   <label className="admin-label">YouTube Link (optional)</label>
                   <input
@@ -380,7 +380,7 @@ export function MoviesPage() {
                     onChange={e => setForm({ ...form, youtube_url: e.target.value })}
                   />
                   <div style={{ fontSize: 11, color: 'var(--admin-text-muted)', marginTop: 6 }}>
-                    Paste a YouTube link for the full film to play directly on the site â€” no upload needed. Used when "Full Film Video" is empty.
+                    Paste a YouTube link for the full film to play directly on the site - no upload needed. Used when "Full Film Video" is empty.
                   </div>
                 </div>
 

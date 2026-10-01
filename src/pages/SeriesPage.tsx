@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { seriesAPI, type Series } from '../lib/api'
@@ -75,9 +75,9 @@ export function SeriesPage() {
                   <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, fontWeight: 600, color: 'var(--text)', margin: '0 0 6px' }}>{s.title}</h3>
                   <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
                     <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-muted)' }}>
-                      {s.year} Â· {s.genre}
-                      {s.seasons_count ? ` Â· ${s.seasons_count} season${s.seasons_count > 1 ? 's' : ''}` : ''}
-                      {s.episodes_count ? ` Â· ${s.episodes_count} episodes` : ''}
+                      {s.year} · {s.genre}
+                      {s.seasons_count ? ` · ${s.seasons_count} season${s.seasons_count > 1 ? 's' : ''}` : ''}
+                      {s.episodes_count ? ` · ${s.episodes_count} episodes` : ''}
                     </span>
                     <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--red)', marginLeft: 'auto', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}><IconStar size={12} color="var(--red)" /> {s.rating}</span>
                   </div>
@@ -95,12 +95,12 @@ export function SeriesPage() {
           )}
           {filtered.length === 0 && seriesList.length > 0 && (
             <div style={{ textAlign: 'center', padding: '80px 0', fontFamily: 'DM Sans, sans-serif', color: 'var(--text-muted)' }}>
-              No series in this genre â€” check back soon.
+              No series in this genre - check back soon.
             </div>
           )}
           {seriesList.length === 0 && (
             <div style={{ textAlign: 'center', padding: '80px 0', fontFamily: 'DM Sans, sans-serif', color: 'var(--text-muted)' }}>
-              No series yet â€” check back soon.
+              No series yet - check back soon.
             </div>
           )}
         </div>

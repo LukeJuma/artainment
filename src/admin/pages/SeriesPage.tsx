@@ -1,4 +1,4 @@
-﻿import { useState, useCallback } from 'react'
+import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Search, Plus, Trash2, Pencil, Star, Tv, X, Loader2, Play,
@@ -104,7 +104,7 @@ export function SeriesPage() {
     loadSeasons(seriesId)
   }, [expandedId, loadSeasons])
 
-  // â”€â”€â”€ Series â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Series ──────────────────────────────────────────────────
   const openCreateSeries = () => {
     setEditingSeries(null)
     setSeriesForm(emptySeriesForm)
@@ -171,7 +171,7 @@ export function SeriesPage() {
     } catch {}
   }
 
-  // â”€â”€â”€ Seasons â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Seasons ─────────────────────────────────────────────────
   const openCreateSeason = () => {
     setEditingSeason(null)
     setSeasonForm(emptySeasonForm)
@@ -209,7 +209,7 @@ export function SeriesPage() {
     try { await adminAPI.deleteSeason(token, id); loadSeasons(expandedId) } catch {}
   }
 
-  // â”€â”€â”€ Episodes â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ─── Episodes ────────────────────────────────────────────────
   const openCreateEpisode = (seasonId: number) => {
     setEditingEpisode(null)
     setEpisodeSeasonId(seasonId)
@@ -323,11 +323,11 @@ export function SeriesPage() {
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12, fontSize: 12, color: 'var(--admin-text-muted)', marginBottom: 8, flexWrap: 'wrap' }}>
                       <span>{s.genre}</span>
-                      <span>Â·</span>
+                      <span>·</span>
                       <span>{s.year}</span>
-                      <span>Â·</span>
+                      <span>·</span>
                       <span>{s.seasons_count || seasons.filter(se => se.series_id === s.id).length || 0} seasons</span>
-                      <span>Â·</span>
+                      <span>·</span>
                       <span>{s.episodes_count || 0} episodes</span>
                       <span style={{ display: 'inline-flex', alignItems: 'center', gap: 2, marginLeft: 'auto' }}>
                         <Star size={10} style={{ color: 'var(--admin-accent)', fill: 'var(--admin-accent)' }} />
@@ -411,7 +411,7 @@ export function SeriesPage() {
         </div>
       )}
 
-      {/* â”€â”€â”€ Series Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Series Modal ─────────────────────────────────────── */}
       <AnimatePresence>
         {showSeriesModal && (
           <motion.div className="admin-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowSeriesModal(false)}>
@@ -489,7 +489,7 @@ export function SeriesPage() {
         )}
       </AnimatePresence>
 
-      {/* â”€â”€â”€ Season Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Season Modal ─────────────────────────────────────── */}
       <AnimatePresence>
         {showSeasonModal && (
           <motion.div className="admin-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowSeasonModal(false)}>
@@ -526,7 +526,7 @@ export function SeriesPage() {
         )}
       </AnimatePresence>
 
-      {/* â”€â”€â”€ Episode Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Episode Modal ────────────────────────────────────── */}
       <AnimatePresence>
         {showEpisodeModal && (
           <motion.div className="admin-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowEpisodeModal(false)}>

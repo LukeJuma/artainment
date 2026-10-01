@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { filmsAPI, type Film } from '../lib/api'
@@ -73,7 +73,7 @@ export function FilmsPage() {
                   </div>
                   <h3 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 16, fontWeight: 600, color: 'var(--text)', margin: '0 0 6px' }}>{film.title}</h3>
                   <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
-                    <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-muted)' }}>{film.year} Â· {film.genre}</span>
+                    <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--text-muted)' }}>{film.year} · {film.genre}</span>
                     <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'var(--red)', marginLeft: 'auto', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}><IconStar size={12} color="var(--red)" /> {film.rating}</span>
                   </div>
                 </Link>

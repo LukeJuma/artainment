@@ -139,6 +139,23 @@ img { max-width: 100%; }
   .pillar-spotlight { transform: translateY(-18px); }
 }
 
+/* ─── Contact grid: stack on mobile ── */
+@media (max-width: 900px) {
+  .contact-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+}
+
+/* ─── Episode rows: stack thumbnail above text on small screens ── */
+@media (max-width: 640px) {
+  .ep-row { flex-direction: column !important; align-items: stretch !important; }
+  .ep-row > div:first-child { width: 100% !important; }
+}
+
+/* ─── Coming Soon ticket panel: stack date above countdown ── */
+@media (max-width: 560px) {
+  .cs-ticket { flex-direction: column !important; }
+  .cs-ticket-countdown { border-top: 1px dashed var(--ds-card-line); padding-top: 16px !important; }
+}
+
 /* ─── Motion utilities (hover zoom for art frames; framer handles lift) ── */
 .zoom-hover img { transition: transform 0.6s var(--ds-ease-out); }
 .zoom-hover:hover img { transform: scale(1.06); }

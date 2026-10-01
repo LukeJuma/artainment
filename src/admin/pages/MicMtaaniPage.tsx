@@ -1,4 +1,4 @@
-﻿import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus, Search, Pencil, Trash2, X, Image, Video,
@@ -253,7 +253,7 @@ export function MicMtaaniPage() {
     <div>
       <PageHeader
         title="Mic Mtaani"
-        description="Community news platform â€” manage articles, categories, journalists & moderation"
+        description="Community news platform - manage articles, categories, journalists & moderation"
         actions={
           <div style={{ display: 'flex', gap: 8 }}>
             {activeTab === 'articles' && (
@@ -315,7 +315,7 @@ export function MicMtaaniPage() {
         </div>
       )}
 
-      {/* â”€â”€â”€ Articles Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Articles Tab ────────────────────────────────── */}
       {activeTab === 'articles' && (
         <>
           {/* Desktop table */}
@@ -363,7 +363,7 @@ export function MicMtaaniPage() {
                           {article.is_featured && <span className="badge badge-warning" style={{ fontSize: 9, padding: '1px 6px' }}>Featured</span>}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--admin-text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {article.excerpt || article.subtitle || 'â€”'}
+                          {article.excerpt || article.subtitle || '-'}
                         </div>
                       </div>
                     </td>
@@ -372,7 +372,7 @@ export function MicMtaaniPage() {
                         <span className="badge" style={{ background: article.category.color ? `${article.category.color}20` : 'rgba(255,255,255,.06)', color: article.category.color || 'var(--admin-text-secondary)' }}>
                           {article.category.name}
                         </span>
-                      ) : <span style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>â€”</span>}
+                      ) : <span style={{ color: 'var(--admin-text-muted)', fontSize: 12 }}>-</span>}
                     </td>
                     <td>
                       {article.video_url ? (
@@ -394,7 +394,7 @@ export function MicMtaaniPage() {
                       </span>
                     </td>
                     <td style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>
-                      {article.published_at ? new Date(article.published_at).toLocaleDateString() : 'â€”'}
+                      {article.published_at ? new Date(article.published_at).toLocaleDateString() : '-'}
                     </td>
                     <td>
                       <div style={{ display: 'flex', gap: 4 }}>
@@ -446,7 +446,7 @@ export function MicMtaaniPage() {
                       {article.is_featured && <span className="badge badge-warning" style={{ fontSize: 9, padding: '1px 5px', flexShrink: 0 }}>Featured</span>}
                     </div>
                     <div style={{ fontSize: 11, color: 'var(--admin-text-muted)', marginBottom: 6, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                      {article.excerpt || article.subtitle || 'â€”'}
+                      {article.excerpt || article.subtitle || '-'}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                       <span className="badge" style={{ background: statusColors[article.status]?.bg || 'rgba(255,255,255,.06)', color: statusColors[article.status]?.color || 'var(--admin-text-muted)', fontSize: 10, padding: '2px 7px' }}>
@@ -478,7 +478,7 @@ export function MicMtaaniPage() {
         </>
       )}
 
-      {/* â”€â”€â”€ Categories Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Categories Tab ──────────────────────────────── */}
       {activeTab === 'categories' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
           {categories?.map(cat => (
@@ -501,7 +501,7 @@ export function MicMtaaniPage() {
         </div>
       )}
 
-      {/* â”€â”€â”€ Journalists Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Journalists Tab ─────────────────────────────── */}
       {activeTab === 'journalists' && (
         <>
           {/* Desktop table */}
@@ -520,8 +520,8 @@ export function MicMtaaniPage() {
                 {journalists?.map(j => (
                   <tr key={j.id}>
                     <td className="cell-primary">{j.name}</td>
-                    <td style={{ fontSize: 12 }}>{j.email || 'â€”'}</td>
-                    <td>{j.role ? <span className="badge badge-neutral">{j.role}</span> : 'â€”'}</td>
+                    <td style={{ fontSize: 12 }}>{j.email || '-'}</td>
+                    <td>{j.role ? <span className="badge badge-neutral">{j.role}</span> : '-'}</td>
                     <td>{j.articles_count || 0}</td>
                     <td>
                       <button className="admin-btn admin-btn-danger admin-btn-sm" onClick={() => setShowDeleteConfirm({ type: 'journalist', id: j.id, name: j.name })}>
@@ -551,7 +551,7 @@ export function MicMtaaniPage() {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 700, fontSize: 13, color: 'var(--admin-text)', marginBottom: 2 }}>{j.name}</div>
-                    <div style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{j.email || 'â€”'}</div>
+                    <div style={{ fontSize: 11, color: 'var(--admin-text-muted)' }}>{j.email || '-'}</div>
                   </div>
                   <button className="admin-btn admin-btn-danger admin-btn-sm" onClick={() => setShowDeleteConfirm({ type: 'journalist', id: j.id, name: j.name })}>
                     <Trash2 size={13} />
@@ -567,7 +567,7 @@ export function MicMtaaniPage() {
         </>
       )}
 
-      {/* â”€â”€â”€ Comments Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Comments Tab ────────────────────────────────── */}
       {activeTab === 'comments' && (
         <div>
           {comments.length === 0 ? (
@@ -597,7 +597,7 @@ export function MicMtaaniPage() {
         </div>
       )}
 
-      {/* â”€â”€â”€ Submissions Tab â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Submissions Tab ─────────────────────────────── */}
       {activeTab === 'submissions' && (
         <div>
           {submissions.length === 0 ? (
@@ -618,7 +618,7 @@ export function MicMtaaniPage() {
                   <span className="badge" style={{ background: statusColors[s.status]?.bg || 'rgba(255,255,255,.06)', color: statusColors[s.status]?.color || 'var(--admin-text-muted)', fontSize: 10, padding: '2px 8px' }}>{s.status}</span>
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--admin-text-muted)', marginBottom: 4 }}>{s.description || 'No description'}</div>
-                <div style={{ fontSize: 11, color: 'var(--admin-text-faint)' }}>by {s.submitter_name} Â· {new Date(s.created_at).toLocaleDateString()}</div>
+                <div style={{ fontSize: 11, color: 'var(--admin-text-faint)' }}>by {s.submitter_name} · {new Date(s.created_at).toLocaleDateString()}</div>
               </div>
               {s.status === 'pending' && (
                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
@@ -631,7 +631,7 @@ export function MicMtaaniPage() {
         </div>
       )}
 
-      {/* â”€â”€â”€ Article Create/Edit Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Article Create/Edit Modal ──────────────────── */}
       <AnimatePresence>
         {showArticleModal && (
           <motion.div className="admin-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowArticleModal(false)}>
@@ -743,7 +743,7 @@ export function MicMtaaniPage() {
         )}
       </AnimatePresence>
 
-      {/* â”€â”€â”€ Category Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Category Modal ────────────────────────────── */}
       <AnimatePresence>
         {showCatModal && (
           <motion.div className="admin-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowCatModal(false)}>
@@ -776,7 +776,7 @@ export function MicMtaaniPage() {
         )}
       </AnimatePresence>
 
-      {/* â”€â”€â”€ Journalist Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Journalist Modal ───────────────────────────── */}
       <AnimatePresence>
         {showJournalistModal && (
           <motion.div className="admin-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowJournalistModal(false)}>
@@ -814,7 +814,7 @@ export function MicMtaaniPage() {
         )}
       </AnimatePresence>
 
-      {/* â”€â”€â”€ Delete Confirmation Modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Delete Confirmation Modal ──────────────────── */}
       <AnimatePresence>
         {showDeleteConfirm && (
           <motion.div className="admin-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowDeleteConfirm(null)}>

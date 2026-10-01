@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Ticket as TicketIcon, Search, Plus, Calendar, DollarSign, Users, X, Loader2, Pencil, Trash2 } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
@@ -119,7 +119,7 @@ export function TicketingPage() {
         letterSpacing: 0.5,
         marginBottom: 20,
       }}>
-        PREVIEW â€” This section is not yet connected to live data.
+        PREVIEW - This section is not yet connected to live data.
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
         {[

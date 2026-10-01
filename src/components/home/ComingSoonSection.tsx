@@ -1,4 +1,4 @@
-﻿import { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { type Film } from '../../lib/api'
 import { contactAPI } from '../../lib/api'
 import { Badge } from '../ui/Badge'
@@ -80,7 +80,7 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
     try {
       const res = await contactAPI.subscribe(email.trim())
       setSubStatus('success')
-      setSubMessage(res.message || 'You are on the list — watch your inbox.')
+      setSubMessage(res.message || 'You are on the list - watch your inbox.')
       setEmail('')
     } catch (e: any) {
       setSubStatus('error')
@@ -102,12 +102,12 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
           Coming Soon
         </h2>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.7, color: 'var(--text-secondary)', margin: 0, maxWidth: 560 }}>
-          Films and series on their way to your screen — premiere dates, countdowns and first-access alerts.
+          Films and series on their way to your screen - premiere dates, countdowns and first-access alerts.
         </p>
       </div>
 
-      {/* Premiere-access spread */}
-      <div style={{ background: '#0b0b0d' }}>
+      {/* Premiere-access spread — follows the theme toggle */}
+      <div style={{ background: 'var(--ds-surface)', borderTop: '1px solid var(--ds-section-line)', borderBottom: '1px solid var(--ds-section-line)' }}>
         <div
           className="cs-spread"
           style={{
@@ -150,58 +150,58 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
             <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 12, flexWrap: 'wrap' }}>
               <Badge variant="upcoming">Up Next</Badge>
               {film.status === 'in_production' && <Badge variant="live">Filming Now</Badge>}
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, letterSpacing: 1.5, color: 'var(--ds-gold)', textTransform: 'uppercase' }}>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, letterSpacing: 1.5, color: 'var(--ds-gold-cta)', textTransform: 'uppercase' }}>
                 {[film.genre, film.year].filter(Boolean).join(' · ') || 'Artainment Original'}
               </span>
             </div>
 
             <h3 style={{
-              fontFamily: "'Bebas Neue', sans-serif", fontWeight: 400, color: 'var(--ds-gold)',
+              fontFamily: "'Bebas Neue', sans-serif", fontWeight: 400, color: 'var(--ds-gold-cta)',
               fontSize: 'clamp(56px, 8vw, 110px)', lineHeight: 0.95, margin: '0 0 16px',
               textTransform: 'uppercase', letterSpacing: '0.01em',
             }}>
               {film.title}
             </h3>
 
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.75, color: 'rgba(255,255,255,0.82)', maxWidth: 560, margin: '0 0 28px' }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.75, color: 'var(--ds-text-2)', maxWidth: 560, margin: '0 0 28px' }}>
               {film.synopsis || 'A new story is on its way to your screen.'}
             </p>
 
             {/* Ticket panel */}
-            <div style={{
+            <div className="cs-ticket" style={{
               display: 'flex', gap: 0, maxWidth: 640, marginBottom: 30,
-              background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)',
-              borderRadius: 12, overflow: 'hidden',
+              background: 'var(--ds-surface-2)', border: '1px solid var(--ds-card-line)',
+              borderRadius: 12, overflow: 'hidden', boxShadow: 'var(--ds-card-shadow)',
             }}>
               <div style={{ flex: 1, padding: '20px 22px', minWidth: 0 }}>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: 2, color: 'var(--ds-gold)', textTransform: 'uppercase', marginBottom: 8 }}>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: 2, color: 'var(--ds-gold-cta)', textTransform: 'uppercase', marginBottom: 8 }}>
                   World Premiere Date
                 </div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 19, fontWeight: 700, color: '#fff', marginBottom: 6 }}>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 19, fontWeight: 700, color: 'var(--ds-text)', marginBottom: 6 }}>
                   {premiereLabel ?? 'Date to be announced'}
                 </div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'var(--ds-gold)' }}>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'var(--ds-gold-cta)' }}>
                   {daysToGo !== null
                     ? (daysToGo > 0 ? `${daysToGo} day${daysToGo === 1 ? '' : 's'} until the curtain rises` : 'The curtain rises imminently')
                     : 'Follow this title for the date drop'}
                 </div>
               </div>
-              <div style={{ width: 1, backgroundImage: 'linear-gradient(to bottom, rgba(255,255,255,0.25) 55%, transparent 45%)', backgroundSize: '1px 10px', margin: '16px 0' }} />
-              <div style={{ display: 'flex', gap: 18, padding: '20px 24px', alignItems: 'center' }}>
+              <div style={{ width: 1, backgroundImage: 'linear-gradient(to bottom, var(--ds-card-line) 55%, transparent 45%)', backgroundSize: '1px 10px', margin: '16px 0' }} />
+              <div className="cs-ticket-countdown" style={{ display: 'flex', gap: 18, padding: '20px 24px', alignItems: 'center' }}>
                 {countdown.map(item => (
                   <div key={item.label} style={{ textAlign: 'center' }}>
-                    <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 32, color: '#fff', lineHeight: 1 }}>{item.value}</div>
-                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, letterSpacing: 1.5, color: 'rgba(255,255,255,0.55)', textTransform: 'uppercase', marginTop: 4 }}>{item.label}</div>
+                    <div style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 32, color: 'var(--ds-text)', lineHeight: 1 }}>{item.value}</div>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 9, letterSpacing: 1.5, color: 'var(--ds-text-3)', textTransform: 'uppercase', marginTop: 4 }}>{item.label}</div>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Invite */}
-            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: '#fff', marginBottom: 6 }}>
+            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, fontWeight: 600, color: 'var(--ds-text)', marginBottom: 6 }}>
               Be first through the door
             </div>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.65)', margin: '0 0 14px', maxWidth: 480 }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'var(--ds-text-2)', margin: '0 0 14px', maxWidth: 480 }}>
               Premiere alerts, exclusive trailer drops, and VIP ticket info straight to your inbox.
             </p>
             <form onSubmit={handleSubscribe} style={{ display: 'flex', gap: 10, maxWidth: 480, flexWrap: 'wrap', marginBottom: 14 }}>
@@ -214,8 +214,8 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
                 required
                 style={{
                   flex: '1 1 200px', padding: '12px 18px', borderRadius: 8,
-                  border: '1px solid rgba(255,255,255,0.2)', background: 'rgba(255,255,255,0.06)',
-                  color: '#fff', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
+                  border: '1px solid var(--ds-card-line)', background: 'var(--ds-surface-2)',
+                  color: 'var(--ds-text)', fontFamily: "'DM Sans', sans-serif", fontSize: 14, outline: 'none',
                   minHeight: 46,
                 }}
               />
@@ -234,18 +234,18 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
               </button>
             </form>
             {subMessage && (
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, margin: '0 0 14px', color: subStatus === 'error' ? '#ff8f8f' : 'rgba(255,255,255,0.75)' }}>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, margin: '0 0 14px', color: subStatus === 'error' ? '#ff8f8f' : 'var(--ds-text-2)' }}>
                 {subMessage}
               </p>
             )}
 
             {/* Premiere lobby */}
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingTop: 14, borderTop: '1px solid rgba(255,255,255,0.1)', maxWidth: 480 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, paddingTop: 14, borderTop: '1px solid var(--ds-card-line)', maxWidth: 480 }}>
               <div style={{ display: 'flex' }}>
                 {LOBBY_AVATARS.map((a, i) => (
                   <span key={a.initials} style={{
                     width: 30, height: 30, borderRadius: '50%', background: a.bg,
-                    border: '2px solid #0b0b0d', marginLeft: i === 0 ? 0 : -10,
+                    border: '2px solid var(--ds-surface)', marginLeft: i === 0 ? 0 : -10,
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
                     fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, color: '#fff',
                   }}>
@@ -253,7 +253,7 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
                   </span>
                 ))}
               </div>
-              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: 'var(--ds-gold)', textTransform: 'uppercase' }}>
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: 'var(--ds-gold-cta)', textTransform: 'uppercase' }}>
                 Join the premiere lobby
               </span>
             </div>
@@ -262,16 +262,16 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
             {films.length > 1 && (
               <div style={{ display: 'flex', gap: 8, marginTop: 26 }}>
                 {films.map((f, i) => (
-                  <button
-                    key={f.id}
-                    onClick={() => setCurrent(i)}
-                    aria-label={`Show ${f.title}`}
-                    style={{
-                      width: i === current % films.length ? 28 : 8, height: 8, borderRadius: 4, border: 'none', cursor: 'pointer',
-                      background: i === current % films.length ? 'var(--ds-gold)' : 'rgba(255,255,255,0.3)',
-                      transition: 'all 0.3s', minHeight: 8, padding: 0,
-                    }}
-                  />
+                    <button
+                      key={f.id}
+                      onClick={() => setCurrent(i)}
+                      aria-label={`Show ${f.title}`}
+                      style={{
+                        width: i === current % films.length ? 28 : 8, height: 8, borderRadius: 4, border: 'none', cursor: 'pointer',
+                        background: i === current % films.length ? 'var(--ds-gold-cta)' : 'var(--ds-card-line)',
+                        transition: 'all 0.3s', minHeight: 8, padding: 0,
+                      }}
+                    />
                 ))}
               </div>
             )}

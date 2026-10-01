@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Bell, Mail, MessageSquare, Send, X, Loader2, Trash2 } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
@@ -86,7 +86,7 @@ export function NotificationsPage() {
         letterSpacing: 0.5,
         marginBottom: 20,
       }}>
-        PREVIEW â€” This section is not yet connected to live data.
+        PREVIEW - This section is not yet connected to live data.
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
         {[

@@ -1,4 +1,4 @@
-﻿import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Podcast, Search, Plus, Trash2, Pencil, X, Loader2, ImagePlus, Mic, ListMusic, ChevronDown, Save } from 'lucide-react'
 import { PageHeader } from '../components/PageHeader'
@@ -246,7 +246,7 @@ export function PodcastsPage() {
                     <span className={`badge ${p.active ? 'badge-success' : 'badge-neutral'}`}>{p.active ? 'Published' : 'Hidden'}</span>
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--admin-text-muted)' }}>
-                    {[p.host, p.category, `${p.episodes_count ?? 0} episodes`].filter(Boolean).join(' Â· ')}
+                    {[p.host, p.category, `${p.episodes_count ?? 0} episodes`].filter(Boolean).join(' · ')}
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexShrink: 0 }}>
@@ -293,7 +293,7 @@ export function PodcastsPage() {
                                     ep.published_at ? ep.published_at.slice(0, 10) : null,
                                     ep.video_url ? 'has video' : null,
                                     ep.audio_url ? 'has audio' : null,
-                                  ].filter(Boolean).join(' Â· ') || 'No media'}
+                                  ].filter(Boolean).join(' · ') || 'No media'}
                                 </div>
                               </div>
                               <button className="admin-btn admin-btn-ghost admin-btn-sm" onClick={() => openEditEpisode(ep)}><Pencil size={12} /></button>
@@ -311,7 +311,7 @@ export function PodcastsPage() {
         </div>
       )}
 
-      {/* â”€â”€â”€ Podcast modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Podcast modal ─────────────────────────── */}
       <AnimatePresence>
         {showPodcastModal && (
           <motion.div className="admin-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowPodcastModal(false)}>
@@ -370,7 +370,7 @@ export function PodcastsPage() {
         )}
       </AnimatePresence>
 
-      {/* â”€â”€â”€ Episode modal â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Episode modal ─────────────────────────── */}
       <AnimatePresence>
         {showEpisodeModal && (
           <motion.div className="admin-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowEpisodeModal(false)}>
