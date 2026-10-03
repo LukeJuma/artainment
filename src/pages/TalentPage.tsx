@@ -5,6 +5,7 @@ import { talentAPI, type Talent } from '../lib/api'
 import { stagger, fadeUp, useInView } from '../lib/animations'
 import { Section } from '../components/ui/Section'
 import { SectionLabel } from '../components/ui/SectionLabel'
+import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { MediaArt } from '../components/ui/MediaArt'
 
 export function TalentPage() {
@@ -43,6 +44,9 @@ export function TalentPage() {
     <div style={{ paddingTop: 80 }}>
       <Section>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          <div style={{ marginBottom: 20 }}>
+            <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Actors' }]} />
+          </div>
           <SectionLabel text="The Collective" />
           <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(42px, 6vw, 80px)', fontWeight: 700, color: 'var(--text)', lineHeight: 0.95, margin: '0 0 80px' }}>Our Actors</h1>
           <motion.div ref={ref} variants={stagger} initial="hidden" animate={inView ? 'visible' : 'hidden'}

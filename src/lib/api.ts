@@ -1,4 +1,4 @@
-﻿import { env } from './env';
+import { env } from './env';
 
 const API_BASE = env.apiUrl;
 
@@ -569,7 +569,7 @@ export const reviewsAPI = {
     api('/reviews', { method: 'POST', body: data }),
 };
 
-// â”€â”€â”€ Mic Mtaani Types â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Mic Mtaani Types ──────────────────────────────────────────────
 export interface MMCategory {
   id: number;
   name: string;
@@ -672,7 +672,7 @@ export interface MMPaginated<T> {
   total: number;
 }
 
-// â”€â”€â”€ Mic Mtaani API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// ─── Mic Mtaani API ──────────────────────────────────────────────
 export const mmAPI = {
   homepage: () => api<MMHomepage>('/micmtaani'),
   articles: (params?: { category?: string; tag?: string; page?: number; per_page?: number }) => {

@@ -206,6 +206,14 @@ serve(async (req) => {
           supabase.from('podcasts').select('*').order('created_at', { ascending: false }).limit(6)
         ])
 
+        // Episode counts for the homepage podcast shelf
+        const homePodIds = (podcasts || []).map((p: any) => p.id)
+        let homeEpCount: Record<number, number> = {}
+        if (homePodIds.length > 0) {
+          const { data: homeEps } = await supabase.from('podcast_episodes').select('id, podcast_id').in('podcast_id', homePodIds)
+          for (const e of homeEps || []) homeEpCount[(e as any).podcast_id] = (homeEpCount[(e as any).podcast_id] || 0) + 1
+        }
+
         return new Response(JSON.stringify({
           featured_film: featuredFilm || null,
           films: films || [],
@@ -216,7 +224,7 @@ serve(async (req) => {
           gallery: gallery || [],
           news: news || [],
           testimonials: testimonials || [],
-          podcasts: podcasts || []
+          podcasts: (podcasts || []).map((p: any) => ({ ...p, episodes_count: homeEpCount[p.id] || 0 }))
         }), { headers: corsHeaders })
       } catch (error) {
         console.error('Home endpoint error:', error)
@@ -666,13 +674,22 @@ serve(async (req) => {
           .select('*')
           .order('created_at', { ascending: false })
 
+        // Attach episode counts (cards read episodes_count)
+        const ids = (podcasts || []).map((p: any) => p.id)
+        let epCount: Record<number, number> = {}
+        if (ids.length > 0) {
+          const { data: eps } = await supabase.from('podcast_episodes').select('id, podcast_id').in('podcast_id', ids)
+          for (const e of eps || []) epCount[(e as any).podcast_id] = (epCount[(e as any).podcast_id] || 0) + 1
+        }
+        const enriched = (podcasts || []).map((p: any) => ({ ...p, episodes_count: epCount[p.id] || 0 }))
+
         // Honor ?paginate=true (the frontend's list() helpers expect { data })
         if (paginateParam) {
-          return new Response(JSON.stringify(paginate(podcasts || [], page, 12)), { headers: corsHeaders })
+          return new Response(JSON.stringify(paginate(enriched, page, 12)), { headers: corsHeaders })
         }
 
         // Get latest episode for each podcast (optimized to avoid N+1)
-        const podcastsWithLatest = await Promise.all((podcasts || []).map(async (podcast) => {
+        const podcastsWithLatest = await Promise.all(enriched.map(async (podcast) => {
           const { data: latestEpisode } = await supabase
             .from('podcast_episodes')
             .select('id, title, published_at, duration')

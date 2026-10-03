@@ -28,7 +28,7 @@ export function Nav({ overlay = false }: { overlay?: boolean }) {
   }, [menuOpen])
 
   const links = [
-    { label: 'Movies', path: '/films' },
+    { label: 'Movies', path: '/movies' },
     { label: 'Series', path: '/series' },
     { label: 'Actors', path: '/actors' },
     { label: 'Podcasts', path: '/podcasts' },

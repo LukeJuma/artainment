@@ -6,7 +6,8 @@ import { Loader } from '../components/ui/Loader'
 import { Section } from '../components/ui/Section'
 import { SectionLabel } from '../components/ui/SectionLabel'
 import { MediaArt } from '../components/ui/MediaArt'
-import { parseYouTubeId } from '../components/ui/YouTubePlayer'
+import { Breadcrumbs } from '../components/ui/Breadcrumbs'
+import { parseYouTubeId, YouTubePlayer } from '../components/ui/YouTubePlayer'
 import { IconPlay, IconX } from '../components/ui/Icons'
 
 function episodeThumb(ep: PodcastEpisode, fallbackCover?: string | null): string | null {
@@ -35,7 +36,10 @@ export function PodcastDetailPage() {
   return (
     <div style={{ paddingTop: 80 }}>
       <Section style={{ background: 'var(--bg-muted)' }}>
-        <div style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(220px, 300px) 1fr', gap: 'clamp(24px, 4vw, 56px)', alignItems: 'start' }}>
+        <div style={{ maxWidth: 1000, margin: '0 auto', display: 'grid', gridTemplateColumns: 'minmax(220px, 300px) 1fr', gap: 'clamp(24px, 4vw, 56px)', alignItems: 'start' }} className="podcast-hero-grid">
+          <div style={{ gridColumn: '1 / -1', marginBottom: 4 }}>
+            <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Podcasts', to: '/podcasts' }, { label: podcast.title }]} />
+          </div>
           <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.6 }}
             style={{ borderRadius: 12, overflow: 'hidden', background: 'var(--bg)' }}>
             <MediaArt type="podcast" title={podcast.title} src={podcast.cover_url} alt={podcast.title} absolute={false} />
@@ -143,13 +147,23 @@ export function PodcastDetailPage() {
                   <IconX size={18} />
                 </button>
               </div>
-              {playing.video_url ? (
-                <video controls autoPlay playsInline src={videoStreamUrl(playing.video_url) ?? undefined} style={{ width: '100%', borderRadius: 8, background: '#000', aspectRatio: '16 / 9' }} />
-              ) : playing.audio_url ? (
-                <audio controls autoPlay src={videoStreamUrl(playing.audio_url) ?? undefined} style={{ width: '100%' }} />
-              ) : (
-                <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>Media coming soon.</p>
-              )}
+              {(() => {
+                const ytId = parseYouTubeId(playing.video_url)
+                if (ytId) {
+                  return (
+                    <div style={{ width: '100%', aspectRatio: '16 / 9', background: '#000', borderRadius: 8, overflow: 'hidden' }}>
+                      <YouTubePlayer videoId={ytId} />
+                    </div>
+                  )
+                }
+                if (playing.video_url) {
+                  return <video controls autoPlay playsInline src={videoStreamUrl(playing.video_url) ?? undefined} style={{ width: '100%', borderRadius: 8, background: '#000', aspectRatio: '16 / 9' }} />
+                }
+                if (playing.audio_url) {
+                  return <audio controls autoPlay src={videoStreamUrl(playing.audio_url) ?? undefined} style={{ width: '100%' }} />
+                }
+                return <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', margin: 0 }}>Media coming soon.</p>
+              })()}
             </motion.div>
           </motion.div>
         )}

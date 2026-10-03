@@ -33,7 +33,7 @@ export function Dashboard() {
     return [
       { name: 'Movies', value: c.films, color: '#FF4D2D' },
       { name: 'Series', value: c.series, color: '#3B82F6' },
-      { name: 'Talent', value: c.talent, color: '#8B5CF6' },
+      { name: 'Actors', value: c.talent, color: '#8B5CF6' },
       { name: 'Podcasts', value: c.podcasts, color: '#FFB800' },
       { name: 'News', value: c.news, color: '#2DD36F' },
     ].filter(i => i.value > 0)

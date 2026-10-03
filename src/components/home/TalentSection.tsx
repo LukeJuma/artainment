@@ -4,6 +4,7 @@ import { useInView, fadeUp, stagger } from '../../lib/animations'
 import { Section } from '../ui/Section'
 import { SectionLabel } from '../ui/SectionLabel'
 import { MediaArt } from '../ui/MediaArt'
+import { IconArrowRight } from '../ui/Icons'
 import { Link } from 'react-router-dom'
 
 export function TalentSection({ talent }: { talent: Talent[] }) {
@@ -14,8 +15,15 @@ export function TalentSection({ talent }: { talent: Talent[] }) {
   return (
     <Section style={{ background: 'var(--bg)', borderTop: '1px solid var(--border)' }}>
       <div ref={ref} style={{ maxWidth: 1200, margin: '0 auto' }}>
-        <SectionLabel text="Our Actors" />
-        <h2 className="section-heading" style={{ color: 'var(--text)', margin: '0 0 36px' }}>Meet the Cast</h2>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 36, gap: 16, flexWrap: 'wrap' }}>
+          <div>
+            <SectionLabel text="Our Actors" />
+            <h2 className="section-heading" style={{ color: 'var(--text)', margin: 0 }}>Meet the Actors</h2>
+          </div>
+          <Link to="/actors" className="btn-outline" style={{ padding: '10px 22px', minHeight: 40, fontSize: 12 }}>
+            View All Actors <IconArrowRight size={14} />
+          </Link>
+        </div>
         <motion.div variants={stagger} initial="hidden" animate={inView ? 'visible' : 'hidden'}
           className="talent-grid-home"
           style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 16 }}>

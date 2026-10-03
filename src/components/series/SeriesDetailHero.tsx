@@ -1,7 +1,8 @@
-﻿import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { motion, useReducedMotion } from 'framer-motion'
 import type { Series } from '../../lib/api'
 import { IconPlay, IconStar } from '../ui/Icons'
+import { Breadcrumbs } from '../ui/Breadcrumbs'
 import { MediaArt } from '../ui/MediaArt'
 
 interface SeriesDetailHeroProps {
@@ -29,7 +30,7 @@ export function SeriesDetailHero({ series, onStart, onPlayTrailer, startable }: 
       className="film-hero"
       style={{ position: 'relative', overflow: 'hidden', background: '#0a0a0c', minHeight: 'clamp(560px, 78vh, 720px)' }}
     >
-      {/* â”€â”€â”€ Cinematic backdrop â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Cinematic backdrop ─────────────────────────── */}
       <div className="film-hero-backdrop" style={{ position: 'absolute', inset: 0 }}>
         {series.poster_url && (
           <motion.img
@@ -67,10 +68,17 @@ export function SeriesDetailHero({ series, onStart, onPlayTrailer, startable }: 
         }} />
       </div>
 
-      {/* â”€â”€â”€ Hero content â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */}
+      {/* ─── Breadcrumb trail ─── */}
+      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 5 }}>
+        <div style={{ maxWidth: 1280, margin: '0 auto', padding: '88px 32px 0' }}>
+          <Breadcrumbs tone="light" items={[{ label: 'Home', to: '/' }, { label: 'Series', to: '/series' }, { label: series.title }]} />
+        </div>
+      </div>
+
+      {/* ─── Hero content ─────────────────────────────── */}
       <div className="film-hero-inner" style={{
         position: 'relative', maxWidth: 1280, margin: '0 auto',
-        padding: 'clamp(120px, 17vh, 180px) 32px clamp(56px, 8vh, 96px)',
+        padding: 'clamp(140px, 19vh, 200px) 32px clamp(56px, 8vh, 96px)',
         display: 'flex', alignItems: 'center', gap: 'clamp(28px, 5vw, 64px)',
       }}>
         <motion.div className="film-hero-poster" {...rise(0.1)} style={{ flexShrink: 0, position: 'relative' }}>

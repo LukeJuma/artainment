@@ -135,15 +135,15 @@ export function AnalyticsPage() {
           <div className="analytics-overview">
             <div className="stat-item">
               <span className="stat-label">Total Films</span>
-              <span className="stat-value">{stats?.films || 0}</span>
+              <span className="stat-value">{stats?.content_counts?.films || 0}</span>
             </div>
             <div className="stat-item">
               <span className="stat-label">Total Users</span>
-              <span className="stat-value">{stats?.users || 0}</span>
+              <span className="stat-value">{stats?.user_counts?.total_users || 0}</span>
             </div>
             <div className="stat-item">
               <span className="stat-label">Revenue</span>
-              <span className="stat-value">KES {(stats?.revenue || 0).toLocaleString()}</span>
+              <span className="stat-value">KES {(stats?.revenue?.total_all_time || 0).toLocaleString()}</span>
             </div>
           </div>
         </div>

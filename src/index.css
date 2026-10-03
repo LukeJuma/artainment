@@ -1,4 +1,4 @@
-﻿@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Domine:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Domine:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 @import 'tailwindcss';
 @import './styles/tokens.css';
 
@@ -61,7 +61,7 @@ body {
 
 img { max-width: 100%; }
 
-/* â”€â”€â”€ Utility â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Utility ───────────────────────────────────────────────── */
 .section-heading {
   font-family: 'DM Sans', sans-serif;
   font-size: clamp(28px, 5vw, 56px);
@@ -109,23 +109,23 @@ img { max-width: 100%; }
 }
 .btn-outline-light:hover { border-color: #fff; color: #fff; background: rgba(255,255,255,0.08); }
 
-/* â”€â”€â”€ Hero â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Hero ──────────────────────────────────────────────────── */
 .hero-mobile-overlay { display: none; }
 @media (max-width: 768px) {
   .hero-mobile-overlay { display: block !important; }
   .hero-content { padding-bottom: 72px !important; }
 }
 
-/* â”€â”€â”€ Section padding â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Section padding ───────────────────────────────────────── */
 .section-pad { padding: clamp(40px, 8vw, 100px) clamp(16px, 5vw, 80px); }
 
-/* â”€â”€â”€ Nav â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Nav ───────────────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .nav-desktop { display: none !important; }
   .nav-mobile-toggle { display: flex !important; flex-direction: column; }
 }
 
-/* â”€â”€â”€ Who We Are grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Who We Are grid ──────────────────────────────────────── */
 @media (max-width: 768px) {
   .who-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
   .units-grid { grid-template-columns: 1fr 1fr !important; }
@@ -142,6 +142,12 @@ img { max-width: 100%; }
 /* ─── Contact grid: stack on mobile ── */
 @media (max-width: 900px) {
   .contact-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
+}
+
+/* ─── Podcast hero: stack art above text on mobile ── */
+@media (max-width: 760px) {
+  .podcast-hero-grid { grid-template-columns: 1fr !important; }
+  .podcast-hero-grid > div:nth-child(2) { max-width: 320px; }
 }
 
 /* ─── Episode rows: stack thumbnail above text on small screens ── */
@@ -161,7 +167,7 @@ img { max-width: 100%; }
 .zoom-hover:hover img { transform: scale(1.06); }
 .fade-up-in { animation: ds-fade-up 0.7s var(--ds-ease-out) both; }
 
-/* â”€â”€â”€ Featured production â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Featured production ──────────────────────────────────── */
 @media (max-width: 768px) {
   .featured { min-height: 360px !important; }
   .featured img { height: 360px !important; }
@@ -172,19 +178,19 @@ img { max-width: 100%; }
   .featured img { height: 300px !important; }
 }
 
-/* â”€â”€â”€ Films scroll â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Films scroll ─────────────────────────────────────────── */
 @media (max-width: 768px) {
   .films-scroll { padding-left: 16px !important; padding-right: 16px !important; }
   .films-scroll > div { width: 160px !important; }
   .films-scroll > div > a > div:first-child { height: 240px !important; }
 }
 
-/* â”€â”€â”€ Services grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Services grid ────────────────────────────────────────── */
 @media (max-width: 768px) {
   .services-grid { grid-template-columns: 1fr !important; }
 }
 
-/* â”€â”€â”€ Talent grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Talent grid ──────────────────────────────────────────── */
 @media (max-width: 768px) {
   .talent-grid-home { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
 }
@@ -192,7 +198,7 @@ img { max-width: 100%; }
   .talent-grid-home { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
 }
 
-/* â”€â”€â”€ Gallery â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Gallery ──────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .gallery-header { padding: 0 16px !important; }
   .gallery-grid { grid-template-columns: 1fr 1fr !important; padding: 0 16px !important; max-height: none !important; grid-auto-rows: 180px !important; }
@@ -203,18 +209,18 @@ img { max-width: 100%; }
   .gallery-grid > div:first-child { grid-column: auto !important; }
 }
 
-/* â”€â”€â”€ News grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── News grid ────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .news-grid { grid-template-columns: 1fr !important; }
   .news-grid > div { min-height: auto !important; }
 }
 
-/* â”€â”€â”€ CTA grid â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── CTA grid ─────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .cta-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
 }
 
-/* â”€â”€â”€ Footer â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Footer ───────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 32px !important; }
 }
@@ -222,7 +228,7 @@ img { max-width: 100%; }
   .footer-grid { grid-template-columns: 1fr !important; gap: 28px !important; }
 }
 
-/* â”€â”€â”€ Film detail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Film detail ──────────────────────────────────────────── */
 .film-hero-poster { width: clamp(220px, 26vw, 320px) !important; }
 @media (max-width: 768px) {
   .film-hero { min-height: auto !important; }
@@ -260,26 +266,26 @@ img { max-width: 100%; }
 }
 
 
-/* â”€â”€â”€ Services page rows â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Services page rows ───────────────────────────────────── */
 @media (max-width: 768px) {
   .service-row { grid-template-columns: 1fr !important; direction: ltr !important; }
   .service-row > div:first-child { height: 200px !important; }
   .service-row > div:last-child { padding: 24px 16px !important; }
 }
 
-/* â”€â”€â”€ Talent detail â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Talent detail ────────────────────────────────────────── */
 @media (max-width: 768px) {
   .talent-detail-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
 }
 
-/* â”€â”€â”€ Productions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Productions ──────────────────────────────────────────── */
 @media (max-width: 768px) {
   .production-row { grid-template-columns: 1fr !important; }
   .production-row > div:first-child { height: 200px !important; }
   .production-row > div:last-child { padding: 20px 16px !important; }
 }
 
-/* â”€â”€â”€ About â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── About ────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .about-hero { height: 280px !important; }
   .about-hero img { height: 280px !important; }
@@ -288,12 +294,12 @@ img { max-width: 100%; }
   .timeline { padding-left: 32px !important; }
 }
 
-/* â”€â”€â”€ Contact â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Contact ──────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .contact-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
 }
 
-/* â”€â”€â”€ Admin â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Admin ────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .admin-row { grid-template-columns: 1fr !important; gap: 8px !important; padding: 16px !important; }
   .admin-item-row { flex-direction: column !important; align-items: flex-start !important; gap: 12px; }
@@ -301,7 +307,7 @@ img { max-width: 100%; }
   .admin-item-row button { align-self: flex-end; }
 }
 
-/* â”€â”€â”€ Films page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Films page ───────────────────────────────────────────── */
 @media (max-width: 768px) {
   .films-filter { gap: 8px !important; }
   .films-filter button { padding: 8px 14px !important; font-size: 11px !important; }
@@ -311,7 +317,7 @@ img { max-width: 100%; }
   .films-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
 }
 
-/* â”€â”€â”€ Cast & Crew â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Cast & Crew ──────────────────────────────────────────── */
 .cc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 16px; }
 .cc-card { min-width: 0; text-align: center; }
 .cc-portrait {
@@ -462,7 +468,7 @@ img { max-width: 100%; }
   .cc-grid { scroll-behavior: auto; }
 }
 
-/* â”€â”€â”€ Mic Mtaani â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Mic Mtaani ───────────────────────────────────────────── */
 @media (max-width: 768px) {
   .mm-main-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
   .mm-nav-desktop { display: none !important; }
@@ -477,19 +483,19 @@ img { max-width: 100%; }
   .mm-sidebar { order: -1; }
 }
 
-/* â”€â”€â”€ Touch targets (48px minimum) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Touch targets (48px minimum) ─────────────────────────── */
 a, button, input, select, textarea {
   touch-action: manipulation;
 }
 
-/* â”€â”€â”€ Form elements mobile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Form elements mobile ─────────────────────────────────── */
 @media (max-width: 768px) {
   input, select, textarea {
     font-size: 16px !important;
   }
 }
 
-/* â”€â”€â”€ Page headings mobile â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+/* ─── Page headings mobile ─────────────────────────────────── */
 @media (max-width: 768px) {
   h1 { font-size: clamp(28px, 8vw, 48px) !important; }
 }

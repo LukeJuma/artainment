@@ -57,17 +57,17 @@ function AppRoutes() {
         <Suspense fallback={<Loader />}>
           <Routes location={location}>
             <Route path="/" element={<><Nav /><HomePage /><Footer /></>} />
-            <Route path="/films" element={<><Nav /><FilmsPage /><Footer /></>} />
-            <Route path="/films/:slug" element={<><Nav overlay /><FilmDetailPage /><Footer /></>} />
-            <Route path="/movies" element={<Navigate to="/films" replace />} />
-            <Route path="/movies/:slug" element={<FilmRedirect />} />
+            <Route path="/movies" element={<><Nav /><FilmsPage /><Footer /></>} />
+            <Route path="/movies/:slug" element={<><Nav overlay /><FilmDetailPage /><Footer /></>} />
+            <Route path="/films" element={<Navigate to="/movies" replace />} />
+            <Route path="/films/:slug" element={<FilmRedirect />} />
             <Route path="/series" element={<><Nav /><SeriesPage /><Footer /></>} />
             <Route path="/series/:slug" element={<><Nav overlay /><SeriesDetailPage /><Footer /></>} />
             <Route path="/services" element={<><Nav /><ServicesPage /><Footer /></>} />
-            <Route path="/talent" element={<><Nav /><TalentPage /><Footer /></>} />
-            <Route path="/talent/:slug" element={<><Nav /><TalentDetailPage /><Footer /></>} />
-            <Route path="/actors" element={<Navigate to="/talent" replace />} />
-            <Route path="/actors/:slug" element={<TalentRedirect />} />
+            <Route path="/actors" element={<><Nav /><TalentPage /><Footer /></>} />
+            <Route path="/actors/:slug" element={<><Nav /><TalentDetailPage /><Footer /></>} />
+            <Route path="/talent" element={<Navigate to="/actors" replace />} />
+            <Route path="/talent/:slug" element={<TalentRedirect />} />
             <Route path="/podcasts" element={<><Nav /><PodcastsPage /><Footer /></>} />
             <Route path="/podcasts/:slug" element={<><Nav /><PodcastDetailPage /><Footer /></>} />
             <Route path="/productions" element={<><Nav /><ProductionsPage /><Footer /></>} />
@@ -104,12 +104,12 @@ function AppRoutes() {
 
 function FilmRedirect() {
   const { slug } = useParams()
-  return <Navigate to={`/films/${slug}`} replace />
+  return <Navigate to={`/movies/${slug}`} replace />
 }
 
 function TalentRedirect() {
   const { slug } = useParams()
-  return <Navigate to={`/talent/${slug}`} replace />
+  return <Navigate to={`/actors/${slug}`} replace />
 }
 
 export default function App() {

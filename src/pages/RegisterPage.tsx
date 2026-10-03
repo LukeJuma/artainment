@@ -1,10 +1,7 @@
 ﻿import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
-import { SectionLabel } from '../components/ui/SectionLabel'
-
-const inputStyle: React.CSSProperties = { width: '100%', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, padding: '16px 20px', fontFamily: 'DM Sans, sans-serif', fontSize: 16, color: 'var(--text)', outline: 'none', minHeight: 48, boxSizing: 'border-box' }
+import { AuthShell, AuthField, authInputStyle, FieldIcon, ICON_MAIL, ICON_USER, ICON_LOCK } from '../components/ui/AuthShell'
 
 export function RegisterPage() {
   const { register } = useAuth()
@@ -13,11 +10,16 @@ export function RegisterPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [passwordConfirmation, setPasswordConfirmation] = useState('')
+  const [agree, setAgree] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!agree) {
+      setError('Please agree to the Terms and Conditions to continue.')
+      return
+    }
     setLoading(true)
     setError('')
     try {
@@ -31,29 +33,50 @@ export function RegisterPage() {
   }
 
   return (
-    <div style={{ paddingTop: 80, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-        style={{ width: '100%', maxWidth: 440, padding: '0 24px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 48 }}>
-          <SectionLabel text="Join Us" />
-          <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(32px, 6vw, 42px)', fontWeight: 700, color: 'var(--text)', margin: '0 0 8px' }}>Create Account</h1>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: 'var(--text-secondary)' }}>Start your journey with The Artainment</p>
-        </div>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {error && <div style={{ background: 'color-mix(in srgb, var(--red) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--red) 30%, transparent)', borderRadius: 6, padding: '12px 16px', fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--red)' }}>{error}</div>}
-          <div><label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, letterSpacing: 2, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Name</label><input style={inputStyle} value={name} onChange={e => setName(e.target.value)} required /></div>
-          <div><label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, letterSpacing: 2, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Email</label><input style={inputStyle} type="email" value={email} onChange={e => setEmail(e.target.value)} required /></div>
-          <div><label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, letterSpacing: 2, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Password</label><input style={inputStyle} type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={8} /></div>
-          <div><label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, letterSpacing: 2, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Confirm Password</label><input style={inputStyle} type="password" value={passwordConfirmation} onChange={e => setPasswordConfirmation(e.target.value)} required /></div>
-          <button type="submit" disabled={loading}
-            style={{ background: 'var(--red)', border: 'none', cursor: loading ? 'wait' : 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--text)', padding: '18px 36px', minHeight: 48, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'var(--ds-radius-pill)', marginTop: 8, opacity: loading ? 0.7 : 1 }}>
-            {loading ? 'Creating...' : 'Create Account'}
-          </button>
-        </form>
-        <p style={{ textAlign: 'center', marginTop: 24, fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-muted)' }}>
-          Already have an account? <Link to="/login" style={{ color: 'var(--red)', textDecoration: 'none', minHeight: 44, display: 'inline-flex', alignItems: 'center' }}>Sign in</Link>
+    <AuthShell
+      eyebrow="Join Us"
+      title="Sign Up"
+      panelTitle="Don't Have An Account?"
+      panelCopy="Register to access all the features of our service. Films, premieres and community in one place. It's free!"
+      panelPoints={['Watch films, series and podcasts', 'Get premiere alerts first', 'Join the Mic Mtaani conversation']}
+      switchPrompt="Already a member?"
+      switchLabel="Sign In"
+      switchTo="/login"
+    >
+      <form onSubmit={handleSubmit}>
+        {error && <div style={{ background: 'color-mix(in srgb, var(--red) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--red) 30%, transparent)', borderRadius: 'var(--ds-radius-md)', padding: '12px 16px', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'var(--red)', marginBottom: 20 }}>{error}</div>}
+        <AuthField label="Email" icon={<FieldIcon d={ICON_MAIL} />}>
+          <input style={authInputStyle} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required autoComplete="email" />
+        </AuthField>
+        <AuthField label="Username" icon={<FieldIcon d={ICON_USER} />}>
+          <input style={authInputStyle} value={name} onChange={e => setName(e.target.value)} placeholder="Your name" required autoComplete="username" />
+        </AuthField>
+        <AuthField label="Password" icon={<FieldIcon d={ICON_LOCK} />}>
+          <input style={authInputStyle} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Min 8 characters" required minLength={8} autoComplete="new-password" />
+        </AuthField>
+        <AuthField label="Confirm Password" icon={<FieldIcon d={ICON_LOCK} />}>
+          <input style={authInputStyle} type="password" value={passwordConfirmation} onChange={e => setPasswordConfirmation(e.target.value)} placeholder="Repeat password" required autoComplete="new-password" />
+        </AuthField>
+        <label style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'var(--text-secondary)', cursor: 'pointer', margin: '4px 0 24px', lineHeight: 1.5 }}>
+          <input type="checkbox" checked={agree} onChange={e => setAgree(e.target.checked)} style={{ width: 16, height: 16, marginTop: 2, accentColor: 'var(--ds-brand)', flexShrink: 0 }} />
+          <span>I agree to the <strong style={{ color: 'var(--text)' }}>Terms</strong> and <strong style={{ color: 'var(--text)' }}>Conditions</strong> of Service</span>
+        </label>
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            width: '100%', background: 'transparent', border: '1.5px solid var(--ds-card-line)', cursor: loading ? 'wait' : 'pointer',
+            fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase',
+            color: 'var(--ds-text)', padding: '16px', borderRadius: 'var(--ds-radius-pill)',
+            opacity: loading ? 0.7 : 1, minHeight: 52,
+          }}
+        >
+          {loading ? 'Creating...' : 'Sign Up →'}
+        </button>
+        <p style={{ textAlign: 'center', marginTop: 20, fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'var(--text-muted)' }}>
+          Have an account? <Link to="/login" style={{ color: 'var(--ds-brand-500)', fontWeight: 600, textDecoration: 'none' }}>Sign in</Link>
         </p>
-      </motion.div>
-    </div>
+      </form>
+    </AuthShell>
   )
 }

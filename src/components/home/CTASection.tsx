@@ -9,7 +9,7 @@ const OFFERS = [
   { label: 'Book Photography', desc: 'Editorial, commercial & events' },
   { label: 'Book Videography', desc: 'Our flagship craft', spotlight: true },
   { label: 'Commission a Film', desc: 'Features, shorts, documentaries' },
-  { label: 'Hire Our Talent', desc: 'Casting & performance' },
+  { label: 'Hire Our Actors', desc: 'Casting & performance' },
   { label: 'Partner With Us', desc: 'Brand stories & sponsorship' },
 ]
 

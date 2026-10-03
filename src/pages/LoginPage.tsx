@@ -1,16 +1,14 @@
 ﻿import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
 import { useAuth } from '../contexts/AuthContext'
-import { SectionLabel } from '../components/ui/SectionLabel'
-
-const inputStyle: React.CSSProperties = { width: '100%', background: 'var(--bg)', border: '1px solid var(--border)', borderRadius: 6, padding: '16px 20px', fontFamily: 'DM Sans, sans-serif', fontSize: 16, color: 'var(--text)', outline: 'none', minHeight: 48, boxSizing: 'border-box' }
+import { AuthShell, AuthField, authInputStyle, FieldIcon, ICON_MAIL, ICON_LOCK } from '../components/ui/AuthShell'
 
 export function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [remember, setRemember] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -19,8 +17,7 @@ export function LoginPage() {
     setLoading(true)
     setError('')
     try {
-      const user = await login(email, password)
-      // Small delay to ensure state is updated properly
+      const user = await login(email, password, remember)
       setTimeout(() => {
         navigate(user?.is_admin ? '/admin' : '/', { replace: true })
       }, 100)
@@ -32,36 +29,49 @@ export function LoginPage() {
   }
 
   return (
-    <div style={{ paddingTop: 80, minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}
-        style={{ width: '100%', maxWidth: 440, padding: '0 24px' }}>
-        <div style={{ textAlign: 'center', marginBottom: 48 }}>
-          <SectionLabel text="Welcome Back" />
-          <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(32px, 6vw, 42px)', fontWeight: 700, color: 'var(--text)', margin: '0 0 8px' }}>Sign In</h1>
-          <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 15, color: 'var(--text-secondary)' }}>Access your Artainment account</p>
+    <AuthShell
+      eyebrow="Welcome Back"
+      title="Sign In"
+      panelTitle="Pick Up Where You Left Off"
+      panelCopy="Your watchlist, premieres and community are waiting. One account for films, series, podcasts and Mic Mtaani."
+      panelPoints={['Continue watching across devices', 'Premiere alerts for coming soon titles', 'Comment and join the community']}
+      switchPrompt="New to Artainment?"
+      switchLabel="Create Account"
+      switchTo="/register"
+    >
+      <form onSubmit={handleSubmit}>
+        {error && <div style={{ background: 'color-mix(in srgb, var(--red) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--red) 30%, transparent)', borderRadius: 'var(--ds-radius-md)', padding: '12px 16px', fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'var(--red)', marginBottom: 20 }}>{error}</div>}
+        <AuthField label="Email" icon={<FieldIcon d={ICON_MAIL} />}>
+          <input style={authInputStyle} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required autoComplete="email" />
+        </AuthField>
+        <AuthField label="Password" icon={<FieldIcon d={ICON_LOCK} />}>
+          <input style={authInputStyle} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••" required autoComplete="current-password" />
+        </AuthField>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', margin: '4px 0 24px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'var(--text-secondary)', cursor: 'pointer' }}>
+            <input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} style={{ width: 16, height: 16, accentColor: 'var(--ds-brand)' }} />
+            Remember me
+          </label>
+          <Link to="/forgot-password" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none' }}>
+            Forgot password?
+          </Link>
         </div>
-        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {error && <div style={{ background: 'color-mix(in srgb, var(--red) 10%, transparent)', border: '1px solid color-mix(in srgb, var(--red) 30%, transparent)', borderRadius: 6, padding: '12px 16px', fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--red)' }}>{error}</div>}
-          <div>
-            <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, letterSpacing: 2, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Email</label>
-            <input style={inputStyle} type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="admin@theartainment.co.ke" required />
-          </div>
-          <div>
-            <label style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 11, letterSpacing: 2, color: 'var(--text-muted)', textTransform: 'uppercase', display: 'block', marginBottom: 8 }}>Password</label>
-            <input style={inputStyle} type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="password" required />
-            <div style={{ textAlign: 'right', marginTop: 8 }}>
-              <Link to="/forgot-password" style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, color: 'var(--text-muted)', textDecoration: 'none' }}>Forgot password?</Link>
-            </div>
-          </div>
-          <button type="submit" disabled={loading}
-            style={{ background: 'var(--red)', border: 'none', cursor: loading ? 'wait' : 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--text)', padding: '18px 36px', minHeight: 48, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', borderRadius: 'var(--ds-radius-pill)', marginTop: 8, opacity: loading ? 0.7 : 1 }}>
-            {loading ? 'Signing in...' : 'Sign In'}
-          </button>
-        </form>
-        <p style={{ textAlign: 'center', marginTop: 24, fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-muted)' }}>
-          <Link to="/register" style={{ color: 'var(--red)', textDecoration: 'none', minHeight: 44, display: 'inline-flex', alignItems: 'center' }}>Create an account</Link>
+        <button
+          type="submit"
+          disabled={loading}
+          style={{
+            width: '100%', background: 'var(--ds-brand)', border: 'none', cursor: loading ? 'wait' : 'pointer',
+            fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase',
+            color: '#fff', padding: '16px', borderRadius: 'var(--ds-radius-pill)',
+            boxShadow: 'var(--ds-shadow-glow-brand)', opacity: loading ? 0.7 : 1, minHeight: 52,
+          }}
+        >
+          {loading ? 'Signing in...' : 'Sign In →'}
+        </button>
+        <p style={{ textAlign: 'center', marginTop: 20, fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: 'var(--text-muted)' }}>
+          New here? <Link to="/register" style={{ color: 'var(--ds-brand-500)', fontWeight: 600, textDecoration: 'none' }}>Create an account</Link>
         </p>
-      </motion.div>
-    </div>
+      </form>
+    </AuthShell>
   )
 }

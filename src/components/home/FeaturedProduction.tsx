@@ -11,7 +11,7 @@ export function FeaturedProduction({ film, kind = 'film' }: { film: Film | Serie
   if (!film) return null
 
   const isSeries = kind === 'series'
-  const detailPath = `/${isSeries ? 'series' : 'films'}/${film.slug}`
+  const detailPath = `/${isSeries ? 'series' : 'movies'}/${film.slug}`
 
   return (
     <Section style={{ padding: 0, marginBottom: 0, overflow: 'hidden', background: 'var(--ds-ink-950)' }}>
@@ -57,7 +57,7 @@ export function FeaturedProduction({ film, kind = 'film' }: { film: Film | Serie
             <Button to={detailPath} variant="primary" size="lg">
               <IconPlay size={14} color="#fff" /> Watch Now
             </Button>
-            <Button to={isSeries ? '/series' : '/films'} variant="light" size="lg">
+            <Button to={isSeries ? '/series' : '/movies'} variant="light" size="lg">
               {isSeries ? 'More Series' : 'More Films'}
             </Button>
           </div>

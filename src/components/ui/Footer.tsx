@@ -16,10 +16,10 @@ export function Footer() {
         <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 40, marginBottom: 48 }}>
           <div>
             <LogoFooter height={32} />
-            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, lineHeight: 1.8, color: 'rgba(255,255,255,0.45)', maxWidth: 280, marginTop: 16 }}>Kenya's premier creative media company. Creating, producing and showcasing African stories and talent.</p>
+            <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, lineHeight: 1.8, color: 'rgba(255,255,255,0.45)', maxWidth: 280, marginTop: 16 }}>Kenya's premier creative media company. Creating, producing and showcasing African stories and artists.</p>
           </div>
           {[
-            { title: 'Platform', links: [{ label: 'Movies', path: '/films' }, { label: 'Series', path: '/series' }, { label: 'Podcasts', path: '/podcasts' }] },
+            { title: 'Platform', links: [{ label: 'Movies', path: '/movies' }, { label: 'Series', path: '/series' }, { label: 'Podcasts', path: '/podcasts' }] },
             { title: 'People', links: [{ label: 'Actors', path: '/actors' }, { label: 'Contact', path: '/contact' }] },
             { title: 'Mic Mtaani', links: [{ label: 'Local News', path: '/micmtaani' }, { label: 'Events', path: '/micmtaani/events' }, { label: 'Businesses', path: '/micmtaani/businesses' }] },
             { title: 'Company', links: [{ label: 'About Us', path: '/about' }] },

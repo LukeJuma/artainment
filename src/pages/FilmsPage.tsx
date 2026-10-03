@@ -5,6 +5,7 @@ import { filmsAPI, type Film } from '../lib/api'
 import { stagger, fadeUp, useInView } from '../lib/animations'
 import { Section } from '../components/ui/Section'
 import { SectionLabel } from '../components/ui/SectionLabel'
+import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { IconStar } from '../components/ui/Icons'
 import { MediaArt } from '../components/ui/MediaArt'
 
@@ -50,6 +51,9 @@ export function FilmsPage() {
     <div style={{ paddingTop: 80 }}>
       <Section>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          <div style={{ marginBottom: 20 }}>
+            <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Movies' }]} />
+          </div>
           <motion.div ref={headingRef} initial={{ opacity: 0, y: 30 }} animate={headingInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
             <SectionLabel text="The Artainment" />
             <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(42px, 6vw, 80px)', fontWeight: 700, color: 'var(--text)', lineHeight: 0.95, margin: '0 0 48px' }}>Our Movies</h1>
@@ -64,7 +68,7 @@ export function FilmsPage() {
             className="films-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 24 }}>
             {films.map(film => (
               <motion.div key={film.id} variants={fadeUp}>
-                <Link to={`/films/${film.slug}`} style={{ textDecoration: 'none' }}>
+                <Link to={`/movies/${film.slug}`} style={{ textDecoration: 'none' }}>
                   <div style={{ position: 'relative', paddingBottom: '145%', aspectRatio: '2/3', borderRadius: 6, overflow: 'hidden', marginBottom: 14, background: 'var(--bg-muted)' }}>
                     <div style={{ position: 'absolute', inset: 0 }}>
                       <MediaArt type="film" title={film.title} src={film.poster_url} alt={film.title} />

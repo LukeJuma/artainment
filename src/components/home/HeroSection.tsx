@@ -87,7 +87,7 @@ export function HeroSection({ films, series = [], featured, featuredKind = 'film
 
   const isUpcoming = film?.status === 'upcoming'
   const art = film?.backdrop_url || film?.poster_url || ''
-  const detailPath = `/${film?.kind === 'series' ? 'series' : 'films'}/${film?.slug || ''}`
+  const detailPath = `/${film?.kind === 'series' ? 'series' : 'movies'}/${film?.slug || ''}`
 
   // Coverflow geometry: the active slide rises toward the viewer while
   // neighbours recede, shrink and tilt - depth instead of a flat strip.

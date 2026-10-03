@@ -20,7 +20,7 @@ export function FilmRelated({ films }: { films: Film[] }) {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 24 }}>
           {films.map(film => (
             <motion.div key={film.id} whileHover={reduced ? {} : { y: -6 }} transition={{ duration: 0.25 }}>
-              <Link to={`/films/${film.slug}`} style={{ textDecoration: 'none' }}>
+              <Link to={`/movies/${film.slug}`} style={{ textDecoration: 'none' }}>
                 <div style={{
                   position: 'relative', aspectRatio: '2/3', borderRadius: 10, overflow: 'hidden',
                   marginBottom: 14, background: 'var(--bg-muted)',

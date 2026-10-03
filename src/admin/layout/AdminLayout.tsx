@@ -1,4 +1,4 @@
-﻿import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
@@ -125,7 +125,7 @@ export function AdminLayout() {
             animate={{ opacity: 1, y: 0 }}
             style={{ textAlign: 'center', padding: 40, background: 'var(--admin-card)', borderRadius: 'var(--admin-radius-xl)', border: '1px solid var(--admin-border)', maxWidth: 400 }}
           >
-            <div style={{ width: 56, height: 56, borderRadius: 'var(--admin-radius-lg)', background: 'var(--admin-danger-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: 'var(--admin-danger)', fontSize: 24 }}>ðŸ”’</div>
+            <div style={{ width: 56, height: 56, borderRadius: 'var(--admin-radius-lg)', background: 'var(--admin-danger-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: 'var(--admin-danger)', fontSize: 24 }}>🔒</div>
             <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--admin-text)', marginBottom: 8 }}>Authentication Required</h2>
             <p style={{ fontSize: 13, color: 'var(--admin-text-muted)', marginBottom: 20 }}>Please sign in to access the admin dashboard.</p>
             <button
@@ -149,7 +149,7 @@ export function AdminLayout() {
             animate={{ opacity: 1, y: 0 }}
             style={{ textAlign: 'center', padding: 40, background: 'var(--admin-card)', borderRadius: 'var(--admin-radius-xl)', border: '1px solid var(--admin-border)', maxWidth: 400 }}
           >
-            <div style={{ width: 56, height: 56, borderRadius: 'var(--admin-radius-lg)', background: 'var(--admin-danger-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: 'var(--admin-danger)', fontSize: 24 }}>â›”</div>
+            <div style={{ width: 56, height: 56, borderRadius: 'var(--admin-radius-lg)', background: 'var(--admin-danger-glow)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px', color: 'var(--admin-danger)', fontSize: 24 }}>⛔</div>
             <h2 style={{ fontSize: 18, fontWeight: 700, color: 'var(--admin-text)', marginBottom: 8 }}>Access Denied</h2>
             <p style={{ fontSize: 13, color: 'var(--admin-text-muted)', marginBottom: 20 }}>You don't have admin privileges to access this page.</p>
             <button

@@ -15,7 +15,7 @@ const timeline = [
 const pillars = [
   { title: 'Photography', desc: 'Editorial, commercial and event photography.', to: '/contact' },
   { title: 'Videography', desc: 'Corporate, music video and event coverage.', to: '/contact' },
-  { title: 'Streaming', desc: 'Our digital platform for African stories.', to: '/films' },
+  { title: 'Streaming', desc: 'Our digital platform for African stories.', to: '/movies' },
 ]
 
 export function AboutPage() {
@@ -62,7 +62,7 @@ export function AboutPage() {
                 Our Mission
               </div>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(16px, 1.8vw, 19px)', lineHeight: 1.8, color: 'var(--ds-text)', margin: 0 }}>
-                To create, nurture, produce, and showcase African stories and talent - giving Kenya's creative voice a world-class platform that celebrates our culture while reaching audiences globally.
+                To create, nurture, produce, and showcase African stories and artists - giving Kenya's creative voice a world-class platform that celebrates our culture while reaching audiences globally.
               </p>
             </motion.div>
             <motion.div
@@ -76,7 +76,7 @@ export function AboutPage() {
                 Our Vision
               </div>
               <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 'clamp(16px, 1.8vw, 19px)', lineHeight: 1.8, color: 'var(--ds-text)', margin: 0 }}>
-                East Africa's leading creative media ecosystem - a home for storytellers, a destination for audiences, and a launchpad for the talent defining the continent's cultural future.
+                East Africa's leading creative media ecosystem - a home for storytellers, a destination for audiences, and a launchpad for the artists defining the continent's cultural future.
               </p>
             </motion.div>
           </div>

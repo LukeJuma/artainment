@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { IconPlay, IconPause, IconVolumeX, IconVolume2, IconMaximize, IconSettings, IconSkipBack, IconSkipForward, IconX } from './Icons'
 import { loadYouTubeApi } from './YouTubePlayer'
@@ -54,7 +54,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
     }
   }, [isPlaying])
 
-  // â”€â”€ YouTube IFrame API â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── YouTube IFrame API ──────────────────────────────────────────────
   useEffect(() => {
     if (!youtubeId || !ytContainerRef.current) return
     let cancelled = false
@@ -120,7 +120,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
     return () => { if (ytTimeIntervalRef.current) clearInterval(ytTimeIntervalRef.current) }
   }, [isYouTube, ytReady, isSeeking])
 
-  // â”€â”€ Native <video> events â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Native <video> events ───────────────────────────────────────────
   useEffect(() => {
     const video = videoRef.current
     if (!video || isYouTube) return
@@ -155,7 +155,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
     if (!isYouTube && videoRef.current) videoRef.current.volume = volume
   }, [volume, isYouTube])
 
-  // â”€â”€ Controls â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Controls ────────────────────────────────────────────────────────
   const ytToggle = useCallback(() => {
     const p = ytPlayerRef.current
     if (!p) return
@@ -215,7 +215,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
     else document.exitFullscreen?.()
   }, [isFullscreen])
 
-  // â”€â”€ Seekbar drag â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Seekbar drag ────────────────────────────────────────────────────
   const seekbarRef = useRef<HTMLDivElement>(null)
 
   const handleSeekStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -249,7 +249,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
     setIsSeeking(false)
   }, [isSeeking, seekTo])
 
-  // â”€â”€ Keyboard â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── Keyboard ────────────────────────────────────────────────────────
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement) return
@@ -277,7 +277,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
 
   const progressPct = duration ? (currentTime / duration) * 100 : 0
 
-  // â”€â”€ RENDER â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  // ── RENDER ──────────────────────────────────────────────────────────
   return (
     <div
       ref={containerRef}
@@ -325,7 +325,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
             border: '2px solid rgba(239,68,68,0.4)', display: 'flex', alignItems: 'center',
             justifyContent: 'center', fontSize: 24, color: '#ff6b6b', marginBottom: 8,
           }}>
-            âš ï¸
+            ⚠️
           </div>
           <h3 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: '#fff' }}>Playback Error</h3>
           <p style={{ fontSize: 15, margin: 0, color: 'rgba(255,255,255,0.7)', maxWidth: 420, lineHeight: 1.6 }}>
@@ -351,7 +351,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
         </div>
       )}
 
-      {/* â”€â”€â”€ Center play button â”€â”€â”€ */}
+      {/* ─── Center play button ─── */}
       <AnimatePresence>
         {!isPlaying && !isLoading && !hasError && (
           <motion.button
@@ -374,7 +374,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
         )}
       </AnimatePresence>
 
-      {/* â”€â”€â”€ Controls overlay â”€â”€â”€ */}
+      {/* ─── Controls overlay ─── */}
       <AnimatePresence>
         {(showControls || !isPlaying) && !hasError && (
           <motion.div
@@ -621,7 +621,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
         )}
       </AnimatePresence>
 
-      {/* â”€â”€â”€ Inline styles â”€â”€â”€ */}
+      {/* ─── Inline styles ─── */}
       <style>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }

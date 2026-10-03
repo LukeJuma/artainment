@@ -79,7 +79,7 @@ function HoverCard({ item, rect, onEnter, onLeave }: {
           </p>
         )}
         <Link
-          to={`/${isSeries ? 'series' : 'films'}/${item.slug}`}
+          to={`/${isSeries ? 'series' : 'movies'}/${item.slug}`}
           style={{
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
             background: '#fff', color: '#101014',
@@ -235,7 +235,7 @@ export function FilmsCarousel({ films, series = [] }: { films: Film[]; series?: 
         style={{ display: 'flex', gap: 14, overflowX: 'auto', scrollSnapType: 'x mandatory', paddingLeft: 'max(16px, calc((100vw - 1200px)/2))', paddingRight: 16, paddingBottom: 8, scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch' }}>
         {pool.map((item, i) => {
           const isSeries = item._kind === 'series'
-          const link = `/${isSeries ? 'series' : 'films'}/${item.slug}`
+          const link = `/${isSeries ? 'series' : 'movies'}/${item.slug}`
           return (
             <motion.div key={`${isSeries ? 's' : 'f'}-${item.id}`} initial={{ opacity: 0, y: 20 }} animate={inView ? { opacity: 1, y: 0 } : {}} whileHover={{ y: -6 }} transition={{ delay: Math.min(i * 0.06, 0.6), duration: 0.5 }}
               onMouseEnter={e => showHover(item, e.currentTarget)}
@@ -283,7 +283,7 @@ export function FilmsCarousel({ films, series = [] }: { films: Film[]; series?: 
         />
       )}
       <div style={{ textAlign: 'center', marginTop: 36 }}>
-        <Link to="/films" className="btn-outline">View All Movies</Link>
+        <Link to="/movies" className="btn-outline">View All Movies</Link>
       </div>
     </Section>
   )

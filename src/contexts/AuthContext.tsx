@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<User>;
+  login: (email: string, password: string, persistent?: boolean) => Promise<User>;
   register: (name: string, email: string, password: string, passwordConfirmation: string) => Promise<void>;
   logout: () => Promise<void>;
   isAdmin: boolean;
@@ -24,7 +24,9 @@ const AuthContext = createContext<AuthContextType>({
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(localStorage.getItem('auth_token'));
+  const [token, setToken] = useState<string | null>(
+    () => localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token'),
+  );
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -32,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUnauthorizedHandler(() => {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('auth_user');
+      sessionStorage.removeItem('auth_token');
       setToken(null);
       setUser(null);
       navigate('/login');
@@ -57,9 +60,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [token]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (email: string, password: string, persistent = true) => {
     const res = await authAPI.login(email, password);
-    localStorage.setItem('auth_token', res.token);
+    // Unchecked "remember me" keeps the session to this tab only.
+    const store = persistent ? localStorage : sessionStorage;
+    (persistent ? sessionStorage : localStorage).removeItem('auth_token');
+    store.setItem('auth_token', res.token);
     localStorage.setItem('auth_user', JSON.stringify(res.user));
     setToken(res.token);
     setUser(res.user);
@@ -83,6 +89,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     }
     localStorage.removeItem('auth_token');
+    sessionStorage.removeItem('auth_token');
     setToken(null);
     setUser(null);
   };

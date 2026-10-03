@@ -35,7 +35,7 @@ const pillars: Pillar[] = [
       'Film Production - features, shorts, documentaries',
       'Corporate, music videos & live events',
       'Creative Agency - scriptwriting, directing, brand content',
-      'Acting Group & Talent Development - casting, coaching, pathways',
+      'Acting Group & Artist Development - casting, coaching, pathways',
     ],
     cta: 'Start a production',
     spotlight: true,
