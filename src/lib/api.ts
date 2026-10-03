@@ -901,7 +901,23 @@ export const adminAPI = {
   getAuditStats: (token: string) => api<AuditStats>('/admin/audit-logs/stats', { token }),
 
   // Upload
+  // NOTE: uploads proxy through the edge function, whose practical ceiling
+  // on this plan is ~10MB (measured: 10MB ok in ~60s, 25MB times out).
+  // Large videos belong on YouTube (paste the link instead) — every video
+  // field in admin accepts a YouTube URL directly.
   upload: (token: string, file: File, folder?: string) => {
+    const isVideo = file.type.startsWith('video/');
+    const mb = file.size / (1024 * 1024);
+    if (isVideo && file.size > 25 * 1024 * 1024) {
+      return Promise.reject(new Error(
+        `This video is ${mb.toFixed(0)}MB - too large to upload here (limit ~25MB). Upload it to YouTube and paste the link instead.`,
+      ));
+    }
+    if (!isVideo && file.size > 10 * 1024 * 1024) {
+      return Promise.reject(new Error(
+        `This file is ${mb.toFixed(0)}MB - images must be under 10MB.`,
+      ));
+    }
     const formData = new FormData();
     formData.append('file', file);
     if (folder) formData.append('folder', folder);

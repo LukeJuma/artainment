@@ -1568,6 +1568,72 @@ serve(async (req) => {
       }
     }
 
+    // ── Admin list enrichment: nested counts the list screens read ──
+    // (Without these the UI falls back to "0 seasons · 0 episodes" etc.)
+    if (path === '/admin/series' && method === 'GET') {
+      const { data: rows } = await supabase.from('series').select('*').order('id', { ascending: false })
+      const { data: seasons } = await supabase.from('seasons').select('id, series_id')
+      const seasonIds = (seasons || []).map((s: any) => s.id)
+      let epCount: Record<number, number> = {}
+      if (seasonIds.length > 0) {
+        const { data: eps } = await supabase.from('episodes').select('id, season_id').in('season_id', seasonIds)
+        const seasonToSeries: Record<number, number> = {}
+        for (const s of seasons || []) seasonToSeries[s.id] = s.series_id
+        for (const e of eps || []) {
+          const sid = seasonToSeries[(e as any).season_id]
+          if (sid) epCount[sid] = (epCount[sid] || 0) + 1
+        }
+      }
+      const seasonCount: Record<number, number> = {}
+      for (const s of seasons || []) seasonCount[s.series_id] = (seasonCount[s.series_id] || 0) + 1
+      return new Response(JSON.stringify((rows || []).map((s: any) => ({
+        ...s,
+        seasons_count: seasonCount[s.id] || 0,
+        episodes_count: epCount[s.id] || 0,
+      }))), { headers: corsHeaders })
+    }
+
+    if (path === '/admin/podcasts' && method === 'GET') {
+      const { data: rows } = await supabase.from('podcasts').select('*').order('id', { ascending: false })
+      const ids = (rows || []).map((p: any) => p.id)
+      let epCount: Record<number, number> = {}
+      if (ids.length > 0) {
+        const { data: eps } = await supabase.from('podcast_episodes').select('id, podcast_id').in('podcast_id', ids)
+        for (const e of eps || []) epCount[(e as any).podcast_id] = (epCount[(e as any).podcast_id] || 0) + 1
+      }
+      return new Response(JSON.stringify((rows || []).map((p: any) => ({
+        ...p,
+        episodes_count: epCount[p.id] || 0,
+      }))), { headers: corsHeaders })
+    }
+
+    if (path === '/admin/micmtaani/categories' && method === 'GET') {
+      const { data: rows } = await supabase.from('mic_mtaani_categories').select('*').order('id', { ascending: false })
+      const { data: arts } = await supabase.from('mic_mtaani_articles').select('id, category_id')
+      const count: Record<number, number> = {}
+      for (const a of arts || []) {
+        if ((a as any).category_id) count[(a as any).category_id] = (count[(a as any).category_id] || 0) + 1
+      }
+      return new Response(JSON.stringify((rows || []).map((c: any) => ({
+        ...c,
+        articles_count: count[c.id] || 0,
+      }))), { headers: corsHeaders })
+    }
+
+    if (path === '/admin/micmtaani/journalists' && method === 'GET') {
+      const { data: rows } = await supabase.from('mic_mtaani_journalists').select('*').order('id', { ascending: false })
+      const { data: arts } = await supabase.from('mic_mtaani_articles').select('id, author_id')
+      const count: Record<number, number> = {}
+      for (const a of arts || []) {
+        if ((a as any).author_id) count[(a as any).author_id] = (count[(a as any).author_id] || 0) + 1
+      }
+      // Legacy join: articles.author_id references the journalist's user_id
+      return new Response(JSON.stringify((rows || []).map((j: any) => ({
+        ...j,
+        articles_count: (j.user_id && count[j.user_id]) || 0,
+      }))), { headers: corsHeaders })
+    }
+
     // ── Generic admin CRUD ──
     // Covers every other /admin/<resource>[/<id>] route via allowlisted tables.
     {
@@ -1687,9 +1753,18 @@ serve(async (req) => {
           }), { status: 413, headers: corsHeaders })
         }
 
-        // Sanitize folder name - whitelist approach (mirrors Laravel UploadController)
-        const allowedFolders = ['uploads', 'films', 'series', 'podcasts', 'news', 'talent', 'gallery', 'posters', 'thumbnails', 'mic-mtaani', 'trailers']
-        const sanitizedFolder = allowedFolders.includes(folder.toLowerCase()) ? folder.toLowerCase() : 'uploads'
+        // Sanitize folder name - whitelist approach (mirrors Laravel UploadController).
+        // Sub-paths are allowed (movies/posters): each segment is cleaned and
+        // the top-level segment must be allowlisted, otherwise uploads lands
+        // in mangled single-segment folders like "seriesposters".
+        const allowedRoots = ['uploads', 'films', 'series', 'podcasts', 'news', 'talent', 'gallery', 'posters', 'thumbnails', 'mic-mtaani', 'trailers', 'movies', 'actors']
+        const segments = String(folder || 'uploads').toLowerCase().split('/')
+          .map(s => s.replace(/[^a-z0-9\-_]/g, '').slice(0, 40))
+          .filter(Boolean)
+          .slice(0, 3)
+        const sanitizedFolder = (segments.length > 0 && allowedRoots.includes(segments[0]))
+          ? segments.join('/')
+          : 'uploads'
         
         const filename = `${Date.now()}-${file.name}`
         const filePath = `${sanitizedFolder}/${filename}`
