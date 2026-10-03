@@ -16,14 +16,14 @@ export function AnalyticsPage() {
   const [period, setPeriod] = useState('30d')
   
   // Get real data from dashboard API instead of fake data
-  const { data: stats, loading } = useApi(() => adminAPI.dashboardStats(token), [token])
+  const { data: stats, loading } = useApi(() => adminAPI.dashboardStats(token!), [token])
 
   // Use real data or fallback to loading state (nested DashboardStats shape)
   const realStats = stats ? [
-    { title: 'Total Revenue', value: `KES ${(stats.revenue?.total_all_time || 0).toLocaleString()}`, icon: DollarSign, change: '+12.5%', trend: 'up' as const, color: '#10b981' },
-    { title: 'Active Users', value: (stats.user_counts?.total_users || 0).toLocaleString(), icon: Users, change: '+8.2%', trend: 'up' as const, color: '#3b82f6' },
-    { title: 'Total Films', value: (stats.content_counts?.films || 0).toLocaleString(), icon: Film, change: '+15.1%', trend: 'up' as const, color: '#8b5cf6' },
-    { title: 'Subscribers', value: (stats.user_counts?.active_subscribers || 0).toLocaleString(), icon: Clock, change: '+22.1%', trend: 'up' as const, color: '#f59e0b' },
+    { title: 'Total Revenue', value: `KES ${(stats.revenue?.total_all_time || 0).toLocaleString()}`, icon: <DollarSign size={20} strokeWidth={2} />, change: 12.5, changeLabel: 'this month', color: '#10b981' },
+    { title: 'Active Users', value: (stats.user_counts?.total_users || 0).toLocaleString(), icon: <Users size={20} strokeWidth={2} />, change: 8.2, changeLabel: 'this month', color: '#3b82f6' },
+    { title: 'Total Films', value: (stats.content_counts?.films || 0).toLocaleString(), icon: <Film size={20} strokeWidth={2} />, change: 15.1, changeLabel: 'total items', color: '#8b5cf6' },
+    { title: 'Subscribers', value: (stats.user_counts?.active_subscribers || 0).toLocaleString(), icon: <Clock size={20} strokeWidth={2} />, change: 22.1, changeLabel: 'right now', color: '#f59e0b' },
   ] : []
 
   // Monthly revenue comes straight from the dashboard stats endpoint
@@ -63,23 +63,26 @@ export function AnalyticsPage() {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <PageHeader title="Analytics">
-        <div className="page-header-actions">
-          <select 
-            value={period} 
-            onChange={(e) => setPeriod(e.target.value)}
-            className="admin-select-sm"
-          >
-            <option value="7d">Last 7 days</option>
-            <option value="30d">Last 30 days</option>
-            <option value="90d">Last 90 days</option>
-          </select>
-          <button className="admin-btn admin-btn-primary">
-            <Download size={16} />
-            Export
-          </button>
-        </div>
-      </PageHeader>
+      <PageHeader
+        title="Analytics"
+        actions={
+          <div className="page-header-actions" style={{ display: 'flex', gap: 8 }}>
+            <select
+              value={period}
+              onChange={(e) => setPeriod(e.target.value)}
+              className="admin-select-sm"
+            >
+              <option value="7d">Last 7 days</option>
+              <option value="30d">Last 30 days</option>
+              <option value="90d">Last 90 days</option>
+            </select>
+            <button className="admin-btn admin-btn-primary">
+              <Download size={16} />
+              Export
+            </button>
+          </div>
+        }
+      />
 
       <div className="admin-grid admin-grid-4">
         {realStats.map((stat, idx) => (
