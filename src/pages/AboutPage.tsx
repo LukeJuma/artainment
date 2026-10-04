@@ -2,6 +2,7 @@ import { motion } from 'framer-motion'
 import { useInView } from '../lib/animations'
 import { Section } from '../components/ui/Section'
 import { Button } from '../components/ui/Button'
+import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { PLACEHOLDER } from '../lib/constants'
 
 const timeline = [
@@ -49,6 +50,9 @@ export function AboutPage() {
 
       <Section>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          <div style={{ marginBottom: 28 }}>
+            <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'About' }]} />
+          </div>
           {/* Mission / Vision cards */}
           <div className="about-mission-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 'clamp(60px, 8vw, 100px)' }}>
             <motion.div

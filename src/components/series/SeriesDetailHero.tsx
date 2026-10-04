@@ -17,6 +17,9 @@ const EASE = [0.25, 0.46, 0.45, 0.94] as [number, number, number, number]
 export function SeriesDetailHero({ series, onStart, onPlayTrailer, startable }: SeriesDetailHeroProps) {
   const reduced = useReducedMotion()
   const artwork = series.backdrop_url || series.poster_url
+  // A portrait poster doubled as the "backdrop" crops into mud — use it as
+  // ambient blurred fill instead of a fake full-bleed backdrop.
+  const ambientOnly = !series.backdrop_url || series.backdrop_url === series.poster_url
 
   const seasonCount = series.seasons?.length ?? series.seasons_count ?? 0
   const episodeCount = series.seasons?.reduce((n, s) => n + (s.episodes?.length || 0), 0) ?? series.episodes_count ?? 0
@@ -44,15 +47,27 @@ export function SeriesDetailHero({ series, onStart, onPlayTrailer, startable }: 
           />
         )}
         {artwork && (
-          <motion.img
-            className="hero-art-backdrop"
-            src={artwork}
-            alt=""
-            initial={reduced ? { opacity: 1 } : { opacity: 0, scale: 1.08 }}
-            animate={reduced ? { opacity: 1 } : { opacity: 1, scale: 1 }}
-            transition={reduced ? { duration: 0 } : { duration: 1.4, ease: 'easeOut' }}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 25%' }}
-          />
+          ambientOnly ? (
+            <motion.img
+              className="hero-art-backdrop"
+              src={artwork}
+              alt=""
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1 }}
+              style={{ width: '110%', height: '110%', objectFit: 'cover', filter: 'blur(70px) brightness(0.55)', transform: 'scale(1.1)' }}
+            />
+          ) : (
+            <motion.img
+              className="hero-art-backdrop"
+              src={artwork}
+              alt=""
+              initial={reduced ? { opacity: 1 } : { opacity: 0, scale: 1.08 }}
+              animate={reduced ? { opacity: 1 } : { opacity: 1, scale: 1 }}
+              transition={reduced ? { duration: 0 } : { duration: 1.4, ease: 'easeOut' }}
+              style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 25%' }}
+            />
+          )
         )}
         <div className="film-hero-shade-lr" style={{
           position: 'absolute', inset: 0,

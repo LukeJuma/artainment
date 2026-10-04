@@ -5,6 +5,7 @@ import { imgOr } from '../lib/utils'
 import { useInView } from '../lib/animations'
 import { Section } from '../components/ui/Section'
 import { SectionLabel } from '../components/ui/SectionLabel'
+import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 
 const statusColor: Record<string, string> = { completed: '#22c55e', in_production: 'var(--red)', upcoming: 'var(--text-muted)' }
 
@@ -24,6 +25,9 @@ export function ProductionsPage() {
     <div style={{ paddingTop: 80 }}>
       <Section>
         <div style={{ maxWidth: 1280, margin: '0 auto' }}>
+          <div style={{ marginBottom: 20 }}>
+            <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Productions' }]} />
+          </div>
           <motion.div ref={headingRef} initial={{ opacity: 0, y: 30 }} animate={headingInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
             <SectionLabel text="Our Work" />
             <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(42px, 6vw, 80px)', fontWeight: 700, color: 'var(--text)', lineHeight: 0.95, margin: '0 0 80px' }}>Productions</h1>

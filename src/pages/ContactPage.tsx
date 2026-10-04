@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import { contactAPI } from '../lib/api'
 import { useInView } from '../lib/animations'
 import { Section } from '../components/ui/Section'
+import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { IconMail, IconMapPin, IconCheck, IconSend, IconArrowRight } from '../components/ui/Icons'
 
 const inputStyle: React.CSSProperties = {
@@ -77,12 +78,15 @@ export function ContactPage() {
           CONTACT
         </div>
         <div ref={ref} style={{ maxWidth: 1100, margin: '0 auto', position: 'relative' }}>
+          <div style={{ marginBottom: 28 }}>
+            <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Contact' }]} />
+          </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'minmax(280px, 400px) 1fr', gap: 'clamp(28px, 5vw, 64px)', alignItems: 'start' }} className="contact-split">
             {/* Left: pitch + method cards */}
             <motion.div initial={{ opacity: 0, x: -24 }} animate={inView ? { opacity: 1, x: 0 } : {}} transition={{ duration: 0.6 }}>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: '1px solid var(--ds-card-line)', borderRadius: 'var(--ds-radius-pill)', padding: '8px 18px', marginBottom: 20, background: 'var(--ds-surface-2)' }}>
-                <span style={{ width: 7, height: 7, borderRadius: '50%', background: 'var(--ds-gold-cta)' }} />
-                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 700, letterSpacing: 2, color: 'var(--ds-text-2)', textTransform: 'uppercase' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+                <span style={{ width: 28, height: 2, background: 'var(--ds-gold-cta)' }} />
+                <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, letterSpacing: 3, color: 'var(--ds-gold-cta)', textTransform: 'uppercase', fontWeight: 700 }}>
                   Contact
                 </span>
               </div>

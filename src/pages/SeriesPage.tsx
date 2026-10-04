@@ -4,7 +4,6 @@ import { motion } from 'framer-motion'
 import { seriesAPI, type Series } from '../lib/api'
 import { stagger, fadeUp, useInView } from '../lib/animations'
 import { Section } from '../components/ui/Section'
-import { SectionLabel } from '../components/ui/SectionLabel'
 import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 import { IconStar } from '../components/ui/Icons'
 import { MediaArt } from '../components/ui/MediaArt'
@@ -46,17 +45,39 @@ export function SeriesPage() {
   const genres = ['All', ...Array.from(new Set(seriesList.map(s => s.genre).filter(Boolean)))]
   const filtered = filter === 'All' ? seriesList : seriesList.filter(s => s.genre === filter)
 
+  const heroArt = seriesList.find(s => s.backdrop_url)?.backdrop_url
+    || seriesList.find(s => s.poster_url)?.poster_url
+    || null
+
   return (
-    <div style={{ paddingTop: 80 }}>
-      <Section>
-        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
-          <div style={{ marginBottom: 20 }}>
-            <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'Series' }]} />
+    <div style={{ paddingTop: 0 }}>
+      {/* Cinematic listing band */}
+      <div style={{ position: 'relative', overflow: 'hidden', background: 'var(--ds-ink-950)' }}>
+        {heroArt ? (
+          <img src={heroArt} alt="" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.4 }} />
+        ) : (
+          <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(900px 400px at 70% 0%, rgba(225,29,72,0.18), transparent 60%), linear-gradient(160deg, #17151b 0%, #0d0d0f 60%)' }} />
+        )}
+        <div style={{ position: 'absolute', inset: 0, background: 'var(--ds-scrim-bottom)' }} />
+        <div style={{ position: 'relative', zIndex: 1, maxWidth: 1280, margin: '0 auto', padding: 'clamp(120px, 18vh, 170px) 32px clamp(40px, 6vh, 64px)' }}>
+          <div style={{ marginBottom: 18 }}>
+            <Breadcrumbs tone="light" items={[{ label: 'Home', to: '/' }, { label: 'Series' }]} />
           </div>
           <motion.div ref={headingRef} initial={{ opacity: 0, y: 30 }} animate={headingInView ? { opacity: 1, y: 0 } : {}} transition={{ duration: 0.6 }}>
-            <SectionLabel text="The Artainment" />
-            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(42px, 6vw, 80px)', fontWeight: 700, color: 'var(--text)', lineHeight: 0.95, margin: '0 0 48px' }}>TV Series</h1>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 12 }}>
+              <span style={{ width: 28, height: 2, background: 'var(--ds-gold)' }} />
+              <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, letterSpacing: 3, color: 'var(--ds-gold)', textTransform: 'uppercase', fontWeight: 700 }}>
+                Originals
+              </span>
+            </div>
+            <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(52px, 8vw, 96px)', fontWeight: 400, color: '#fff', lineHeight: 0.95, margin: 0 }}>
+              TV Series
+            </h1>
           </motion.div>
+        </div>
+      </div>
+      <Section>
+        <div style={{ maxWidth: 1280, margin: '0 auto' }}>
           {genres.length > 1 && (
             <div style={{ display: 'flex', gap: 10, marginBottom: 56, flexWrap: 'wrap' }}>
               {genres.map(g => (

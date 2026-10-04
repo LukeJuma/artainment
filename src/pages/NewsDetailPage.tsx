@@ -6,6 +6,7 @@ import { Loader } from '../components/ui/Loader'
 import { Nav } from '../components/ui/Nav'
 import { Footer } from '../components/ui/Footer'
 import { Badge } from '../components/ui/Badge'
+import { Breadcrumbs } from '../components/ui/Breadcrumbs'
 
 export function NewsDetailPage() {
   const { slug } = useParams<{ slug: string }>()
@@ -49,6 +50,9 @@ export function NewsDetailPage() {
           </div>
         )}
         <div style={{ maxWidth: 760, margin: '0 auto', padding: '40px 20px 80px' }}>
+          <div style={{ marginBottom: 24 }}>
+            <Breadcrumbs items={[{ label: 'Home', to: '/' }, { label: 'News' }, { label: article.title }]} />
+          </div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 18, flexWrap: 'wrap' }}>
             <Badge variant="brand">{article.category}</Badge>
             {article.published_at && (

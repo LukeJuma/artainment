@@ -87,6 +87,16 @@ export function AuthShell({
           transition={{ duration: 0.5 }}
           style={{ width: '100%', maxWidth: 420 }}
         >
+          <Link
+            to="/"
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 6, marginBottom: 24,
+              fontFamily: "'DM Sans', sans-serif", fontSize: 12, letterSpacing: 1.5, textTransform: 'uppercase',
+              color: 'var(--text-muted)', textDecoration: 'none',
+            }}
+          >
+            ← Back to home
+          </Link>
           <h1 style={{ fontFamily: "'Bebas Neue', sans-serif", fontWeight: 400, fontSize: 'clamp(40px, 5vw, 56px)', lineHeight: 1, color: 'var(--text)', margin: '0 0 28px' }}>
             {title}
           </h1>
