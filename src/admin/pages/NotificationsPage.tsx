@@ -88,7 +88,7 @@ export function NotificationsPage() {
       }}>
         PREVIEW - This section is not yet connected to live data.
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+      <div className="stat-grid stat-grid-3" style={{ marginBottom: 24 }}>
         {[
           { label: 'Push Sent', value: pushSent.toLocaleString(), icon: Bell, color: '#3B82F6' },
           { label: 'Emails Delivered', value: emailsSent.toLocaleString(), icon: Mail, color: '#8B5CF6' },

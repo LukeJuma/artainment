@@ -718,6 +718,15 @@
   .stat-grid { grid-template-columns: 1fr; }
 }
 
+/* Three-column variant (notifications summary) */
+.stat-grid-3 { grid-template-columns: repeat(3, 1fr); }
+@media (max-width: 1024px) {
+  .stat-grid-3 { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .stat-grid-3 { grid-template-columns: 1fr; }
+}
+
 /* ─── Data Tables ────────────────────────────────────────── */
 .admin-table-wrap {
   overflow-x: auto;

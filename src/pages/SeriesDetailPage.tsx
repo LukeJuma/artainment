@@ -52,9 +52,9 @@ export function SeriesDetailPage() {
 
       {/* Player Preference Toggle */}
       {(Boolean(firstPlayable) || Boolean(series.video_url)) && (
-        <div style={{
+        <div className="player-toggle-bar" style={{
           maxWidth: 1280, margin: '0 auto', padding: '24px 32px',
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap',
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{

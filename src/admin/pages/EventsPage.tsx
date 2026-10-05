@@ -129,7 +129,7 @@ export function EventsPage() {
       />
 
       {/* Stats Row */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 28 }}>
+      <div className="stat-grid" style={{ marginBottom: 28 }}>
         {[
           { label: 'Total Events', value: String(totalEvents), icon: Calendar, color: '#FF4D2D', change: '+2' },
           { label: 'Tickets Sold', value: totalSold.toLocaleString(), icon: Ticket, color: '#3B82F6', change: '+12%' },

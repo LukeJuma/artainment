@@ -164,8 +164,62 @@ img { max-width: 100%; }
 
 /* ─── Motion utilities (hover zoom for art frames; framer handles lift) ── */
 .zoom-hover img { transition: transform 0.6s var(--ds-ease-out); }
-.zoom-hover:hover img { transform: scale(1.06); }
+@media (hover: hover) {
+  .zoom-hover:hover img { transform: scale(1.06); }
+}
 .fade-up-in { animation: ds-fade-up 0.7s var(--ds-ease-out) both; }
+@media (prefers-reduced-motion: reduce) {
+  .fade-up-in { animation: none; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE FOUNDATIONS — fluid gutters, touch targets, heroes
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Detail heroes + listing bands: narrower gutters on phones */
+@media (max-width: 480px) {
+  .film-hero-inner { padding-left: 20px !important; padding-right: 20px !important; }
+  .page-band-inner { padding-left: 20px !important; padding-right: 20px !important; }
+  .ep-list-pad { padding-left: 16px !important; padding-right: 16px !important; }
+  .player-toggle-bar { padding-left: 16px !important; padding-right: 16px !important; }
+}
+
+/* Landscape phones: heroes must not become towers */
+@media (max-height: 500px) and (orientation: landscape) {
+  .home-hero { min-height: 480px !important; }
+  .home-hero-content { padding-bottom: 120px !important; }
+  .film-hero { min-height: 480px !important; }
+  .about-hero { height: 320px !important; }
+}
+
+/* Talent home cards: shorter art on small phones */
+@media (max-width: 480px) {
+  .talent-card-art { height: 220px !important; }
+}
+
+/* Coming Soon ticket countdown: wrap cells on tiny screens */
+@media (max-width: 380px) {
+  .cs-ticket-countdown { gap: 12px !important; padding: 16px !important; }
+}
+
+/* Enhanced player: declutter controls on small screens */
+@media (max-width: 560px) {
+  .ev-vol-slider { display: none !important; }
+  .ev-bottom { padding-left: 14px !important; padding-right: 14px !important; }
+  .ev-top { padding-left: 14px !important; padding-right: 14px !important; }
+  .ev-time { font-size: 12px !important; }
+}
+@media (max-width: 380px) {
+  .ev-time-full { display: none !important; }
+}
+
+/* Video modal: tighter frame on phones */
+@media (max-width: 480px) {
+  .film-trailer-overlay { padding: 12px !important; }
+}
+
+/* Carousel arrows: proper touch targets */
+.films-scroll-arrow { min-width: 44px !important; min-height: 44px !important; }
 
 /* ─── Featured production ──────────────────────────────────── */
 @media (max-width: 768px) {

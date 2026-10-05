@@ -199,7 +199,7 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
                 </div>
               </div>
               <div className="cs-ticket-countdown" style={{
-                display: 'flex', gap: 20, padding: '22px 28px', alignItems: 'center',
+                display: 'flex', gap: 20, padding: '22px 28px', alignItems: 'center', flexWrap: 'wrap',
                 background: 'var(--ds-surface-2)', border: '1px solid var(--ds-card-line)', borderLeft: 'none',
                 borderRadius: '0 14px 14px 0', marginLeft: -6,
               }}>

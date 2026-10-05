@@ -68,7 +68,7 @@ export function ModerationPage() {
   return (
     <div>
       <PageHeader title="Moderation" description="Review flagged content and community reports" />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+      <div className="stat-grid" style={{ marginBottom: 24 }}>
         {[
           { label: 'Pending Review', value: String(commentsPage?.total ?? reports.length), icon: Clock, color: '#FFB800' },
           { label: 'High Severity', value: '3', icon: AlertTriangle, color: '#FF4B5C' },

@@ -181,7 +181,7 @@ export function UsersPage() {
         }
       />
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+      <div className="stat-grid" style={{ marginBottom: 24 }}>
         {[
           { label: 'Total Users', value: users.length.toLocaleString(), color: '#3B82F6' },
           { label: 'Admins', value: totalAdmins.toLocaleString(), color: '#FF4D2D' },

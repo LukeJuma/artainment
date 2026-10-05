@@ -61,7 +61,7 @@ export function LogsPage() {
         } 
       />
       
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+      <div className="stat-grid" style={{ marginBottom: 24 }}>
         <div className="admin-card">
           <div className="admin-card-body" style={{ textAlign: 'center' }}>
             <h3 style={{ color: '#3B82F6', fontSize: 32, fontWeight: 700, margin: 0 }}>

@@ -121,7 +121,7 @@ export function TicketingPage() {
       }}>
         PREVIEW - This section is not yet connected to live data.
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 16, marginBottom: 24 }}>
+      <div className="stat-grid" style={{ marginBottom: 24 }}>
         {[
           { label: 'Total Sold', value: totalSold.toLocaleString(), icon: TicketIcon, color: '#FF4D2D' },
           { label: 'Revenue', value: `KES ${totalRevenue.toLocaleString()}`, icon: DollarSign, color: '#2DD36F' },

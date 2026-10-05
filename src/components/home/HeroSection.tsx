@@ -129,6 +129,7 @@ export function HeroSection({ films, series = [], featured, featuredKind = 'film
 
   return (
     <section
+      className="home-hero"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
       style={{ position: 'relative', height: '100vh', minHeight: 560, overflow: 'hidden', background: 'var(--ds-ink-950)' }}
@@ -154,10 +155,10 @@ export function HeroSection({ films, series = [], featured, featuredKind = 'film
       </AnimatePresence>
 
       {/* Content */}
-      <div style={{
+      <div className="home-hero-content" style={{
         position: 'relative', zIndex: 2, height: '100%',
         display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-        padding: '0 clamp(20px, 5vw, 80px)', paddingBottom: 'clamp(120px, 18vh, 170px)', paddingTop: 140,
+        padding: '0 clamp(16px, 5vw, 80px)', paddingBottom: 'clamp(132px, 20vh, 180px)', paddingTop: 140,
         maxWidth: 760,
       }}>
         <AnimatePresence mode="wait">

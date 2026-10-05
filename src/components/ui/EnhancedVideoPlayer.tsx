@@ -389,7 +389,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
             }}
           >
             {/* Top bar: title + close */}
-            <div style={{
+            <div className="ev-top" style={{
               position: 'absolute', top: 0, left: 0, right: 0,
               padding: '18px 22px', pointerEvents: 'all',
               background: 'linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 100%)',
@@ -429,7 +429,7 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
             </div>
 
             {/* Bottom controls */}
-            <div style={{
+            <div className="ev-bottom" style={{
               position: 'absolute', bottom: 0, left: 0, right: 0,
               padding: '0 22px 20px', pointerEvents: 'all',
             }}>
@@ -532,20 +532,22 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
                       type="range" min="0" max="1" step="0.02"
                       value={isMuted ? 0 : volume}
                       onChange={e => changeVolume(parseFloat(e.target.value))}
-                      className="enhanced-volume-slider"
+                      className="enhanced-volume-slider ev-vol-slider"
                       style={{ width: 72, height: 4, cursor: 'pointer' }}
                     />
                   </div>
 
                   {/* Time */}
-                  <div style={{
+                  <div className="ev-time" style={{
                     color: 'rgba(255,255,255,0.85)', fontFamily: 'DM Sans, monospace', fontSize: 13,
                     fontWeight: 500, marginLeft: 6, letterSpacing: '0.02em',
-                    fontVariantNumeric: 'tabular-nums',
+                    fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap',
                   }}>
                     <span style={{ color: '#fff' }}>{formatTime(currentTime)}</span>
-                    <span style={{ margin: '0 4px', opacity: 0.4 }}>/</span>
-                    <span style={{ opacity: 0.6 }}>{formatTime(duration)}</span>
+                    <span className="ev-time-full">
+                      <span style={{ margin: '0 4px', opacity: 0.4 }}>/</span>
+                      <span style={{ opacity: 0.6 }}>{formatTime(duration)}</span>
+                    </span>
                   </div>
                 </div>
 

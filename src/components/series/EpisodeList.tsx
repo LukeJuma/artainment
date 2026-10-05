@@ -30,8 +30,8 @@ export function EpisodeList({ series, onPlayEpisode }: EpisodeListProps) {
   const current = seasons.find(s => s.season_number === activeSeason)
 
   return (
-    <section style={{ padding: '72px 0' }}>
-      <div style={{ maxWidth: 1280, margin: '0 auto', padding: '0 32px' }}>
+      <section style={{ padding: 'clamp(40px, 7vw, 72px) 0' }}>
+        <div className="ep-list-pad" style={{ maxWidth: 1280, margin: '0 auto', padding: '0 32px' }}>
         <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 16, marginBottom: 12, flexWrap: 'wrap' }}>
           <h2 style={{ fontFamily: "'Bebas Neue', sans-serif", fontSize: 'clamp(28px, 4vw, 40px)', fontWeight: 700, color: 'var(--text)', margin: 0 }}>
             Episodes

@@ -59,7 +59,7 @@ export function SeriesPage() {
           <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(900px 400px at 70% 0%, rgba(225,29,72,0.18), transparent 60%), linear-gradient(160deg, #17151b 0%, #0d0d0f 60%)' }} />
         )}
         <div style={{ position: 'absolute', inset: 0, background: 'var(--ds-scrim-bottom)' }} />
-        <div style={{ position: 'relative', zIndex: 1, maxWidth: 1280, margin: '0 auto', padding: 'clamp(120px, 18vh, 170px) 32px clamp(40px, 6vh, 64px)' }}>
+        <div className="page-band-inner" style={{ position: 'relative', zIndex: 1, maxWidth: 1280, margin: '0 auto', padding: 'clamp(120px, 18vh, 170px) 32px clamp(40px, 6vh, 64px)' }}>
           <div style={{ marginBottom: 18 }}>
             <Breadcrumbs tone="light" items={[{ label: 'Home', to: '/' }, { label: 'Series' }]} />
           </div>
