@@ -1720,6 +1720,21 @@ serve(async (req) => {
           }
           if ((method === 'PUT' || method === 'PATCH') && id) {
             const body = sanitizeInput(await req.json())
+            // Keep slugs in sync on rename: if the title/name changed and the
+            // client didn't supply a fresh slug, regenerate it so the URL
+            // always matches the current name (duplicate slugs 422).
+            const SLUGGED = new Set(['films', 'series', 'podcasts', 'talents', 'productions', 'news', 'micmtaani_articles', 'micmtaani_categories', 'micmtaani_journalists', 'micmtaani_events', 'micmtaani_businesses'])
+            if (SLUGGED.has(table)) {
+              const nameKey = ['title', 'headline', 'name'].find(k => body[k] !== undefined)
+              if (nameKey) {
+                const { data: current } = await supabase.from(table).select('id, slug,' + nameKey).eq('id', id).maybeSingle()
+                const oldName = current ? String((current as any)[nameKey] || '') : ''
+                const newName = String(body[nameKey] || '')
+                if (current && oldName && newName && newName !== oldName && (!body.slug || body.slug === (current as any).slug)) {
+                  body.slug = newName.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || (current as any).slug
+                }
+              }
+            }
             // Never store a plain-text password: hash it like the app does
             if (table === 'users' && body.password) body.password = await hashPassword(body.password)
             const { data, error } = await supabase.from(table).update(body).eq('id', id).select(selectCols).single()
