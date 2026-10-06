@@ -11,10 +11,10 @@ const SOCIAL_LINKS = [
 
 export function Footer() {
   return (
-    <footer style={{ background: '#111', borderTop: 'none', padding: 'clamp(40px, 6vw, 80px) clamp(16px, 5vw, 80px) 24px' }}>
+    <footer className="site-footer" style={{ background: '#111', borderTop: 'none', padding: 'clamp(40px, 6vw, 80px) clamp(16px, 5vw, 80px) 24px' }}>
       <div style={{ maxWidth: 1280, margin: '0 auto' }}>
         <div className="footer-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 40, marginBottom: 48 }}>
-          <div>
+          <div className="footer-brand">
             <LogoFooter height={32} />
             <p style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 13, lineHeight: 1.8, color: 'rgba(255,255,255,0.45)', maxWidth: 280, marginTop: 16 }}>Kenya's premier creative media company. Creating, producing and showcasing African stories and artists.</p>
           </div>
@@ -36,9 +36,9 @@ export function Footer() {
             </div>
           ))}
         </div>
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+        <div className="footer-bottom" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <span style={{ fontFamily: 'DM Sans, sans-serif', fontSize: 12, color: 'rgba(255,255,255,0.3)' }}>&copy; {new Date().getFullYear()} The Artainment Studios. All rights reserved.</span>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginLeft: 'auto' }}>
+          <div className="footer-social" style={{ display: 'flex', gap: 10, alignItems: 'center', marginLeft: 'auto' }}>
             {SOCIAL_LINKS.map(s => (
               <a key={s.label} href={s.href} target="_blank" rel="noopener noreferrer" aria-label={s.label}
                 style={{ width: 36, height: 36, borderRadius: '50%', border: '1px solid rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'rgba(255,255,255,0.55)', transition: 'color 0.2s, border-color 0.2s' }}

@@ -203,8 +203,8 @@ export function FilmsCarousel({ films, series = [] }: { films: Film[]; series?: 
             </div>
             <h2 className="section-heading" style={{ color: 'var(--text)', margin: 0 }}>Trending Now</h2>
           </div>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <div style={{ display: 'flex', gap: 18, marginRight: 12 }}>
+          <div className="films-arrows" style={{ display: 'flex', gap: 8 }}>
+            <div className="films-tabs" style={{ display: 'flex', gap: 18, marginRight: 12 }}>
               {TABS.map(t => (
                 <button
                   key={t.id}
@@ -225,7 +225,7 @@ export function FilmsCarousel({ films, series = [] }: { films: Film[]; series?: 
             <button onClick={() => scroll('right')} aria-label="Scroll right" className="films-scroll-arrow" style={{ width: 36, height: 36, borderRadius: '50%', border: '1.5px solid var(--border)', background: 'var(--bg)', color: 'var(--text)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 36 }}><IconChevronRight size={16} /></button>
           </div>
         </div>
-        <div style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', marginBottom: 24, paddingBottom: 4 }}>
+        <div className="films-genres" style={{ display: 'flex', gap: 8, overflowX: 'auto', scrollbarWidth: 'none', marginBottom: 24, paddingBottom: 4 }}>
           {genres.map(g => (
             <button key={g} onClick={() => setGenre(g)} style={pill(genre === g)}>{g}</button>
           ))}

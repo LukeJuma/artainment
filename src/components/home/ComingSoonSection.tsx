@@ -168,13 +168,13 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
 
             {/* Slanted ticket panel + countdown */}
             <div className="cs-ticket" style={{ display: 'flex', alignItems: 'stretch', maxWidth: 720, marginBottom: 32 }}>
-              <div style={{ position: 'relative', flex: 1, minWidth: 0 }}>
-                <div style={{
+              <div className="cs-ticket-date" style={{ position: 'relative', flex: 1, minWidth: 0 }}>
+                <div className="cs-ticket-date-gold" style={{
                   position: 'absolute', inset: '0 0 8px 0', background: 'var(--ds-gold)',
                   clipPath: 'polygon(0 0, 100% 0, calc(100% - 26px) 100%, 0 100%)',
                   borderRadius: '14px 0 0 14px',
                 }} />
-                <div style={{
+                <div className="cs-ticket-date-inner" style={{
                   position: 'relative', height: '100%',
                   background: 'var(--ds-brand)',
                   clipPath: 'polygon(0 0, 100% 0, calc(100% - 26px) 100%, 0 100%)',
@@ -183,11 +183,11 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
                   display: 'flex', gap: 16, alignItems: 'center',
                 }}>
                   <span style={{ fontSize: 26, flexShrink: 0 }}>📅</span>
-                  <span>
+                  <span style={{ minWidth: 0 }}>
                     <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: 2, color: 'rgba(255,255,255,0.75)', textTransform: 'uppercase', marginBottom: 4 }}>
                       World Premiere Date
                     </span>
-                    <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 20, fontWeight: 700, color: '#fff', marginBottom: 4 }}>
+                    <span className="cs-premiere-label" style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 20, fontWeight: 700, color: '#fff', marginBottom: 4 }}>
                       {premiereLabel ?? 'Date to be announced'}
                     </span>
                     <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>
@@ -313,8 +313,10 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
           .cs-spread { grid-template-columns: 1fr !important; }
         }
         @media (max-width: 560px) {
-          .cs-ticket { flex-direction: column !important; }
-          .cs-ticket-countdown { border-left: 1px solid var(--ds-card-line) !important; border-top: none !important; margin-left: 0 !important; border-radius: 0 0 14px 14px !important; }
+          .cs-ticket { flex-direction: column !important; max-width: 100% !important; }
+          .cs-ticket-date-gold { display: none !important; }
+          .cs-ticket-date-inner { clip-path: none !important; border-radius: 14px 14px 0 0 !important; }
+          .cs-ticket-countdown { border: 1px solid var(--ds-card-line) !important; border-top: none !important; margin-left: 0 !important; border-radius: 0 0 14px 14px !important; width: 100% !important; }
         }
       `}</style>
     </section>

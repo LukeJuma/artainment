@@ -26,6 +26,7 @@ export function PodcastSection({ podcasts }: { podcasts: Podcast[] }) {
         </div>
 
         <motion.div variants={stagger} initial="hidden" animate={inView ? 'visible' : 'hidden'}
+          className="podcast-grid-home"
           style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: 18 }}>
           {podcasts.map(p => (
             <motion.div key={p.id} variants={fadeUp} whileHover={{ y: -6 }}>

@@ -41,7 +41,22 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; width: 100%; max-width: 100%; overflow-x: clip; }
+
+/* ─── No horizontal page scroll ─────────────────────────────────
+   Inner rails (.films-scroll, .talent-grid-home, …) keep their own
+   overflow-x: auto; this only stops the *page* sliding sideways into
+   empty space on phones (100vw rows, motion x-offsets, nowrap bits). */
+html, body { width: 100%; max-width: 100%; overflow-x: clip; }
+@supports not (overflow: clip) {
+  html, body { overflow-x: hidden; }
+}
+#root { width: 100%; max-width: 100%; overflow-x: clip; }
+@supports not (overflow: clip) {
+  #root { overflow-x: hidden; }
+}
+section, footer, header, nav { max-width: 100%; }
+.section-pad { overflow-x: clip; }
 
 body {
   font-family: 'DM Sans', sans-serif;
@@ -60,6 +75,7 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
 
 img { max-width: 100%; }
+video { max-width: 100%; }
 
 /* ─── Utility ───────────────────────────────────────────────── */
 .section-heading {
@@ -156,10 +172,43 @@ img { max-width: 100%; }
   .ep-row > div:first-child { width: 100% !important; }
 }
 
-/* ─── Coming Soon ticket panel: stack date above countdown ── */
+/* ─── Coming Soon ticket panel: one stacked card on phones ──
+   The desktop ticket uses a slanted clip-path + negative margin join.
+   On narrow screens that slant splits the date/countdown into two
+   offset bands — so drop the slant and stack as a single card. */
 @media (max-width: 560px) {
-  .cs-ticket { flex-direction: column !important; }
-  .cs-ticket-countdown { border-top: 1px dashed var(--ds-card-line); padding-top: 16px !important; }
+  .cs-ticket { flex-direction: column !important; max-width: 100% !important; margin-bottom: 24px !important; }
+  .cs-ticket-date { flex: none !important; width: 100% !important; }
+  .cs-ticket-date-gold { display: none !important; }
+  .cs-ticket-date-inner {
+    clip-path: none !important;
+    border-radius: 14px 14px 0 0 !important;
+    padding: 18px !important;
+    gap: 12px !important;
+  }
+  .cs-premiere-label {
+    font-size: 17px !important;
+    line-height: 1.35 !important;
+    overflow-wrap: break-word !important;
+    word-break: break-word !important;
+  }
+  .cs-ticket-countdown {
+    margin-left: 0 !important;
+    border: 1px solid var(--ds-card-line) !important;
+    border-top: none !important;
+    border-radius: 0 0 14px 14px !important;
+    padding: 16px !important;
+    gap: 12px !important;
+    justify-content: space-around !important;
+    width: 100% !important;
+  }
+  .cs-ticket-countdown > div { gap: 12px !important; }
+}
+
+/* Coming Soon ticket countdown: tighter cells on tiny screens */
+@media (max-width: 380px) {
+  .cs-ticket-countdown { gap: 8px !important; padding: 14px 12px !important; }
+  .cs-ticket-countdown > div { gap: 8px !important; }
 }
 
 /* ─── Motion utilities (hover zoom for art frames; framer handles lift) ── */
@@ -194,12 +243,7 @@ img { max-width: 100%; }
 
 /* Talent home cards: shorter art on small phones */
 @media (max-width: 480px) {
-  .talent-card-art { height: 220px !important; }
-}
-
-/* Coming Soon ticket countdown: wrap cells on tiny screens */
-@media (max-width: 380px) {
-  .cs-ticket-countdown { gap: 12px !important; padding: 16px !important; }
+  .talent-card-art { height: 210px !important; }
 }
 
 /* Enhanced player: declutter controls on small screens */
@@ -233,10 +277,19 @@ img { max-width: 100%; }
 }
 
 /* ─── Films scroll ─────────────────────────────────────────── */
+.films-scroll { max-width: 100%; }
+.films-scroll::-webkit-scrollbar { display: none; }
+.films-genres::-webkit-scrollbar { display: none; }
 @media (max-width: 768px) {
   .films-scroll { padding-left: 16px !important; padding-right: 16px !important; }
   .films-scroll > div { width: 160px !important; }
   .films-scroll > div > a > div:first-child { height: 240px !important; }
+  /* Touch scroll instead of arrows; tabs stay on one scrollable row */
+  .films-scroll-arrow { display: none !important; }
+  .films-tabs { gap: 14px !important; margin-right: 0 !important; overflow-x: auto !important; scrollbar-width: none !important; padding-bottom: 4px !important; max-width: 100% !important; }
+  .films-tabs::-webkit-scrollbar { display: none; }
+  .films-tabs > button { white-space: nowrap !important; flex-shrink: 0 !important; }
+  .films-genres { margin-left: -16px !important; margin-right: -16px !important; padding-left: 16px !important; padding-right: 16px !important; }
 }
 
 /* ─── Services grid ────────────────────────────────────────── */
@@ -244,12 +297,50 @@ img { max-width: 100%; }
   .services-grid { grid-template-columns: 1fr !important; }
 }
 
-/* ─── Talent grid ──────────────────────────────────────────── */
+/* ─── Talent rail (home) — horizontal swipe on phones ──────
+   Grid on desktop; swipeable snap rail on mobile so every actor is
+   reachable without a tall 2-col stack. */
 @media (max-width: 768px) {
-  .talent-grid-home { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+  .talent-grid-home {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 12px !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    margin-left: -20px !important;
+    margin-right: -20px !important;
+    padding: 4px 20px 20px !important;
+  }
+  .talent-grid-home::-webkit-scrollbar { display: none; }
+  .talent-grid-home > * { flex: 0 0 160px !important; scroll-snap-align: start !important; min-width: 0 !important; }
+  .talent-grid-home .talent-card-art { height: 210px !important; }
 }
-@media (max-width: 480px) {
-  .talent-grid-home { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+@media (max-width: 380px) {
+  .talent-grid-home > * { flex-basis: 140px !important; }
+  .talent-grid-home .talent-card-art { height: 190px !important; }
+}
+
+/* ─── Podcast rail (home) — horizontal swipe on phones ────── */
+@media (max-width: 768px) {
+  .podcast-grid-home {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    gap: 14px !important;
+    overflow-x: auto !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+    margin-left: -20px !important;
+    margin-right: -20px !important;
+    padding: 4px 20px 20px !important;
+  }
+  .podcast-grid-home::-webkit-scrollbar { display: none; }
+  .podcast-grid-home > * { flex: 0 0 200px !important; scroll-snap-align: start !important; min-width: 0 !important; }
+}
+@media (max-width: 380px) {
+  .podcast-grid-home > * { flex-basis: 168px !important; }
 }
 
 /* ─── Gallery ──────────────────────────────────────────────── */
@@ -275,11 +366,21 @@ img { max-width: 100%; }
 }
 
 /* ─── Footer ───────────────────────────────────────────────── */
+/* Compact 2-col footer on phones: brand spans full width, link
+   columns sit side-by-side so the footer stays short. */
 @media (max-width: 768px) {
-  .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 32px !important; }
+  .site-footer { padding: 40px 20px 20px !important; }
+  .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 28px 20px !important; margin-bottom: 32px !important; }
+  .footer-brand { grid-column: 1 / -1 !important; }
+  .footer-bottom { flex-direction: column !important; align-items: flex-start !important; gap: 14px !important; }
+  .footer-social { margin-left: 0 !important; flex-wrap: wrap !important; row-gap: 12px !important; }
 }
 @media (max-width: 480px) {
-  .footer-grid { grid-template-columns: 1fr !important; gap: 28px !important; }
+  .site-footer { padding: 36px 20px 18px !important; }
+  .footer-grid { grid-template-columns: 1fr 1fr !important; gap: 24px 16px !important; margin-bottom: 28px !important; }
+  .footer-bottom { align-items: center !important; text-align: center !important; }
+  .footer-social { justify-content: center !important; width: 100% !important; }
+  .footer-social > span:last-child { white-space: normal !important; }
 }
 
 /* ─── Film detail ──────────────────────────────────────────── */
