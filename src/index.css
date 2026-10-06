@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Domine:wght@400;500;600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
 @import 'tailwindcss';
 @import './styles/tokens.css';
 
@@ -640,6 +639,21 @@ video { max-width: 100%; }
   .cc-card:hover .cc-img,
   .cc-card:focus-visible .cc-img { transform: none; }
   .cc-grid { scroll-behavior: auto; }
+}
+
+/* ─── Mic Mtaani hero: show the FULL photo ────────────────────
+   A short banner with `cover` slices portrait phone photos into a
+   mid-section crop. Instead: blurred ambient fill + whole image. */
+.mm-hero-ambient {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  filter: blur(24px) brightness(0.5);
+  transform: scale(1.15);
+}
+.mm-hero-full {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: contain; object-position: center;
 }
 
 /* ─── Mic Mtaani ───────────────────────────────────────────── */

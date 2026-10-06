@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { mmAPI, MMHomepage } from '../lib/api'
+import { responsive, smallSrc, imgFallback, imgTransformOk } from '../lib/images'
 import { Loader } from '../components/ui/Loader'
 import { MMNavbar } from '../components/micmtaani/MMNavbar'
 import { MMFooter } from '../components/micmtaani/MMFooter'
@@ -62,11 +63,18 @@ export function MicMtaaniPage() {
       )}
 
       {featured && (
-        <section className="mm-hero" style={{ position: 'relative', height: 'clamp(300px, 50vw, 480px)', overflow: 'hidden' }}>
+        <section className="mm-hero" style={{ position: 'relative', height: 'clamp(300px, 50vw, 480px)', overflow: 'hidden', background: '#0a0a0c' }}>
+          {/* Full photo (contain) over a blurred ambient fill — cover would
+              crop portrait phone photos down to a mid-torso slice. */}
+          <div className="mm-hero-ambient" style={{ backgroundImage: `url("${smallSrc(featured.image_url || PLACEHOLDER_IMG)}")` }} aria-hidden="true" />
           <img
-            src={featured.image_url || PLACEHOLDER_IMG}
+            className="mm-hero-full"
+            {...responsive(featured.image_url || PLACEHOLDER_IMG, { widths: [768, 1280, 1920], sizes: '100vw' })}
             alt={featured.headline}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            fetchPriority="high"
+            decoding="async"
+            onLoad={imgTransformOk}
+            onError={e => imgFallback(e, featured.image_url || PLACEHOLDER_IMG)}
           />
           <div style={{
             position: 'absolute', inset: 0,

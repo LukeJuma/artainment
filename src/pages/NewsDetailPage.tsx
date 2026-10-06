@@ -45,7 +45,7 @@ export function NewsDetailPage() {
       <article style={{ paddingTop: 72 }}>
         {article.image_url && (
           <div style={{ position: 'relative', height: 'clamp(280px, 48vw, 440px)', overflow: 'hidden' }}>
-            <img src={article.image_url} alt={article.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img src={article.image_url} alt={article.title} fetchPriority="high" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             <div style={{ position: 'absolute', inset: 0, background: 'var(--ds-scrim-bottom)' }} />
           </div>
         )}

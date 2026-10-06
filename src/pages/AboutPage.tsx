@@ -31,6 +31,8 @@ export function AboutPage() {
         <img
           src={PLACEHOLDER.hero}
           alt="About The Artainment"
+          fetchPriority="high"
+          decoding="async"
           style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
         />
         <div style={{ position: 'absolute', inset: 0, background: 'var(--ds-scrim-left)' }} />

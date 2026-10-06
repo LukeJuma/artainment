@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, type CSSProperties } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { type Film, type Series } from '../../lib/api'
+import { responsive, smallSrc, imgFallback, imgTransformOk } from '../../lib/images'
 import { Button } from '../ui/Button'
 import { Badge } from '../ui/Badge'
 import { IconPlay, IconStar } from '../ui/Icons'
@@ -147,11 +148,11 @@ export function HeroSection({ films, series = [], featured, featuredKind = 'film
           {art ? (
             <>
               {/* Desktop: full-bleed cover backdrop */}
-              <img className="hero-art-cover" src={art} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }} />
+              <img className="hero-art-cover" {...responsive(art, { widths: [768, 1280, 1920], sizes: '100vw' })} alt="" fetchPriority="high" decoding="async" onLoad={imgTransformOk} onError={e => imgFallback(e, art)} style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', display: 'block' }} />
               {/* Mobile: full image (contain) over a blurred ambient fill, so
                   posters/backdrops are never zoom-cropped on narrow screens */}
-              <div className="hero-art-ambient" style={{ backgroundImage: `url("${art}")` }} aria-hidden="true" />
-              <img className="hero-art-contain" src={art} alt="" />
+              <div className="hero-art-ambient" style={{ backgroundImage: `url("${smallSrc(art)}")` }} aria-hidden="true" />
+              <img className="hero-art-contain" {...responsive(art, { widths: [768, 1280, 1920], sizes: '100vw' })} alt="" fetchPriority="high" decoding="async" onLoad={imgTransformOk} onError={e => imgFallback(e, art)} />
             </>
           ) : (
             <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(1100px 600px at 82% -10%, rgba(225,29,72,0.22), transparent 62%), linear-gradient(160deg, #17151b 0%, #0d0d0f 55%, #0a0a0c 100%)' }} />
@@ -239,7 +240,7 @@ export function HeroSection({ films, series = [], featured, featuredKind = 'film
                 }}
               >
                 {thumb ? (
-                  <img src={thumb} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                  <img src={thumb} alt="" loading="lazy" decoding="async" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                 ) : (
                   <span style={{ fontSize: 10, color: 'var(--ds-text-3)', padding: 4, display: 'block' }}>{item.title}</span>
                 )}

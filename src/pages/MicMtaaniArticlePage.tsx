@@ -2,6 +2,7 @@
 import { useParams, Link } from 'react-router-dom'
 import DOMPurify from 'dompurify'
 import { mmAPI, MMArticle } from '../lib/api'
+import { responsive, smallSrc, imgFallback, imgTransformOk } from '../lib/images'
 import { Loader } from '../components/ui/Loader'
 import { MMNavbar } from '../components/micmtaani/MMNavbar'
 import { MMFooter } from '../components/micmtaani/MMFooter'
@@ -55,8 +56,17 @@ export function MicMtaaniArticlePage() {
     <div style={wrap}>
       <MMNavbar />
 
-      <div style={{ position: 'relative', height: 'clamp(260px, 50vw, 400px)', overflow: 'hidden' }}>
-        <img src={article.image_url || PLACEHOLDER_IMG} alt={article.headline} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+        <div style={{ position: 'relative', height: 'clamp(260px, 50vw, 400px)', overflow: 'hidden', background: '#0a0a0c' }}>
+        <div className="mm-hero-ambient" style={{ backgroundImage: `url("${smallSrc(article.image_url || PLACEHOLDER_IMG)}")` }} aria-hidden="true" />
+        <img
+          className="mm-hero-full"
+          {...responsive(article.image_url || PLACEHOLDER_IMG, { widths: [768, 1280, 1920], sizes: '100vw' })}
+          alt={article.headline}
+          fetchPriority="high"
+          decoding="async"
+          onLoad={imgTransformOk}
+          onError={e => imgFallback(e, article.image_url || PLACEHOLDER_IMG)}
+        />
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '0 16px 24px', maxWidth: 800 }}>
           {article.category && (

@@ -83,6 +83,24 @@ export async function api<T = any>(endpoint: string, options: ApiOptions = {}): 
   return data as T;
 }
 
+// Tiny stale-while-instant cache for idempotent GETs: repeat visits and
+// back-navigation render instantly and skip a network round-trip entirely.
+const getCache = new Map<string, { at: number; data: unknown }>();
+
+export async function cachedApi<T = any>(endpoint: string, options: ApiOptions = {}, ttlMs = 120000): Promise<T> {
+  const key = `${options.method || 'GET'}|${endpoint}|${options.token || ''}`;
+  const hit = getCache.get(key);
+  if (hit && Date.now() - hit.at < ttlMs) return hit.data as T;
+  const data = await api<T>(endpoint, options);
+  getCache.set(key, { at: Date.now(), data });
+  // Bound memory: evict the oldest entry past a small cap.
+  if (getCache.size > 50) {
+    const oldest = getCache.keys().next().value;
+    if (oldest) getCache.delete(oldest);
+  }
+  return data;
+}
+
 export interface PaginatedResponse<T> {
   data: T[];
   current_page: number;
@@ -496,7 +514,8 @@ export const authAPI = {
 
 // Data APIs
 export const homeAPI = {
-  get: () => api<HomeData>('/home'),
+  // Homepage content changes rarely; serve repeat visits from cache.
+  get: () => cachedApi<HomeData>('/home', {}, 120000),
 };
 
 export const filmsAPI = {

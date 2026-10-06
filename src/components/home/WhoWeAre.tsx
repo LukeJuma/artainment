@@ -168,6 +168,7 @@ function ArtImage({ src, alt }: { src: string; alt: string }) {
       src={src}
       alt={alt}
       loading="lazy"
+      decoding="async"
       onError={() => setFailed(true)}
       style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
     />

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { type Film } from '../../lib/api'
 import { contactAPI } from '../../lib/api'
+import { responsive, imgFallback, imgTransformOk } from '../../lib/images'
 import { Badge } from '../ui/Badge'
 
 const FALLBACK_TARGET = Date.now() + (61 * 24 * 60 * 60 * 1000) + (10 * 60 * 60 * 1000) + (27 * 60 * 1000) + 4000
@@ -126,7 +127,7 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
               boxShadow: 'var(--ds-card-shadow)',
             }}>
               {poster ? (
-                <img src={poster} alt={film.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                <img {...responsive(poster)} alt={film.title} loading="lazy" decoding="async" onLoad={imgTransformOk} onError={e => imgFallback(e, poster)} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
               ) : (
                 <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, textAlign: 'center', fontFamily: "'Bebas Neue', sans-serif", fontSize: 40, color: 'rgba(255,255,255,0.7)', lineHeight: 1 }}>
                   {film.title}

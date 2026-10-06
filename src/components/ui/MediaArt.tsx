@@ -1,5 +1,6 @@
 ﻿import type { CSSProperties } from 'react'
 import { Film as FilmIcon, Mic as MicIcon, User as UserIcon } from 'lucide-react'
+import { responsive, imgFallback, imgTransformOk } from '../../lib/images'
 
 interface MediaArtProps {
   type: 'film' | 'series' | 'actor' | 'podcast'
@@ -8,6 +9,10 @@ interface MediaArtProps {
   alt?: string
   absolute?: boolean
   style?: CSSProperties
+  /** Override the srcset `sizes` to match the rendered layout. */
+  sizes?: string
+  /** Above-the-fold art: eager load + high fetch priority. */
+  eager?: boolean
 }
 
 const PALETTES: Record<MediaArtProps['type'], [string, string]> = {
@@ -17,7 +22,7 @@ const PALETTES: Record<MediaArtProps['type'], [string, string]> = {
   podcast: ['#141b2d', '#2a1a3a'],
 }
 
-export function MediaArt({ type, title, src, alt, absolute = true, style }: MediaArtProps) {
+export function MediaArt({ type, title, src, alt, absolute = true, style, sizes, eager = false }: MediaArtProps) {
   const [c1, c2] = PALETTES[type]
   const initials = title
     .split(/\s+/)
@@ -30,11 +35,16 @@ export function MediaArt({ type, title, src, alt, absolute = true, style }: Medi
   const icon = type === 'podcast' ? <MicIcon size={34} strokeWidth={1.5} /> : type === 'actor' ? <UserIcon size={34} strokeWidth={1.5} /> : <FilmIcon size={34} strokeWidth={1.5} />
 
   if (src) {
+    const r = responsive(src, sizes ? { sizes } : undefined)
     return (
       <img
-        src={src}
+        {...r}
         alt={alt || title}
-        loading="lazy"
+        loading={eager ? 'eager' : 'lazy'}
+        fetchPriority={eager ? 'high' : 'auto'}
+        decoding="async"
+        onLoad={imgTransformOk}
+        onError={e => imgFallback(e, src)}
         style={absolute
           ? { position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', ...style }
           : { width: '100%', height: '100%', objectFit: 'cover', display: 'block', ...style }}

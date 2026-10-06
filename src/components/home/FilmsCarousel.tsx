@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { type Film, type Series } from '../../lib/api'
 import { useInView } from '../../lib/animations'
+import { responsive, imgFallback, imgTransformOk } from '../../lib/images'
 import { Section } from '../ui/Section'
 import { Badge } from '../ui/Badge'
 import { MediaArt } from '../ui/MediaArt'
@@ -47,7 +48,7 @@ function HoverCard({ item, rect, onEnter, onLeave }: {
       }}
     >
       <div style={{ position: 'relative', height: 170, background: 'linear-gradient(160deg, #1c1224, #0d0d10)' }}>
-        {art && <img src={art} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
+        {art && <img {...responsive(art)} alt="" loading="lazy" decoding="async" onLoad={imgTransformOk} onError={e => imgFallback(e, art)} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
         <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(10,10,14,0.9), transparent 55%)' }} />
         {typeof item.rating === 'number' && (
           <span style={{
