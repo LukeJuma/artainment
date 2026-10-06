@@ -127,9 +127,28 @@ video { max-width: 100%; }
 
 /* ─── Hero ──────────────────────────────────────────────────── */
 .hero-mobile-overlay { display: none; }
+/* Mobile layers (blurred ambient fill + full contain art) stay off on desktop */
+.hero-art-ambient, .hero-art-contain { display: none; }
 @media (max-width: 768px) {
   .hero-mobile-overlay { display: block !important; }
   .hero-content { padding-bottom: 72px !important; }
+  /* A landscape backdrop with `cover` in a tall phone hero zooms ~3x and
+     crops faces/poster art away. On phones: hide the cover layer, fill the
+     frame with a blurred ambient version, and show the whole image. */
+  .hero-art-cover { display: none !important; }
+  .hero-art-ambient {
+    display: block !important;
+    position: absolute; inset: 0;
+    background-size: cover; background-position: center;
+    filter: blur(28px) brightness(0.55);
+    transform: scale(1.2);
+  }
+  .hero-art-contain {
+    display: block !important;
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: contain; object-position: center 32%;
+  }
 }
 
 /* ─── Section padding ───────────────────────────────────────── */
