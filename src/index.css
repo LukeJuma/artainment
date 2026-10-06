@@ -131,6 +131,14 @@ video { max-width: 100%; }
 @media (max-width: 768px) {
   .hero-mobile-overlay { display: block !important; }
   .hero-content { padding-bottom: 72px !important; }
+  /* Fit the whole hero — including the movies strip — inside the VISIBLE
+     screen: 100vh counts the area behind the browser URL bar, which slices
+     the bottom strip. svh excludes browser chrome (100vh stays as fallback). */
+  .home-hero { height: 100vh !important; height: 100svh !important; min-height: 540px !important; }
+  .home-hero-content { padding-top: 100px !important; padding-bottom: 124px !important; }
+  /* Compact strip so thumbs sit fully on-screen, never half-cut. */
+  .home-hero-coverflow { padding: 16px !important; gap: 10px !important; }
+  .home-hero-coverflow > button { width: 88px !important; height: 56px !important; }
   /* A landscape backdrop with `cover` in a tall phone hero zooms ~3x and
      crops faces/poster art away. On phones: hide the cover layer, fill the
      frame with a blurred ambient version, and show the whole image. */

@@ -213,7 +213,7 @@ export function HeroSection({ films, series = [], featured, featuredKind = 'film
 
       {/* Coverflow selector: active slide rises, neighbours recede */}
       {pool.length > 1 && (
-        <div style={{
+        <div className="home-hero-coverflow" style={{
           position: 'absolute', zIndex: 3, left: 0, right: 0, bottom: 0,
           padding: '30px clamp(20px, 5vw, 80px) 26px',
           display: 'flex', gap: 12, overflowX: 'auto', scrollbarWidth: 'none',
