@@ -7,7 +7,7 @@ import { responsive, imgFallback, imgTransformOk } from '../../lib/images'
 import { Section } from '../ui/Section'
 import { Badge } from '../ui/Badge'
 import { MediaArt } from '../ui/MediaArt'
-import { IconChevronLeft, IconChevronRight, IconStar } from '../ui/Icons'
+import { IconChevronLeft, IconChevronRight, IconStar, IconPlay } from '../ui/Icons'
 
 type TrendTab = 'popular' | 'premieres' | 'recent';
 
@@ -88,7 +88,7 @@ function HoverCard({ item, rect, onEnter, onLeave }: {
             padding: '12px', borderRadius: 8, textDecoration: 'none',
           }}
         >
-          ▶ Watch Now
+          <IconPlay size={14} color="#101014" /> Watch Now
         </Link>
       </div>
     </div>

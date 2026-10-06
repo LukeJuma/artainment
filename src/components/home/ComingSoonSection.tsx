@@ -3,6 +3,7 @@ import { type Film } from '../../lib/api'
 import { contactAPI } from '../../lib/api'
 import { responsive, imgFallback, imgTransformOk } from '../../lib/images'
 import { Badge } from '../ui/Badge'
+import { Calendar, Mail, ArrowRight } from 'lucide-react'
 
 const FALLBACK_TARGET = Date.now() + (61 * 24 * 60 * 60 * 1000) + (10 * 60 * 60 * 1000) + (27 * 60 * 1000) + 4000
 
@@ -81,7 +82,7 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
     try {
       const res = await contactAPI.subscribe(email.trim())
       setSubStatus('success')
-      setSubMessage(res.message || 'You are on the list — watch your inbox.')
+      setSubMessage(res.message || 'You are on the list - watch your inbox.')
       setEmail('')
     } catch (e: any) {
       setSubStatus('error')
@@ -103,7 +104,7 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
           Coming Soon
         </h2>
         <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, lineHeight: 1.7, color: 'var(--text-secondary)', margin: 0, maxWidth: 560 }}>
-          Films and series on their way to your screen — premiere dates, countdowns and first-access alerts.
+          Films and series on their way to your screen - premiere dates, countdowns and first-access alerts.
         </p>
       </div>
 
@@ -183,7 +184,7 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
                   padding: '22px 56px 22px 24px',
                   display: 'flex', gap: 16, alignItems: 'center',
                 }}>
-                  <span style={{ fontSize: 26, flexShrink: 0 }}>📅</span>
+                  <Calendar size={26} strokeWidth={1.75} style={{ flexShrink: 0, color: 'rgba(255,255,255,0.9)' }} />
                   <span style={{ minWidth: 0 }}>
                     <span style={{ display: 'block', fontFamily: "'DM Sans', sans-serif", fontSize: 10, fontWeight: 700, letterSpacing: 2, color: 'rgba(255,255,255,0.75)', textTransform: 'uppercase', marginBottom: 4 }}>
                       World Premiere Date
@@ -232,7 +233,7 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
                 background: 'var(--ds-surface-2)', border: '1px solid var(--ds-card-line)',
                 borderRadius: 'var(--ds-radius-pill)', padding: '0 8px 0 20px', minHeight: 52,
               }}>
-                <span style={{ fontSize: 16, opacity: 0.6 }}>✉️</span>
+                <Mail size={16} style={{ opacity: 0.6, flexShrink: 0 }} />
                 <input
                   type="email"
                   aria-label="Email address"
@@ -259,7 +260,7 @@ export function ComingSoonSection({ films }: { films: Film[] }) {
                   opacity: subStatus === 'loading' ? 0.6 : 1,
                 }}
               >
-                <span>➤</span> {subStatus === 'loading' ? 'Joining...' : 'Request Invite'} <span>→</span>
+                {subStatus === 'loading' ? 'Joining...' : 'Request Invite'} <ArrowRight size={14} />
               </button>
             </form>
             {subMessage && (

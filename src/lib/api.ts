@@ -588,7 +588,7 @@ export const reviewsAPI = {
     api('/reviews', { method: 'POST', body: data }),
 };
 
-// ─── Mic Mtaani Types ──────────────────────────────────────────────
+// --- Mic Mtaani Types ----------------------------------------------
 export interface MMCategory {
   id: number;
   name: string;
@@ -691,7 +691,7 @@ export interface MMPaginated<T> {
   total: number;
 }
 
-// ─── Mic Mtaani API ──────────────────────────────────────────────
+// --- Mic Mtaani API ----------------------------------------------
 export const mmAPI = {
   homepage: () => api<MMHomepage>('/micmtaani'),
   articles: (params?: { category?: string; tag?: string; page?: number; per_page?: number }) => {
@@ -922,7 +922,7 @@ export const adminAPI = {
   // Upload
   // NOTE: uploads proxy through the edge function, whose practical ceiling
   // on this plan is ~10MB (measured: 10MB ok in ~60s, 25MB times out).
-  // Large videos belong on YouTube (paste the link instead) — every video
+  // Large videos belong on YouTube (paste the link instead) - every video
   // field in admin accepts a YouTube URL directly.
   upload: (token: string, file: File, folder?: string) => {
     const isVideo = file.type.startsWith('video/');

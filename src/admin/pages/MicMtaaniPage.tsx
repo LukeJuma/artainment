@@ -315,7 +315,7 @@ export function MicMtaaniPage() {
         </div>
       )}
 
-      {/* ─── Articles Tab ────────────────────────────────── */}
+      {/* --- Articles Tab ---------------------------------- */}
       {activeTab === 'articles' && (
         <>
           {/* Desktop table */}
@@ -478,7 +478,7 @@ export function MicMtaaniPage() {
         </>
       )}
 
-      {/* ─── Categories Tab ──────────────────────────────── */}
+      {/* --- Categories Tab -------------------------------- */}
       {activeTab === 'categories' && (
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 14 }}>
           {categories?.map(cat => (
@@ -501,7 +501,7 @@ export function MicMtaaniPage() {
         </div>
       )}
 
-      {/* ─── Journalists Tab ─────────────────────────────── */}
+      {/* --- Journalists Tab ------------------------------- */}
       {activeTab === 'journalists' && (
         <>
           {/* Desktop table */}
@@ -567,7 +567,7 @@ export function MicMtaaniPage() {
         </>
       )}
 
-      {/* ─── Comments Tab ────────────────────────────────── */}
+      {/* --- Comments Tab ---------------------------------- */}
       {activeTab === 'comments' && (
         <div>
           {comments.length === 0 ? (
@@ -597,7 +597,7 @@ export function MicMtaaniPage() {
         </div>
       )}
 
-      {/* ─── Submissions Tab ─────────────────────────────── */}
+      {/* --- Submissions Tab ------------------------------- */}
       {activeTab === 'submissions' && (
         <div>
           {submissions.length === 0 ? (
@@ -631,7 +631,7 @@ export function MicMtaaniPage() {
         </div>
       )}
 
-      {/* ─── Article Create/Edit Modal ──────────────────── */}
+      {/* --- Article Create/Edit Modal -------------------- */}
       <AnimatePresence>
         {showArticleModal && (
           <motion.div className="admin-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowArticleModal(false)}>
@@ -743,7 +743,7 @@ export function MicMtaaniPage() {
         )}
       </AnimatePresence>
 
-      {/* ─── Category Modal ────────────────────────────── */}
+      {/* --- Category Modal ------------------------------ */}
       <AnimatePresence>
         {showCatModal && (
           <motion.div className="admin-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowCatModal(false)}>
@@ -776,7 +776,7 @@ export function MicMtaaniPage() {
         )}
       </AnimatePresence>
 
-      {/* ─── Journalist Modal ───────────────────────────── */}
+      {/* --- Journalist Modal ----------------------------- */}
       <AnimatePresence>
         {showJournalistModal && (
           <motion.div className="admin-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowJournalistModal(false)}>
@@ -814,7 +814,7 @@ export function MicMtaaniPage() {
         )}
       </AnimatePresence>
 
-      {/* ─── Delete Confirmation Modal ──────────────────── */}
+      {/* --- Delete Confirmation Modal -------------------- */}
       <AnimatePresence>
         {showDeleteConfirm && (
           <motion.div className="admin-modal-overlay" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowDeleteConfirm(null)}>

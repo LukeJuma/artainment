@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import {
   DollarSign, Users, Headphones, Ticket, Calendar, Trophy,
   Star, Radio, TrendingUp, ArrowUpRight,
-  Eye, Film, Podcast, Activity,
+  Eye, Film, Podcast, Activity, Sun, Moon, CloudSun,
 } from 'lucide-react'
 import { StatCard } from '../components/StatCard'
 import { ChartCard, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, CartesianGrid, XAxis, YAxis, Tooltip, chartTooltipStyle } from '../components/ChartCard'
@@ -155,8 +155,8 @@ export function Dashboard() {
         }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-            <span style={{ fontSize: 24 }}>
-              {currentTime.getHours() < 12 ? '☀️' : currentTime.getHours() < 17 ? '🌤️' : '🌙'}
+            <span style={{ display: 'inline-flex', color: 'var(--admin-accent)' }}>
+              {currentTime.getHours() < 12 ? <Sun size={24} /> : currentTime.getHours() < 17 ? <CloudSun size={24} /> : <Moon size={24} />}
             </span>
             <h1 style={{
               fontFamily: "'Plus Jakarta Sans', sans-serif",

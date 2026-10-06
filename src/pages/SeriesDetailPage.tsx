@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { AnimatePresence } from 'framer-motion'
 import { seriesAPI, videoStreamUrl, type Episode, type Series } from '../lib/api'
 import { Loader } from '../components/ui/Loader'
+import { IconBulb } from '../components/ui/Icons'
 import { VideoModal } from '../components/ui/VideoModal'
 import { SeriesDetailHero } from '../components/series/SeriesDetailHero'
 import { EpisodeList } from '../components/series/EpisodeList'
@@ -59,8 +60,9 @@ export function SeriesDetailPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{
               fontFamily: 'DM Sans, sans-serif', fontSize: 14, color: 'var(--text-secondary)',
+              display: 'inline-flex', alignItems: 'center', gap: 8,
             }}>
-              💡 Enhanced player replaces YouTube controls with a custom cinematic UI
+              <IconBulb size={15} color="var(--ds-gold-cta)" /> Enhanced player replaces YouTube controls with a custom cinematic UI
             </span>
           </div>
           <div style={{

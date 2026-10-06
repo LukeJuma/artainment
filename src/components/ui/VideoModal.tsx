@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useReducedMotion } from 'framer-motion'
-import { IconX } from './Icons'
+import { IconX, IconAlert } from './Icons'
 import { parseYouTubeId, YouTubePlayer } from './YouTubePlayer'
 import { EnhancedVideoPlayer } from './EnhancedVideoPlayer'
 
@@ -99,9 +99,9 @@ export function VideoModal({ src, title, poster, authToken, onClose, useCustomPl
               <div style={{
                 width: 64, height: 64, borderRadius: '50%', background: 'rgba(239,68,68,0.2)',
                 border: '2px solid rgba(239,68,68,0.4)', display: 'flex', alignItems: 'center',
-                justifyContent: 'center', fontSize: 24, color: '#ff6b6b', marginBottom: 8,
+                justifyContent: 'center', color: '#ff6b6b', marginBottom: 8,
               }}>
-                ⚠️
+                <IconAlert size={26} />
               </div>
               <h3 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: '#fff' }}>
                 Unable to load this video

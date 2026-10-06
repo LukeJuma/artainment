@@ -42,7 +42,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; width: 100%; max-width: 100%; overflow-x: clip; }
 
-/* ─── No horizontal page scroll ─────────────────────────────────
+/* --- No horizontal page scroll ---------------------------------
    Inner rails (.films-scroll, .talent-grid-home, …) keep their own
    overflow-x: auto; this only stops the *page* sliding sideways into
    empty space on phones (100vw rows, motion x-offsets, nowrap bits). */
@@ -76,7 +76,7 @@ body {
 img { max-width: 100%; }
 video { max-width: 100%; }
 
-/* ─── Utility ───────────────────────────────────────────────── */
+/* --- Utility ------------------------------------------------- */
 .section-heading {
   font-family: 'DM Sans', sans-serif;
   font-size: clamp(28px, 5vw, 56px);
@@ -124,14 +124,14 @@ video { max-width: 100%; }
 }
 .btn-outline-light:hover { border-color: #fff; color: #fff; background: rgba(255,255,255,0.08); }
 
-/* ─── Hero ──────────────────────────────────────────────────── */
+/* --- Hero ---------------------------------------------------- */
 .hero-mobile-overlay { display: none; }
 /* Mobile layers (blurred ambient fill + full contain art) stay off on desktop */
 .hero-art-ambient, .hero-art-contain { display: none; }
 @media (max-width: 768px) {
   .hero-mobile-overlay { display: block !important; }
   .hero-content { padding-bottom: 72px !important; }
-  /* Fit the whole hero — including the movies strip — inside the VISIBLE
+  /* Fit the whole hero - including the movies strip - inside the VISIBLE
      screen: 100vh counts the area behind the browser URL bar, which slices
      the bottom strip. svh excludes browser chrome (100vh stays as fallback). */
   .home-hero { height: 100vh !important; height: 100svh !important; min-height: 540px !important; }
@@ -158,16 +158,16 @@ video { max-width: 100%; }
   }
 }
 
-/* ─── Section padding ───────────────────────────────────────── */
+/* --- Section padding ----------------------------------------- */
 .section-pad { padding: clamp(40px, 8vw, 100px) clamp(16px, 5vw, 80px); }
 
-/* ─── Nav ───────────────────────────────────────────────────── */
+/* --- Nav ----------------------------------------------------- */
 @media (max-width: 1024px) {
   .nav-desktop { display: none !important; }
   .nav-mobile-toggle { display: flex !important; flex-direction: column; }
 }
 
-/* ─── Who We Are grid ──────────────────────────────────────── */
+/* --- Who We Are grid ---------------------------------------- */
 @media (max-width: 768px) {
   .who-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
   .units-grid { grid-template-columns: 1fr 1fr !important; }
@@ -176,32 +176,32 @@ video { max-width: 100%; }
   .units-grid { grid-template-columns: 1fr !important; }
 }
 
-/* ─── Spotlight pillar (elevated middle service card, desktop only) ── */
+/* --- Spotlight pillar (elevated middle service card, desktop only) -- */
 @media (min-width: 900px) {
   .pillar-spotlight { transform: translateY(-18px); }
 }
 
-/* ─── Contact grid: stack on mobile ── */
+/* --- Contact grid: stack on mobile -- */
 @media (max-width: 900px) {
   .contact-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
 }
 
-/* ─── Podcast hero: stack art above text on mobile ── */
+/* --- Podcast hero: stack art above text on mobile -- */
 @media (max-width: 760px) {
   .podcast-hero-grid { grid-template-columns: 1fr !important; }
   .podcast-hero-grid > div:nth-child(2) { max-width: 320px; }
 }
 
-/* ─── Episode rows: stack thumbnail above text on small screens ── */
+/* --- Episode rows: stack thumbnail above text on small screens -- */
 @media (max-width: 640px) {
   .ep-row { flex-direction: column !important; align-items: stretch !important; }
   .ep-row > div:first-child { width: 100% !important; }
 }
 
-/* ─── Coming Soon ticket panel: one stacked card on phones ──
+/* --- Coming Soon ticket panel: one stacked card on phones --
    The desktop ticket uses a slanted clip-path + negative margin join.
    On narrow screens that slant splits the date/countdown into two
-   offset bands — so drop the slant and stack as a single card. */
+   offset bands - so drop the slant and stack as a single card. */
 @media (max-width: 560px) {
   .cs-ticket { flex-direction: column !important; max-width: 100% !important; margin-bottom: 24px !important; }
   .cs-ticket-date { flex: none !important; width: 100% !important; }
@@ -237,7 +237,7 @@ video { max-width: 100%; }
   .cs-ticket-countdown > div { gap: 8px !important; }
 }
 
-/* ─── Motion utilities (hover zoom for art frames; framer handles lift) ── */
+/* --- Motion utilities (hover zoom for art frames; framer handles lift) -- */
 .zoom-hover img { transition: transform 0.6s var(--ds-ease-out); }
 @media (hover: hover) {
   .zoom-hover:hover img { transform: scale(1.06); }
@@ -248,7 +248,7 @@ video { max-width: 100%; }
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   RESPONSIVE FOUNDATIONS — fluid gutters, touch targets, heroes
+   RESPONSIVE FOUNDATIONS - fluid gutters, touch targets, heroes
    ═══════════════════════════════════════════════════════════════ */
 
 /* Detail heroes + listing bands: narrower gutters on phones */
@@ -291,7 +291,7 @@ video { max-width: 100%; }
 /* Carousel arrows: proper touch targets */
 .films-scroll-arrow { min-width: 44px !important; min-height: 44px !important; }
 
-/* ─── Featured production ──────────────────────────────────── */
+/* --- Featured production ------------------------------------ */
 @media (max-width: 768px) {
   .featured { min-height: 360px !important; }
   .featured img { height: 360px !important; }
@@ -302,7 +302,7 @@ video { max-width: 100%; }
   .featured img { height: 300px !important; }
 }
 
-/* ─── Films scroll ─────────────────────────────────────────── */
+/* --- Films scroll ------------------------------------------- */
 .films-scroll { max-width: 100%; }
 .films-scroll::-webkit-scrollbar { display: none; }
 .films-genres::-webkit-scrollbar { display: none; }
@@ -318,12 +318,12 @@ video { max-width: 100%; }
   .films-genres { margin-left: -16px !important; margin-right: -16px !important; padding-left: 16px !important; padding-right: 16px !important; }
 }
 
-/* ─── Services grid ────────────────────────────────────────── */
+/* --- Services grid ------------------------------------------ */
 @media (max-width: 768px) {
   .services-grid { grid-template-columns: 1fr !important; }
 }
 
-/* ─── Talent rail (home) — horizontal swipe on phones ──────
+/* --- Talent rail (home) - horizontal swipe on phones ------
    Grid on desktop; swipeable snap rail on mobile so every actor is
    reachable without a tall 2-col stack. */
 @media (max-width: 768px) {
@@ -348,7 +348,7 @@ video { max-width: 100%; }
   .talent-grid-home .talent-card-art { height: 190px !important; }
 }
 
-/* ─── Podcast rail (home) — horizontal swipe on phones ────── */
+/* --- Podcast rail (home) - horizontal swipe on phones ------ */
 @media (max-width: 768px) {
   .podcast-grid-home {
     display: flex !important;
@@ -369,7 +369,7 @@ video { max-width: 100%; }
   .podcast-grid-home > * { flex-basis: 168px !important; }
 }
 
-/* ─── Gallery ──────────────────────────────────────────────── */
+/* --- Gallery ------------------------------------------------ */
 @media (max-width: 768px) {
   .gallery-header { padding: 0 16px !important; }
   .gallery-grid { grid-template-columns: 1fr 1fr !important; padding: 0 16px !important; max-height: none !important; grid-auto-rows: 180px !important; }
@@ -380,18 +380,18 @@ video { max-width: 100%; }
   .gallery-grid > div:first-child { grid-column: auto !important; }
 }
 
-/* ─── News grid ────────────────────────────────────────────── */
+/* --- News grid ---------------------------------------------- */
 @media (max-width: 768px) {
   .news-grid { grid-template-columns: 1fr !important; }
   .news-grid > div { min-height: auto !important; }
 }
 
-/* ─── CTA grid ─────────────────────────────────────────────── */
+/* --- CTA grid ----------------------------------------------- */
 @media (max-width: 768px) {
   .cta-grid { grid-template-columns: 1fr !important; gap: 32px !important; }
 }
 
-/* ─── Footer ───────────────────────────────────────────────── */
+/* --- Footer ------------------------------------------------- */
 /* Compact 2-col footer on phones: brand spans full width, link
    columns sit side-by-side so the footer stays short. */
 @media (max-width: 768px) {
@@ -409,7 +409,7 @@ video { max-width: 100%; }
   .footer-social > span:last-child { white-space: normal !important; }
 }
 
-/* ─── Film detail ──────────────────────────────────────────── */
+/* --- Film detail -------------------------------------------- */
 .film-hero-poster { width: clamp(220px, 26vw, 320px) !important; }
 @media (max-width: 768px) {
   .film-hero { min-height: auto !important; }
@@ -447,26 +447,26 @@ video { max-width: 100%; }
 }
 
 
-/* ─── Services page rows ───────────────────────────────────── */
+/* --- Services page rows ------------------------------------- */
 @media (max-width: 768px) {
   .service-row { grid-template-columns: 1fr !important; direction: ltr !important; }
   .service-row > div:first-child { height: 200px !important; }
   .service-row > div:last-child { padding: 24px 16px !important; }
 }
 
-/* ─── Talent detail ────────────────────────────────────────── */
+/* --- Talent detail ------------------------------------------ */
 @media (max-width: 768px) {
   .talent-detail-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
 }
 
-/* ─── Productions ──────────────────────────────────────────── */
+/* --- Productions -------------------------------------------- */
 @media (max-width: 768px) {
   .production-row { grid-template-columns: 1fr !important; }
   .production-row > div:first-child { height: 200px !important; }
   .production-row > div:last-child { padding: 20px 16px !important; }
 }
 
-/* ─── About ────────────────────────────────────────────────── */
+/* --- About -------------------------------------------------- */
 @media (max-width: 768px) {
   .about-hero { height: 280px !important; }
   .about-hero img { height: 280px !important; }
@@ -475,12 +475,12 @@ video { max-width: 100%; }
   .timeline { padding-left: 32px !important; }
 }
 
-/* ─── Contact ──────────────────────────────────────────────── */
+/* --- Contact ------------------------------------------------ */
 @media (max-width: 768px) {
   .contact-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
 }
 
-/* ─── Admin ────────────────────────────────────────────────── */
+/* --- Admin -------------------------------------------------- */
 @media (max-width: 768px) {
   .admin-row { grid-template-columns: 1fr !important; gap: 8px !important; padding: 16px !important; }
   .admin-item-row { flex-direction: column !important; align-items: flex-start !important; gap: 12px; }
@@ -488,7 +488,7 @@ video { max-width: 100%; }
   .admin-item-row button { align-self: flex-end; }
 }
 
-/* ─── Films page ───────────────────────────────────────────── */
+/* --- Films page --------------------------------------------- */
 @media (max-width: 768px) {
   .films-filter { gap: 8px !important; }
   .films-filter button { padding: 8px 14px !important; font-size: 11px !important; }
@@ -498,7 +498,7 @@ video { max-width: 100%; }
   .films-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
 }
 
-/* ─── Cast & Crew ──────────────────────────────────────────── */
+/* --- Cast & Crew -------------------------------------------- */
 .cc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 16px; }
 .cc-card { min-width: 0; text-align: center; }
 .cc-portrait {
@@ -649,7 +649,7 @@ video { max-width: 100%; }
   .cc-grid { scroll-behavior: auto; }
 }
 
-/* ─── Mic Mtaani hero: show the FULL photo ────────────────────
+/* --- Mic Mtaani hero: show the FULL photo --------------------
    A short banner with `cover` slices portrait phone photos into a
    mid-section crop. Instead: blurred ambient fill + whole image. */
 .mm-hero-ambient {
@@ -664,7 +664,7 @@ video { max-width: 100%; }
   object-fit: contain; object-position: center;
 }
 
-/* ─── Mic Mtaani ───────────────────────────────────────────── */
+/* --- Mic Mtaani --------------------------------------------- */
 @media (max-width: 768px) {
   .mm-main-grid { grid-template-columns: 1fr !important; gap: 24px !important; }
   .mm-nav-desktop { display: none !important; }
@@ -679,19 +679,19 @@ video { max-width: 100%; }
   .mm-sidebar { order: -1; }
 }
 
-/* ─── Touch targets (48px minimum) ─────────────────────────── */
+/* --- Touch targets (48px minimum) --------------------------- */
 a, button, input, select, textarea {
   touch-action: manipulation;
 }
 
-/* ─── Form elements mobile ─────────────────────────────────── */
+/* --- Form elements mobile ----------------------------------- */
 @media (max-width: 768px) {
   input, select, textarea {
     font-size: 16px !important;
   }
 }
 
-/* ─── Page headings mobile ─────────────────────────────────── */
+/* --- Page headings mobile ----------------------------------- */
 @media (max-width: 768px) {
   h1 { font-size: clamp(28px, 8vw, 48px) !important; }
 }

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { IconPlay, IconPause, IconVolumeX, IconVolume2, IconMaximize, IconSettings, IconSkipBack, IconSkipForward, IconX } from './Icons'
+import { IconPlay, IconPause, IconVolumeX, IconVolume2, IconMaximize, IconSettings, IconSkipBack, IconSkipForward, IconX, IconAlert } from './Icons'
 import { loadYouTubeApi } from './YouTubePlayer'
 
 interface EnhancedVideoPlayerProps {
@@ -323,9 +323,9 @@ export function EnhancedVideoPlayer({ src, title, poster, autoPlay = true, onClo
           <div style={{
             width: 64, height: 64, borderRadius: '50%', background: 'rgba(239,68,68,0.2)',
             border: '2px solid rgba(239,68,68,0.4)', display: 'flex', alignItems: 'center',
-            justifyContent: 'center', fontSize: 24, color: '#ff6b6b', marginBottom: 8,
+            justifyContent: 'center', color: '#ff6b6b', marginBottom: 8,
           }}>
-            ⚠️
+            <IconAlert size={26} />
           </div>
           <h3 style={{ fontSize: 20, fontWeight: 600, margin: 0, color: '#fff' }}>Playback Error</h3>
           <p style={{ fontSize: 15, margin: 0, color: 'rgba(255,255,255,0.7)', maxWidth: 420, lineHeight: 1.6 }}>
