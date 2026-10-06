@@ -1696,11 +1696,15 @@ serve(async (req) => {
             return new Response(JSON.stringify(data || []), { headers: corsHeaders })
           }
           if (method === 'POST') {
-            const body = sanitizeInput(await req.json())
+            const raw = await req.json()
+            const body = sanitizeInput(raw)
             // Auto-slug common title fields when the client omits slug —
             // only for tables that actually have a slug column.
-            const SLUGGED = new Set(['films', 'series', 'podcasts', 'talents', 'productions', 'news', 'micmtaani_articles', 'micmtaani_categories', 'micmtaani_journalists', 'micmtaani_events', 'micmtaani_businesses'])
-            if (SLUGGED.has(table) && !body.slug && (body.title || body.headline || body.name)) {
+            // Table names use mic_mtaani_* (underscore) — not to be confused
+            // with the micmtaani/* URL prefix.
+            const SLUGGED_TABLES = '|films|series|podcasts|talents|productions|news|mic_mtaani_articles|mic_mtaani_categories|mic_mtaani_journalists|mic_mtaani_events|mic_mtaani_businesses|'
+            const isSlugged = SLUGGED_TABLES.includes('|' + String(table || '') + '|')
+            if (isSlugged && !body.slug && (body.title || body.headline || body.name)) {
               body.slug = String(body.title || body.headline || body.name)
                 .toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
             }
@@ -1723,8 +1727,8 @@ serve(async (req) => {
             // Keep slugs in sync on rename: if the title/name changed and the
             // client didn't supply a fresh slug, regenerate it so the URL
             // always matches the current name (duplicate slugs 422).
-            const SLUGGED = new Set(['films', 'series', 'podcasts', 'talents', 'productions', 'news', 'micmtaani_articles', 'micmtaani_categories', 'micmtaani_journalists', 'micmtaani_events', 'micmtaani_businesses'])
-            if (SLUGGED.has(table)) {
+            const SLUGGED_TABLES = '|films|series|podcasts|talents|productions|news|mic_mtaani_articles|mic_mtaani_categories|mic_mtaani_journalists|mic_mtaani_events|mic_mtaani_businesses|'
+            if (SLUGGED_TABLES.includes('|' + String(table || '') + '|')) {
               const nameKey = ['title', 'headline', 'name'].find(k => body[k] !== undefined)
               if (nameKey) {
                 const { data: current } = await supabase.from(table).select('id, slug,' + nameKey).eq('id', id).maybeSingle()
